@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benedict D. Yiga | Portfolio</title>
+    <title>Benedict D. Yiga | Resume</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
-    <link rel="stylesheet" href="Skillstest/index.css">
+    <link rel="stylesheet" href="Skillstest/resume.css">
 
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
@@ -25,68 +25,24 @@
         </nav>
     </header>
 
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1>Benedict Deogratius Yiga</h1>
-            <p>Computer Science Student | Tech Enthusiast | Innovator</p>
-            <a href="#about" class="btn">Learn More</a>
+    <section id="resume" class="resume-header">
+        <div class="resume-header-content">
+            <h1>My Resume</h1>
         </div>
     </section>
 
-    <section id="about" class="about">
-        <div class="container">
-            <div class="about-content">
-                <div class="about-text">
-                    <h2>About Me</h2>
-                    <p>I'm Benedict Deogratius Yiga, a passionate Computer Science student at Indiana University Bloomington. I'm driven by my love for technology and my mission to become a leading innovator in the field.</p>
-                    <p>My goal is to reach the zenith of my potential while being an asset to my friends, family, and society at large. I believe in the power of continuous learning and personal growth.</p>
-                    <a href="resume.html" class="btn">View My Resume</a>
-                </div>
-                <div class="about-image">
-                    <img src="Skillstest/images!/BDY Pico.jpg" alt="Benedict Deogratius Yiga">
-                </div>
-            </div>
-        </div>
+    <section class="resume-content">
+
     </section>
 
-    <section id="projects" class="projects"></section>
+    <section class="pdf-section">
         <div class="container">
-            <h2>My Projects</h2>
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3>Flippa Memory Game</h3>
-                    <p>A Java-based desktop application that challenges players to match pairs of tiles, testing and improving memory skills.</p>
-                    <a href="https://github.iu.edu/bdyiga/Flippa" class="btn">View Project</a>
-                </div>
-                <div class="project-card">
-                    <h3>AveMenu</h3>
-                    <p>A Java application for managing hotel menus, allowing staff to display items, take orders, and calculate bills efficiently.</p>
-                    <a href="https://github.iu.edu/bdyiga/AveMenu" class="btn">View Project</a>
-                </div>
-                <div class="project-card">
-                    <h3>EazyFlow</h3>
-                    <p>The AI-Powered Traffic Light Control System is a solution designed to address the persistent problem of unnecessary wait 
-                      times at traffic intersections.</p>
-                    <a href="https://github.iu.edu/bdyiga/EazyFlow" class="btn">View Project</a>
-                </div>
-                <div class="project-card">
-                  <h3>PixelScout</h3>
-                  <p>About
-                    This is a system that classifies images into categories (e.g., animals, vehicles, objects) using a convolutional neural network (CNN).</p>
-                  <a href="https://github.iu.edu/bdyiga/PixelScout" class="btn">View Project</a>
-                </div>
-                <div class="project-card">
-                  <h3>Ngabi-FlipFortune</h3>
-                  <p>About
-                    My friends and I love playing this game with actual cards and I thought that it would be fun to code it and add a few tweaks!</p>
-                  <a href="https://github.iu.edu/bdyiga/Ngabi-FlipFortune" class="btn">View Project</a>
-                </div>
-                <div class="project-card">
-                  <h3>FlappyBird</h3>
-                  <p>About
-                    This is a mimic of the flappy bird mobile game.</p>
-                  <a href="https://github.iu.edu/bdyiga/FlappyBird" class="btn">View Project</a>
-                </div>
+            <h2>View or Download Full Resume</h2>
+            <div class="pdf-container">
+                <iframe src="BDY Resume 2024 copy.pdf" class="pdf-preview"></iframe>
+                <a href="BDY Resume 2024 copy.pdf" download class="download-btn">
+                    <i class="fas fa-download"></i> Download PDF
+                </a>
             </div>
         </div>
     </section>
@@ -100,45 +56,5 @@
             </div>
         </div>
     </footer>
-
-
-    <script type="text/babel">
-        const SkillsDisplay = () => {
-          const [skills, setSkills] = React.useState([
-            'Java', 'Python', 'HTML/CSS', 'JavaScript', 'React', 'SQL', 'Git', 'Data Structures'
-          ]);
-          const [currentSkill, setCurrentSkill] = React.useState(0);
-
-          React.useEffect(() => {
-            const interval = setInterval(() => {
-              setCurrentSkill((prev) => (prev + 1) % skills.length);
-            }, 2000);
-            return () => clearInterval(interval);
-          }, [skills.length]);
-
-          return (
-            <div className="skills-display">
-              <h3>Skills Showcase:</h3>
-              <div className="skill-animation">
-                {skills.map((skill, index) => (
-                  <span
-                    key={skill}
-                    className={`skill ${index === currentSkill ? 'active' : ''}`}
-                    style={{
-                      opacity: index === currentSkill ? 1 : 0,
-                      transform: `translateY(${index === currentSkill ? 0 : '20px'})`,
-                      transition: 'opacity 0.5s, transform 0.5s',
-                    }}
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          );
-        };
-
-        ReactDOM.render(<SkillsDisplay />, document.getElementById('skills-root'));
-    </script>
 </body>
 </html>
