@@ -1,12 +1,3 @@
-About me - Change to "My name"
-Remove the big words esp zenith
-learn more button is redundant - remove it entirely
 optimize resume for mobile view
-Ngabi-Flip Fortune - A Python-based text adventure
-                    challenging players to predict card attributes. 
-                    Features basic and advanced modes with difficulty levels, 
-                    time limits, and a lives system. Players guess card color, 
-                    position, and suit, with a unique history guessing feature in hard mode.
-Remove the word innovator
 Reduce the size of the home page - and make it seemless with the about.
 
