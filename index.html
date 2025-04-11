@@ -20,6 +20,35 @@
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+        <div id="chat-container">
+  <div id="chat-messages"></div>
+  <input type="text" id="user-input" placeholder="Ask me anything...">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+  async function sendMessage() {
+    const userInput = document.getElementById('user-input').value;
+    const messagesDiv = document.getElementById('chat-messages');
+    
+    // Display user message
+    messagesDiv.innerHTML += `<div class="user-message">${userInput}</div>`;
+    document.getElementById('user-input').value = '';
+    
+    // Call your backend API that interfaces with OpenAI
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: userInput})
+    });
+    
+    const data = await response.json();
+    
+    // Display AI response
+    messagesDiv.innerHTML += `<div class="ai-message">${data.reply}</div>`;
+  }
+</script>
 </head>
 <body>
     <header>
