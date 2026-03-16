@@ -38,7 +38,7 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <h1>Benedict Deogratius Yiga</h1>
-            <p class="hero-subtitle">Tech Enthusiast | IT Consultant | National Society of Black Engineers (NSBE) Senator, IU Chapter
+            <p class="hero-subtitle">AI Enthusiast | IT Consultant | National Society of Black Engineers (NSBE) Vice President, IU Chapter
             </p>
         </div>
         <canvas id="particle-canvas"></canvas>
@@ -88,10 +88,9 @@
                   <a href="https://github.com/bdyiga/PixelScout" class="btn">View Project</a>
                 </div>
                 <div class="project-card">
-                  <h3>Ngabi-FlipFortune</h3>
-                  <p>
-                    My friends and I love playing this game with actual cards and I thought that it would be fun to code it and add a few tweaks!</p>
-                  <a href="https://github.com/bdyiga/Ngabi-FlipFortune" class="btn">View Project</a>
+                  <h3>LD Debate Tournament Manager</h3>
+                  <p>An AI-Powered web application for managing Lincoln-Douglas debate tournaments, streamlining bracket organization, scoring, and results tracking.</p>
+                  <a href="https://lincoln-douglas-debate-app.vercel.app/" class="btn">View Project</a>
                 </div>
                 <div class="project-card">
                   <h3>FlappyBird</h3>
@@ -289,7 +288,7 @@
                 "avemenu": "AveMenu — a Java application for managing hotel menus, allowing staff to display items, take orders, and calculate bills.",
                 "eazyflow": "EazyFlow — an AI-Powered Traffic Light Control System designed to reduce unnecessary wait times at intersections.",
                 "pixelscout": "PixelScout — an image classification system using a convolutional neural network (CNN) to categorize images.",
-                "ngabi": "Ngabi-FlipFortune — a digital card game inspired by a game Benedict plays with friends.",
+                "lddebate": "LD Debate Tournament Manager — an AI-Powered Web app for managing Lincoln-Douglas debate tournaments, handling brackets, scoring, and results.",
                 "flappybird": "FlappyBird — a recreation of the classic Flappy Bird mobile game."
             },
             links: {
@@ -329,8 +328,8 @@
             if (/\b(pixel\s?scout|image|cnn|classify)\b/.test(q)) {
                 return knowledge.projects.pixelscout + " See it on GitHub: github.com/bdyiga/PixelScout";
             }
-            if (/\b(ngabi|flip\s?fortune|card game)\b/.test(q)) {
-                return knowledge.projects.ngabi + " See it on GitHub: github.com/bdyiga/Ngabi-FlipFortune";
+            if (/\b(debate|ld|lincoln|douglas|tournament)\b/.test(q)) {
+                return knowledge.projects.lddebate + " Check it out at lincoln-douglas-debate-app.vercel.app";
             }
             if (/\b(flappy|bird)\b/.test(q)) {
                 return knowledge.projects.flappybird + " Play it at bdyiga.github.io/FlappyBird/";
