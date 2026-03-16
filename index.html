@@ -38,10 +38,10 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <h1>Benedict Deogratius Yiga</h1>
-            <p>Tech Enthusiast | IT Consultant | National Society of Black Engineers (NSBE) Senator, IU Chapter
+            <p class="hero-subtitle">Tech Enthusiast | IT Consultant | National Society of Black Engineers (NSBE) Senator, IU Chapter
             </p>
-            <!-- <a href="#about" class="btn">Learn More</a> -->
         </div>
+        <canvas id="particle-canvas"></canvas>
     </section>
 
     <section id="about" class="about">
@@ -52,6 +52,7 @@
                     <p>My name is Benedict Deogratius Yiga, a passionate Computer Science student at Indiana University Bloomington. I'm driven by my love for technology and my mission to become a leading innovator in the field.</p>
                     <p>My goal is to reach the peak of my potential while contributing positively to my friends, family, and society as a whole. I believe in the transformative power of continuous learning and personal growth.</p>
                     <a href="resume.html" class="btn">View My Resume</a>
+                    <div id="skills-root"></div>
                 </div>
                 <div class="about-image">
                     <img src="BDY Pico.jpg" alt="Benedict Deogratius Yiga">
@@ -60,7 +61,7 @@
         </div>
     </section>
 
-    <section id="projects" class="projects"></section>
+    <section id="projects" class="projects">
         <div class="container">
             <h2>My Projects</h2>
             <div class="project-grid">
@@ -104,7 +105,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 Benedict Deogratius Yiga. All rights reserved.</p>
+            <p>&copy; 2026 Benedict Deogratius Yiga. All rights reserved.</p>
             <div class="social-icons">
                 <a href="https://www.linkedin.com/in/bdyiga"><i class="fab fa-linkedin"></i></a>
                 <a href="https://github.com/bdyiga"><i class="fab fa-github"></i></a>
@@ -112,12 +113,32 @@
         </div>
     </footer>
 
+    <!-- AI Chatbot Widget -->
+    <div class="chat-widget">
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <h3>Ask BDY's AI Assistant</h3>
+                <button class="close-chat" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">Hi! I'm Benedict's AI assistant. Ask me about his skills, projects, education, or experience!</div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter')sendMessage()">
+                <button class="send-button" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div class="chat-button" onclick="toggleChat()">
+            <i class="fas fa-robot"></i>
+        </div>
+    </div>
 
     <script type="text/babel">
         const SkillsDisplay = () => {
-          const [skills, setSkills] = React.useState([
-            'Java', 'Python', 'HTML/CSS', 'JavaScript', 'React', 'SQL', 'Git', 'Data Structures'
-          ]);
+          const skills = ['Java', 'Python', 'HTML/CSS', 'JavaScript', 'React', 'SQL', 'Git', 'Data Structures'];
           const [currentSkill, setCurrentSkill] = React.useState(0);
 
           React.useEffect(() => {
@@ -129,18 +150,10 @@
 
           return (
             <div className="skills-display">
-              <h3>Skills Showcase:</h3>
-              <div className="skill-animation">
+              <h3>My Skills</h3>
+              <div className="skill-tags">
                 {skills.map((skill, index) => (
-                  <span
-                    key={skill}
-                    className={`skill ${index === currentSkill ? 'active' : ''}`}
-                    style={{
-                      opacity: index === currentSkill ? 1 : 0,
-                      transform: `translateY(${index === currentSkill ? 0 : '20px'})`,
-                      transition: 'opacity 0.5s, transform 0.5s',
-                    }}
-                  >
+                  <span key={skill} className={`skill-tag ${index === currentSkill ? 'active' : ''}`}>
                     {skill}
                   </span>
                 ))}
@@ -151,6 +164,226 @@
 
         ReactDOM.render(<SkillsDisplay />, document.getElementById('skills-root'));
     </script>
-    
+
+    <script>
+    // Particle Canvas Animation
+    (function() {
+        const canvas = document.getElementById('particle-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        function resize() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.color = Math.random() > 0.5 ? 'rgba(255,215,0,' : 'rgba(0,210,255,';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = this.color + '0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            const count = Math.min(120, Math.floor((canvas.width * canvas.height) / 8000));
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+        init();
+
+        function connectParticles() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a + 1; b < particles.length; b++) {
+                    const dx = particles[a].x - particles[b].x;
+                    const dy = particles[a].y - particles[b].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.strokeStyle = 'rgba(255,215,0,' + (1 - dist / 120) * 0.15 + ')';
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+                if (mouse.x !== null) {
+                    const dx = particles[a].x - mouse.x;
+                    const dy = particles[a].y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.strokeStyle = 'rgba(0,210,255,' + (1 - dist / 150) * 0.4 + ')';
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
+
+    // Scroll Reveal Animation
+    (function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.about, .projects, .project-card, footer').forEach(el => {
+            el.classList.add('reveal-on-scroll');
+            observer.observe(el);
+        });
+    })();
+
+    // AI Chatbot Logic
+    (function() {
+        const knowledge = {
+            name: "Benedict Deogratius Yiga",
+            school: "Indiana University Bloomington",
+            major: "Computer Science",
+            roles: "NSBE Senator (IU Chapter), IT Consultant, Tech Enthusiast",
+            skills: ["Java", "Python", "HTML/CSS", "JavaScript", "React", "SQL", "Git", "Data Structures"],
+            projects: {
+                "flippa": "Flippa Memory Game — a Java desktop app that challenges players to match pairs of tiles, testing memory skills.",
+                "avemenu": "AveMenu — a Java application for managing hotel menus, allowing staff to display items, take orders, and calculate bills.",
+                "eazyflow": "EazyFlow — an AI-Powered Traffic Light Control System designed to reduce unnecessary wait times at intersections.",
+                "pixelscout": "PixelScout — an image classification system using a convolutional neural network (CNN) to categorize images.",
+                "ngabi": "Ngabi-FlipFortune — a digital card game inspired by a game Benedict plays with friends.",
+                "flappybird": "FlappyBird — a recreation of the classic Flappy Bird mobile game."
+            },
+            links: {
+                linkedin: "https://www.linkedin.com/in/bdyiga",
+                github: "https://github.com/bdyiga"
+            }
+        };
+
+        function getBotResponse(input) {
+            const q = input.toLowerCase().trim();
+
+            if (/\b(hi|hello|hey|sup|what'?s up|greetings)\b/.test(q)) {
+                return "Hey there! I'm Benedict's AI assistant. Feel free to ask about his projects, skills, education, or experience!";
+            }
+            if (/\b(who|about|tell me about|introduce)\b/.test(q) && /\b(benedict|him|you|bdy|yiga)\b/.test(q)) {
+                return `${knowledge.name} is a passionate ${knowledge.major} student at ${knowledge.school}. He's a ${knowledge.roles}. He's driven by a love for technology and aims to become a leading innovator in the field.`;
+            }
+            if (/\b(school|university|college|education|study|studying|where.*go)\b/.test(q)) {
+                return `Benedict studies ${knowledge.major} at ${knowledge.school}.`;
+            }
+            if (/\b(skill|tech|language|know|stack|tool)\b/.test(q)) {
+                return `Benedict is proficient in: ${knowledge.skills.join(", ")}. He's always learning and expanding his toolkit!`;
+            }
+            if (/\b(project|work|built|made|portfolio|create)\b/.test(q)) {
+                const projectList = Object.values(knowledge.projects).map(p => "• " + p).join("\n");
+                return `Here are Benedict's projects:\n\n${projectList}\n\nAsk about any specific project for more details!`;
+            }
+            if (/\b(flippa|memory game)\b/.test(q)) {
+                return knowledge.projects.flippa + " Check it out at bdyiga.github.io/Flippa/";
+            }
+            if (/\b(avemenu|hotel|menu)\b/.test(q)) {
+                return knowledge.projects.avemenu + " Check it out at bdyiga.github.io/AveMenu/";
+            }
+            if (/\b(eazy\s?flow|traffic)\b/.test(q)) {
+                return knowledge.projects.eazyflow + " See it on GitHub: github.com/bdyiga/EazyFlow";
+            }
+            if (/\b(pixel\s?scout|image|cnn|classify)\b/.test(q)) {
+                return knowledge.projects.pixelscout + " See it on GitHub: github.com/bdyiga/PixelScout";
+            }
+            if (/\b(ngabi|flip\s?fortune|card game)\b/.test(q)) {
+                return knowledge.projects.ngabi + " See it on GitHub: github.com/bdyiga/Ngabi-FlipFortune";
+            }
+            if (/\b(flappy|bird)\b/.test(q)) {
+                return knowledge.projects.flappybird + " Play it at bdyiga.github.io/FlappyBird/";
+            }
+            if (/\b(contact|reach|email|connect|linkedin|github|social)\b/.test(q)) {
+                return `You can connect with Benedict on LinkedIn (linkedin.com/in/bdyiga) or GitHub (github.com/bdyiga).`;
+            }
+            if (/\b(nsbe|senator|black engineer)\b/.test(q)) {
+                return "Benedict serves as a Senator for the National Society of Black Engineers (NSBE) at the IU Chapter, contributing to the community and advocating for representation in engineering.";
+            }
+            if (/\b(resume|cv|experience)\b/.test(q)) {
+                return "You can view and download Benedict's full resume on the Resume page! Click 'Resume' in the navigation bar.";
+            }
+            if (/\b(thank|thanks|appreciate)\b/.test(q)) {
+                return "You're welcome! Feel free to ask anything else about Benedict.";
+            }
+            if (/\b(bye|goodbye|see you|later)\b/.test(q)) {
+                return "Goodbye! Thanks for stopping by Benedict's portfolio. Have a great day!";
+            }
+            return "Interesting question! I can tell you about Benedict's projects, skills, education, NSBE involvement, or how to contact him. What would you like to know?";
+        }
+
+        window.toggleChat = function() {
+            document.getElementById('chatContainer').classList.toggle('active');
+        };
+
+        window.sendMessage = function() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const messagesDiv = document.getElementById('chatMessages');
+
+            const userBubble = document.createElement('div');
+            userBubble.className = 'message user-message';
+            userBubble.textContent = msg;
+            messagesDiv.appendChild(userBubble);
+            input.value = '';
+
+            const typing = document.getElementById('typingIndicator');
+            typing.classList.add('active');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            setTimeout(() => {
+                typing.classList.remove('active');
+                const botBubble = document.createElement('div');
+                botBubble.className = 'message bot-message';
+                botBubble.textContent = getBotResponse(msg);
+                messagesDiv.appendChild(botBubble);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 600 + Math.random() * 800);
+        };
+    })();
+    </script>
 </body>
 </html>

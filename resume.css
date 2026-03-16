@@ -1,29 +1,34 @@
-/* index.css */
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background: #0f0c29;
-    color: #fff;
-    line-height: 1.6;
+    background: #0a0a1a;
+    color: #e0e0e0;
+    line-height: 1.7;
 }
 
 .container {
-    width: 80%;
+    width: 85%;
+    max-width: 1200px;
     margin: auto;
     overflow: hidden;
     padding: 2rem 0;
 }
 
-/* Navigation Styles */
+/* Navigation */
 header {
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
+    background: rgba(10, 10, 26, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.08);
     position: fixed;
     top: 0;
     left: 0;
@@ -39,10 +44,14 @@ nav {
 }
 
 .logo {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 600;
-    color: #fff;
+    background: linear-gradient(135deg, #ffd700, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-decoration: none;
+    letter-spacing: 2px;
 }
 
 .nav-links {
@@ -55,89 +64,107 @@ nav {
 }
 
 .nav-links a {
-    color: #fff;
+    color: #b0b0c0;
     text-decoration: none;
+    font-weight: 400;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
     transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ffd700, #00d2ff);
+    transition: width 0.3s ease;
 }
 
 .nav-links a:hover {
-    color: #ffd700;
+    color: #fff;
 }
 
-/* Hero Section */
-.hero {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: linear-gradient(45deg, #24243e, #302b63, #0f0c29);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-}
-
-@keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.hero-content h1 {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
-
-.hero-content p {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.btn {
-    display: inline-block;
-    padding: 0.8rem 2rem;
-    background: #ffd700;
-    color: #000;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: transform 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-5px);
-}
-
-/* About Section */
-.about {
-    padding: 5rem 0;
-    background: #1a1a2e;
-}
-
-.about-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.about-text {
-    width: 50%;
-}
-
-.about-image {
-    width: 40%;
-}
-
-.about-image img {
+.nav-links a:hover::after {
     width: 100%;
-    border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Resume / PDF Section */
+.resume-content {
+    padding-top: 80px;
+}
+
+.pdf-section {
+    background: #0e0e24;
+    padding: 4rem 0;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 60px;
+}
+
+.pdf-section h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #ffd700, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pdf-container {
+    max-width: 90%;
+    margin: 0 auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.pdf-preview {
+    width: 100%;
+    height: 80vh;
+    border: none;
+    border-radius: 8px;
+}
+
+.download-btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.9rem 2rem;
+    background: linear-gradient(135deg, #ffd700, #ffb700);
+    color: #0a0a1a;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.25);
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
 }
 
 /* Footer */
 footer {
-    background: #16213e;
-    color: #fff;
+    background: #08081a;
+    color: #888;
     text-align: center;
-    padding: 2rem 0;
+    padding: 3rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+footer p {
+    font-size: 0.9rem;
 }
 
 .social-icons {
@@ -145,166 +172,19 @@ footer {
 }
 
 .social-icons a {
-    color: #fff;
-    font-size: 1.5rem;
-    margin: 0 10px;
-    transition: color 0.3s ease;
+    color: #666;
+    font-size: 1.4rem;
+    margin: 0 12px;
+    transition: color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
 }
 
 .social-icons a:hover {
     color: #ffd700;
+    transform: translateY(-2px);
 }
 
-.projects {
-    background: #24243e;
-    padding: 5rem 0;
-}
-
-.projects h2 {
-    text-align: center;
-    color: #ffd700;
-    margin-bottom: 3rem;
-    font-size: 2.5rem;
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.project-card {
-    background: #1a1a2e;
-    border-radius: 10px;
-    padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease;
-}
-
-.project-card:hover {
-    transform: translateY(-10px);
-}
-
-.project-card h3 {
-    color: #ffd700;
-    margin-bottom: 1rem;
-}
-
-.project-card p {
-    color: #ccc;
-    margin-bottom: 1.5rem;
-}
-
-.project-card .btn {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background: #ffd700;
-    color: #000;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.project-card .btn:hover {
-    background-color: #ffed4a;
-}
-
-@media (max-width: 768px) {
-    .about-content {
-        flex-direction: column;
-    }
-    
-    .about-text, .about-image {
-        width: 100%;
-    }
-    
-    .about-image {
-        margin-top: 2rem;
-    }
-    
-    .project-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-   .skills-display {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .skill-animation {
-    height: 30px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .skill {
-    position: absolute;
-    left: 0;
-    right: 0;
-    font-size: 1.2em;
-    color: #ffd700;
-  }
-  
-  .skill.active {
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
-  } 
-
-
-.pdf-section {
-    background: #24243e;
-    padding: 3rem 0;
-    min-height: 100vh; /* Ensure it takes at least the full height of the viewport */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.pdf-container {
-    max-width: 90%; /* Increased from 800px to 90% of the container */
-    margin: 0 auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.pdf-preview {
-    width: 100%;
-    height: 80vh; /* Increased from 500px to 80% of the viewport height */
-    border: none;
-}
-
-.download-btn {
-    display: inline-block;
-    margin-top: 2rem;
-    padding: 1rem 2rem;
-    background: #ffd700;
-    color: #000;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    font-size: 1.2rem;
-}
-
-.download-btn:hover {
-    transform: translateY(-3px);
-    background-color: #ffed4a;
-}
-
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
     .pdf-container {
         max-width: 95%;
@@ -318,5 +198,17 @@ footer {
     .download-btn {
         padding: 0.8rem 1.5rem;
         font-size: 1rem;
+    }
+
+    .nav-links li {
+        margin-left: 1rem;
+    }
+
+    .container {
+        width: 90%;
+    }
+
+    .pdf-section h2 {
+        font-size: 1.6rem;
     }
 }
