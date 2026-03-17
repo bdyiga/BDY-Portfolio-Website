@@ -1,112 +1,373 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZP3WGX362T"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-    
       gtag('config', 'G-ZP3WGX362T');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Benedict D. Yiga | Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="chatbot.css">
-
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
+
+    <!-- Navigation -->
     <header>
         <nav>
             <a href="#" class="logo">BDY</a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
+                <li><a href="#experience">Experience</a></li>
                 <li><a href="#projects">Projects</a></li>
-                <li><a href="resume.html">Resume</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#leadership">Leadership</a></li>
+                <li><a href="resume.html" class="nav-btn">Resume</a></li>
             </ul>
+            <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+                <i class="fas fa-bars"></i>
+            </button>
         </nav>
     </header>
 
+    <!-- Hero -->
     <section id="home" class="hero">
-        <div class="hero-content">
-            <h1>Benedict Deogratius Yiga</h1>
-            <p class="hero-subtitle">AI Enthusiast | IT Consultant | National Society of Black Engineers (NSBE) Vice President, IU Chapter
-            </p>
-        </div>
         <canvas id="particle-canvas"></canvas>
+        <div class="hero-content">
+            <p class="hero-greeting">Hi, I'm</p>
+            <h1>Benedict Deogratius Yiga</h1>
+            <p class="hero-subtitle">CS Student &middot; AI Specialization &middot; Business &amp; Data Science Minors &middot; Indiana University Bloomington</p>
+            <p class="hero-tagline">Building AI-powered solutions.</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-number">3.86</span>
+                    <span class="stat-label">GPA</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Internships</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">AWS</span>
+                    <span class="stat-label">Certified</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">3x</span>
+                    <span class="stat-label">Dean's List</span>
+                </div>
+            </div>
+            <div class="hero-cta">
+                <a href="#projects" class="btn btn-primary">View My Work</a>
+                <a href="https://www.linkedin.com/in/bdyiga" class="btn btn-outline" target="_blank"><i class="fab fa-linkedin"></i> Connect</a>
+                <a href="https://github.com/bdyiga" class="btn btn-outline" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            </div>
+        </div>
     </section>
 
+    <!-- Scrolling Ticker -->
+    <div class="ticker">
+        <div class="ticker-track">
+            <span>Building <em>AveMenu</em></span>
+            <span>&diamond;</span>
+            <span>AI Intern at <em>Future Wonder Co.</em></span>
+            <span>&diamond;</span>
+            <span>IT Supervisor at <em>IU</em></span>
+            <span>&diamond;</span>
+            <span>Researching <em>AI Traffic Systems</em></span>
+            <span>&diamond;</span>
+            <span>AWS Certified <em>Cloud Practitioner</em></span>
+            <span>&diamond;</span>
+            <span>NSBE <em>Vice President</em></span>
+            <span>&diamond;</span>
+            <span>Building <em>AveMenu</em></span>
+            <span>&diamond;</span>
+            <span>AI Intern at <em>Future Wonder Co.</em></span>
+            <span>&diamond;</span>
+            <span>IT Supervisor at <em>IU</em></span>
+            <span>&diamond;</span>
+            <span>Researching <em>AI Traffic Systems</em></span>
+            <span>&diamond;</span>
+            <span>AWS Certified <em>Cloud Practitioner</em></span>
+            <span>&diamond;</span>
+            <span>NSBE <em>Vice President</em></span>
+            <span>&diamond;</span>
+        </div>
+    </div>
+
+    <!-- About -->
     <section id="about" class="about">
         <div class="container">
+            <div class="section-header">
+                <p class="section-tag">About Me</p>
+                <h2>The <span class="highlight">engineer</span> behind the work</h2>
+            </div>
             <div class="about-content">
                 <div class="about-text">
-                    <h2>About Me</h2>
-                    <p>My name is Benedict Deogratius Yiga, a passionate Computer Science student at Indiana University Bloomington. I'm driven by my love for technology and my mission to become a leading innovator in the field.</p>
-                    <p>My goal is to reach the peak of my potential while contributing positively to my friends, family, and society as a whole. I believe in the transformative power of continuous learning and personal growth.</p>
-                    <a href="resume.html" class="btn">View My Resume</a>
-                    <div id="skills-root"></div>
+                    <p>A Computer Science student at Indiana University Bloomington with a strong passion for technology and innovation. I am particularly interested in <strong>Artificial Intelligence and Machine Learning</strong> and enjoy building intelligent systems that address real-world challenges.</p>
+                    <p>I'm fascinated by the potential of AI to transform how people live and work, and I strive to be part of that transformation. My goal is to reach my full potential while using technology, creativity, and continuous learning to make a meaningful impact on my community and society.</p>
+                    <a href="resume.html" class="btn btn-primary">See the Full Story</a>
                 </div>
-                <div class="about-image">
-                    <img src="BDY Pico.jpg" alt="Benedict Deogratius Yiga">
+                <div class="about-details">
+                    <div class="about-image">
+                        <img src="BDY Pico.jpg" alt="Benedict Deogratius Yiga">
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Experience -->
+    <section id="experience" class="experience">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-tag">Work History</p>
+                <h2><span class="highlight">Experience</span> timeline</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">01</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div>
+                                <h3>University Information Technology Services</h3>
+                                <p class="timeline-role">IT Consultant Supervisor</p>
+                            </div>
+                            <span class="timeline-date">Oct 2024 &ndash; Present</span>
+                        </div>
+                        <p class="timeline-teaser">Supervising campus-wide tech support operations and coaching a team of 25+ consultants at Indiana University.</p>
+                        <div class="timeline-tags">
+                            <span>ServiceNow</span><span>Leadership</span><span>Data Analytics</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">02</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div>
+                                <h3>Future Wonder Co.</h3>
+                                <p class="timeline-role">AI Charioteer Intern</p>
+                            </div>
+                            <span class="timeline-date">Jun 2025 &ndash; Aug 2025</span>
+                        </div>
+                        <p class="timeline-teaser">Built AI-powered reporting software and led prompt engineering research, reducing work from <strong>3-4 hours to 30 minutes per week</strong>.</p>
+                        <div class="timeline-tags">
+                            <span>Python</span><span>AWS</span><span>Docker</span><span>Prompt Engineering</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">03</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div>
+                                <h3>Steel and Tube Industries Ltd.</h3>
+                                <p class="timeline-role">Software Engineer Intern</p>
+                            </div>
+                            <span class="timeline-date">Feb 2023 &ndash; Jul 2023</span>
+                        </div>
+                        <p class="timeline-teaser">Automated manufacturing processes with Python, elevating effectiveness by <strong>10%</strong>.</p>
+                        <div class="timeline-tags">
+                            <span>Python</span><span>SAP ERP</span><span>E-Commerce</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section-cta">
+                <a href="resume.html" class="btn btn-outline">Full details on my resume <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects -->
     <section id="projects" class="projects">
         <div class="container">
-            <h2>My Projects</h2>
+            <div class="section-header">
+                <p class="section-tag">Portfolio</p>
+                <h2>What I've <span class="highlight">built</span></h2>
+            </div>
             <div class="project-grid">
-                <div class="project-card">
+                <div class="project-card featured">
+                    <div class="project-number">01</div>
                     <h3>AveMenu</h3>
-                    <p>A Java application for managing hotel menus, allowing staff to display items, take orders, and calculate bills efficiently.</p>
-                    <a href="https://bdyiga.github.io/AveMenu/" class="btn">View Project</a>
+                    <p>Full-stack restaurant management system with real-time order tracking and a RESTful API.</p>
+                    <div class="project-tags">
+                        <span>JavaScript</span><span>Node.js</span><span>Express</span>
+                    </div>
+                    <a href="https://bdyiga.github.io/AveMenu/" class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
                 </div>
-                <div class="project-card">
+                <div class="project-card featured">
+                    <div class="project-number">02</div>
                     <h3>LD Debate Tournament Manager</h3>
-                    <p>An AI-Powered web application for managing Lincoln-Douglas debate tournaments, streamlining bracket organization, scoring, and results tracking.</p>
-                    <a href="https://lincoln-douglas-debate-app.vercel.app/" class="btn">View Project</a>
+                    <p>AI-powered app for managing Lincoln-Douglas debate brackets, scoring, and results.</p>
+                    <div class="project-tags">
+                        <span>AI</span><span>React</span><span>Web App</span>
+                    </div>
+                    <a href="https://lincoln-douglas-debate-app.vercel.app/" class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="project-card">
-                    <h3>Flippa Memory Game</h3>
-                    <p>A Java-based desktop application that challenges players to match pairs of tiles, testing and improving memory skills.</p>
-                    <a href="https://bdyiga.github.io/Flippa/" class="btn">View Project</a>
-                </div>
-                <div class="project-card">
+                    <div class="project-number">03</div>
                     <h3>EazyFlow</h3>
-                    <p>The AI-Powered Traffic Light Control System is a solution designed to address the persistent problem of unnecessary wait 
-                      times at traffic intersections.</p>
-                    <a href="https://github.com/bdyiga/EazyFlow" class="btn">View Project</a>
+                    <p>AI-driven traffic system optimizing flow across 500+ smart intersections.</p>
+                    <div class="project-tags">
+                        <span>Python</span><span>scikit-learn</span><span>AI</span>
+                    </div>
+                    <a href="https://github.com/bdyiga/EazyFlow" class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="project-card">
+                    <div class="project-number">04</div>
                     <h3>PixelScout</h3>
-                    <p>This is a system that classifies images into categories (e.g., animals, vehicles, objects) using a convolutional neural network (CNN).</p>
-                    <a href="https://github.com/bdyiga/PixelScout" class="btn">View Project</a>
+                    <p>CNN image classifier achieving 95% accuracy on CIFAR-10.</p>
+                    <div class="project-tags">
+                        <span>TensorFlow</span><span>Keras</span><span>CNN</span>
+                    </div>
+                    <a href="https://github.com/bdyiga/PixelScout" class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="project-card">
-                    <h3>FlappyBird</h3>
-                    <p>This is a mimic of the flappy bird mobile game.</p>
-                    <a href="https://bdyiga.github.io/FlappyBird/" class="btn">View Project</a>
+                    <div class="project-number">05</div>
+                    <h3>Flippa Memory Game</h3>
+                    <p>Interactive tile-matching game built in Java.</p>
+                    <div class="project-tags">
+                        <span>Java</span><span>Game Dev</span>
+                    </div>
+                    <a href="https://bdyiga.github.io/Flippa/" class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
                 </div>
+                <div class="project-card">
+                    <div class="project-number">06</div>
+                    <h3>FlappyBird</h3>
+                    <p>A recreation of the classic mobile game.</p>
+                    <div class="project-tags">
+                        <span>JavaScript</span><span>Game Dev</span>
+                    </div>
+                    <a href="https://bdyiga.github.io/FlappyBird/" class="project-link" target="_blank">View Project <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills" class="skills">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-tag">Technical Stack</p>
+                <h2><span class="highlight">Skills</span> &amp; expertise</h2>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-category-icon"><i class="fas fa-code"></i></div>
+                    <h3>Languages</h3>
+                    <div class="skill-list">
+                        <span>Python</span><span>Java</span><span>JavaScript</span><span>C / C++</span><span>Swift</span><span>SQL</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-category-icon"><i class="fas fa-brain"></i></div>
+                    <h3>AI / ML</h3>
+                    <div class="skill-list">
+                        <span>TensorFlow</span><span>PyTorch</span><span>scikit-learn</span><span>Prompt Engineering</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-category-icon"><i class="fas fa-cloud"></i></div>
+                    <h3>Cloud & DevOps</h3>
+                    <div class="skill-list">
+                        <span>AWS</span><span>Docker</span><span>Linux</span><span>MongoDB</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-category-icon"><i class="fas fa-tools"></i></div>
+                    <h3>Frameworks</h3>
+                    <div class="skill-list">
+                        <span>React.js</span><span>Node.js</span><span>REST APIs</span><span>Agile</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cert-banner">
+                <i class="fas fa-certificate"></i>
+                <span><strong>AWS Certified Cloud Computing Practitioner</strong></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leadership -->
+    <section id="leadership" class="leadership">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-tag">Involvement</p>
+                <h2><span class="highlight">Leadership</span> &amp; orgs</h2>
+            </div>
+            <div class="leadership-grid">
+                <div class="leadership-card accent-gold">
+                    <div class="leadership-icon"><i class="fas fa-users"></i></div>
+                    <h3>NSBE</h3>
+                    <p class="leadership-role">Vice President</p>
+                </div>
+                <div class="leadership-card accent-cyan">
+                    <div class="leadership-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <h3>Vibe and AI Programming Class</h3>
+                    <p class="leadership-role">Teaching Assistant</p>
+                </div>
+                <div class="leadership-card accent-purple">
+                    <div class="leadership-icon"><i class="fas fa-handshake"></i></div>
+                    <h3>EY &amp; Deloitte</h3>
+                    <p class="leadership-role">Tech Consulting Program</p>
+                </div>
+                <div class="leadership-card accent-gold">
+                    <div class="leadership-icon"><i class="fas fa-project-diagram"></i></div>
+                    <h3>Kappa Theta Pi</h3>
+                    <p class="leadership-role">Member</p>
+                </div>
+                <div class="leadership-card accent-cyan">
+                    <div class="leadership-icon"><i class="fas fa-briefcase"></i></div>
+                    <h3>Luddy Consulting Association</h3>
+                    <p class="leadership-role">Member</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact / Footer -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-tag">Get In Touch</p>
+                <h2>Let's <span class="highlight">connect</span></h2>
+            </div>
+            <p class="contact-text">Graduating May 2027. Open to internships in Software Engineering, AI/ML, and Technology Consulting.</p>
+            <div class="contact-links">
+                <a href="mailto:yigabenedict5@gmail.com" class="contact-card">
+                    <i class="fas fa-envelope"></i>
+                    <span>yigabenedict5@gmail.com</span>
+                </a>
+                <a href="https://www.linkedin.com/in/bdyiga" class="contact-card" target="_blank">
+                    <i class="fab fa-linkedin"></i>
+                    <span>linkedin.com/in/bdyiga</span>
+                </a>
+                <a href="https://github.com/bdyiga" class="contact-card" target="_blank">
+                    <i class="fab fa-github"></i>
+                    <span>github.com/bdyiga</span>
+                </a>
             </div>
         </div>
     </section>
 
     <footer>
-        <div class="container">
-            <p>&copy; 2026 Benedict Deogratius Yiga. All rights reserved.</p>
-            <div class="social-icons">
-                <a href="https://www.linkedin.com/in/bdyiga"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/bdyiga"><i class="fab fa-github"></i></a>
-            </div>
+        <div class="container footer-inner">
+            <p>Benedict Deogratius Yiga</p>
+            <p class="footer-sub">Indiana University Bloomington &middot; CS &middot; Class of 2027</p>
         </div>
     </footer>
 
@@ -118,7 +379,7 @@
                 <button class="close-chat" onclick="toggleChat()"><i class="fas fa-times"></i></button>
             </div>
             <div class="chat-messages" id="chatMessages">
-                <div class="message bot-message">Hi! I'm Benedict's AI assistant. Ask me about his skills, projects, education, or experience!</div>
+                <div class="message bot-message">Hi! I'm Benedict's AI assistant. Ask me about his skills, projects, education, experience, or leadership!</div>
             </div>
             <div class="typing-indicator" id="typingIndicator">
                 <span></span><span></span><span></span>
@@ -133,37 +394,8 @@
         </div>
     </div>
 
-    <script type="text/babel">
-        const SkillsDisplay = () => {
-          const skills = ['Java', 'Python', 'HTML/CSS', 'JavaScript', 'React', 'SQL', 'Git', 'Data Structures'];
-          const [currentSkill, setCurrentSkill] = React.useState(0);
-
-          React.useEffect(() => {
-            const interval = setInterval(() => {
-              setCurrentSkill((prev) => (prev + 1) % skills.length);
-            }, 2000);
-            return () => clearInterval(interval);
-          }, [skills.length]);
-
-          return (
-            <div className="skills-display">
-              <h3>My Skills</h3>
-              <div className="skill-tags">
-                {skills.map((skill, index) => (
-                  <span key={skill} className={`skill-tag ${index === currentSkill ? 'active' : ''}`}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          );
-        };
-
-        ReactDOM.render(<SkillsDisplay />, document.getElementById('skills-root'));
-    </script>
-
     <script>
-    // Particle Canvas Animation
+    // Particle Canvas
     (function() {
         const canvas = document.getElementById('particle-canvas');
         if (!canvas) return;
@@ -190,8 +422,8 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.8;
-                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.speedX = (Math.random() - 0.5) * 0.6;
+                this.speedY = (Math.random() - 0.5) * 0.6;
                 this.color = Math.random() > 0.5 ? 'rgba(255,215,0,' : 'rgba(0,210,255,';
             }
             update() {
@@ -203,7 +435,7 @@
                 if (this.y < 0) this.y = canvas.height;
             }
             draw() {
-                ctx.fillStyle = this.color + '0.8)';
+                ctx.fillStyle = this.color + '0.7)';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -212,7 +444,7 @@
 
         function init() {
             particles = [];
-            const count = Math.min(120, Math.floor((canvas.width * canvas.height) / 8000));
+            const count = Math.min(100, Math.floor((canvas.width * canvas.height) / 10000));
             for (let i = 0; i < count; i++) particles.push(new Particle());
         }
         init();
@@ -224,7 +456,7 @@
                     const dy = particles[a].y - particles[b].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < 120) {
-                        ctx.strokeStyle = 'rgba(255,215,0,' + (1 - dist / 120) * 0.15 + ')';
+                        ctx.strokeStyle = 'rgba(255,215,0,' + (1 - dist / 120) * 0.12 + ')';
                         ctx.lineWidth = 0.5;
                         ctx.beginPath();
                         ctx.moveTo(particles[a].x, particles[a].y);
@@ -237,8 +469,8 @@
                     const dy = particles[a].y - mouse.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < 150) {
-                        ctx.strokeStyle = 'rgba(0,210,255,' + (1 - dist / 150) * 0.4 + ')';
-                        ctx.lineWidth = 0.8;
+                        ctx.strokeStyle = 'rgba(0,210,255,' + (1 - dist / 150) * 0.35 + ')';
+                        ctx.lineWidth = 0.7;
                         ctx.beginPath();
                         ctx.moveTo(particles[a].x, particles[a].y);
                         ctx.lineTo(mouse.x, mouse.y);
@@ -257,128 +489,147 @@
         animate();
     })();
 
-    // Scroll Reveal Animation
+    // Scroll Reveal
     (function() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('revealed');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('revealed');
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.08 });
 
-        document.querySelectorAll('.about, .projects, .project-card, footer').forEach(el => {
+        document.querySelectorAll(
+            '.about, .experience, .projects, .skills, .leadership, .contact, ' +
+            '.timeline-item, .project-card, .skill-category, .leadership-card, .contact-card'
+        ).forEach(el => {
             el.classList.add('reveal-on-scroll');
             observer.observe(el);
         });
     })();
 
-    // AI Chatbot Logic
+    // Chatbot
     (function() {
-        const knowledge = {
+        const k = {
             name: "Benedict Deogratius Yiga",
-            school: "Indiana University Bloomington",
-            major: "Computer Science",
-            roles: "NSBE Senator (IU Chapter), IT Consultant, Tech Enthusiast",
-            skills: ["Java", "Python", "HTML/CSS", "JavaScript", "React", "SQL", "Git", "Data Structures"],
-            projects: {
-                "flippa": "Flippa Memory Game — a Java desktop app that challenges players to match pairs of tiles, testing memory skills.",
-                "avemenu": "AveMenu — a Java application for managing hotel menus, allowing staff to display items, take orders, and calculate bills.",
-                "eazyflow": "EazyFlow — an AI-Powered Traffic Light Control System designed to reduce unnecessary wait times at intersections.",
-                "pixelscout": "PixelScout — an image classification system using a convolutional neural network (CNN) to categorize images.",
-                "lddebate": "LD Debate Tournament Manager — an AI-Powered Web app for managing Lincoln-Douglas debate tournaments, handling brackets, scoring, and results.",
-                "flappybird": "FlappyBird — a recreation of the classic Flappy Bird mobile game."
+            school: "Indiana University Bloomington, Luddy School of Informatics, Computing & Engineering",
+            major: "Computer Science with minors in Business and Data Science, plus an AI Specialization",
+            gpa: "3.86/4.0",
+            grad: "May 2027",
+            honors: "IT Consultant of the Month (Nov 2024), Dean's List (3x)",
+            cert: "AWS Certified Cloud Computing Practitioner",
+            roles: "NSBE Vice President, TA for AI Programming, IT Consultant Supervisor",
+            skills: {
+                programming: "Python, Java, JavaScript, C/C++, Swift, SQL, Ruby, HTML/CSS",
+                ai: "TensorFlow, PyTorch, scikit-learn, MLflow, Prompt Engineering, NLP/NLU, CNNs",
+                cloud: "AWS, Docker, Linux/Unix, MongoDB, REST APIs, Git",
+                tools: "React.js, Node.js, ServiceNow, SAP, Oracle, Agile/Scrum"
             },
-            links: {
-                linkedin: "https://www.linkedin.com/in/bdyiga",
-                github: "https://github.com/bdyiga"
+            experience: {
+                uits: "IT Consultant Supervisor at IU (Oct 2024–Present): Oversees campus tech infrastructure, processes 12,000+ tickets/month via ServiceNow, coaches 25+ consultants.",
+                fwc: "AI Charioteer Intern at Future Wonder Co. (Jun–Aug 2025): Built AI-powered reporting software with Python/AWS/Docker, reduced work from 3-4 hours to 30 min/week, improved AI response accuracy by 40%.",
+                steel: "Software Engineer Intern at Steel & Tube Industries, Uganda (Feb–Jul 2023): SAP ERP data analysis, Python automation for manufacturing, e-commerce integration boosting sales 15%."
+            },
+            projects: {
+                avemenu: "AveMenu: a full-stack restaurant system with JavaScript, Node.js/Express, real-time order tracking, and RESTful API.",
+                lddebate: "LD Debate Tournament Manager: an AI-Powered web app for debate tournament management.",
+                eazyflow: "EazyFlow: an AI-driven traffic system using Python, NumPy, and scikit-learn for 500+ intersections.",
+                pixelscout: "PixelScout: a CNN image classifier with TensorFlow/Keras, 95% accuracy on CIFAR-10.",
+                aldi: "ALDI AI Case Competition Winner: SWOT analysis and AI recommendations presented at ALDI HQ, projected 4-8% sales boost.",
+                flippa: "Flippa Memory Game: a Java desktop matching game.",
+                flappybird: "FlappyBird: a recreation of the classic mobile game."
+            },
+            leadership: {
+                nsbe: "Vice President of NSBE at IU. Boosted conference participation 40% and drove 30% chapter growth.",
+                ta: "Teaching Assistant for Vibe & AI Programming Class.",
+                ey: "EY & Deloitte Technology Consulting Awareness Program participant.",
+                ktp: "Kappa Theta Pi professional technology fraternity member.",
+                lca: "Luddy Consulting Association member."
             }
         };
 
-        function getBotResponse(input) {
+        function respond(input) {
             const q = input.toLowerCase().trim();
-
-            if (/\b(hi|hello|hey|sup|what'?s up|greetings)\b/.test(q)) {
-                return "Hey there! I'm Benedict's AI assistant. Feel free to ask about his projects, skills, education, or experience!";
-            }
-            if (/\b(who|about|tell me about|introduce)\b/.test(q) && /\b(benedict|him|you|bdy|yiga)\b/.test(q)) {
-                return `${knowledge.name} is a passionate ${knowledge.major} student at ${knowledge.school}. He's a ${knowledge.roles}. He's driven by a love for technology and aims to become a leading innovator in the field.`;
-            }
-            if (/\b(school|university|college|education|study|studying|where.*go)\b/.test(q)) {
-                return `Benedict studies ${knowledge.major} at ${knowledge.school}.`;
-            }
-            if (/\b(skill|tech|language|know|stack|tool)\b/.test(q)) {
-                return `Benedict is proficient in: ${knowledge.skills.join(", ")}. He's always learning and expanding his toolkit!`;
-            }
-            if (/\b(project|work|built|made|portfolio|create)\b/.test(q)) {
-                const projectList = Object.values(knowledge.projects).map(p => "• " + p).join("\n");
-                return `Here are Benedict's projects:\n\n${projectList}\n\nAsk about any specific project for more details!`;
-            }
-            if (/\b(flippa|memory game)\b/.test(q)) {
-                return knowledge.projects.flippa + " Check it out at bdyiga.github.io/Flippa/";
-            }
-            if (/\b(avemenu|hotel|menu)\b/.test(q)) {
-                return knowledge.projects.avemenu + " Check it out at bdyiga.github.io/AveMenu/";
-            }
-            if (/\b(eazy\s?flow|traffic)\b/.test(q)) {
-                return knowledge.projects.eazyflow + " See it on GitHub: github.com/bdyiga/EazyFlow";
-            }
-            if (/\b(pixel\s?scout|image|cnn|classify)\b/.test(q)) {
-                return knowledge.projects.pixelscout + " See it on GitHub: github.com/bdyiga/PixelScout";
-            }
-            if (/\b(debate|ld|lincoln|douglas|tournament)\b/.test(q)) {
-                return knowledge.projects.lddebate + " Check it out at lincoln-douglas-debate-app.vercel.app";
-            }
-            if (/\b(flappy|bird)\b/.test(q)) {
-                return knowledge.projects.flappybird + " Play it at bdyiga.github.io/FlappyBird/";
-            }
-            if (/\b(contact|reach|email|connect|linkedin|github|social)\b/.test(q)) {
-                return `You can connect with Benedict on LinkedIn (linkedin.com/in/bdyiga) or GitHub (github.com/bdyiga).`;
-            }
-            if (/\b(nsbe|senator|black engineer)\b/.test(q)) {
-                return "Benedict serves as a Senator for the National Society of Black Engineers (NSBE) at the IU Chapter, contributing to the community and advocating for representation in engineering.";
-            }
-            if (/\b(resume|cv|experience)\b/.test(q)) {
-                return "You can view and download Benedict's full resume on the Resume page! Click 'Resume' in the navigation bar.";
-            }
-            if (/\b(thank|thanks|appreciate)\b/.test(q)) {
-                return "You're welcome! Feel free to ask anything else about Benedict.";
-            }
-            if (/\b(bye|goodbye|see you|later)\b/.test(q)) {
-                return "Goodbye! Thanks for stopping by Benedict's portfolio. Have a great day!";
-            }
-            return "Interesting question! I can tell you about Benedict's projects, skills, education, NSBE involvement, or how to contact him. What would you like to know?";
+            if (/\b(hi|hello|hey|sup|what'?s up|greetings)\b/.test(q))
+                return "Hey! I'm Benedict's AI assistant. Ask me about his experience, skills, projects, education, leadership, or how to get in touch!";
+            if (/\b(who|about|tell me about|introduce)\b/.test(q) && /\b(benedict|him|you|bdy|yiga)\b/.test(q))
+                return `${k.name} is a ${k.major} student at ${k.school}, graduating ${k.grad} with a ${k.gpa} GPA. He's served as ${k.roles}. He holds an ${k.cert} and has been on the ${k.honors}.`;
+            if (/\b(gpa|grade|academic)\b/.test(q))
+                return `Benedict has a ${k.gpa} GPA and has made the ${k.honors}.`;
+            if (/\b(school|university|college|education|study|where.*go|luddy)\b/.test(q))
+                return `Benedict studies ${k.major} at ${k.school}. He graduates in ${k.grad}.`;
+            if (/\b(certif|aws|cloud)\b/.test(q))
+                return `Benedict is an ${k.cert}.`;
+            if (/\b(skill|tech|language|know|stack|tool|proficien)\b/.test(q))
+                return `Programming: ${k.skills.programming}\nAI/ML: ${k.skills.ai}\nCloud & DevOps: ${k.skills.cloud}\nFrameworks: ${k.skills.tools}`;
+            if (/\b(experience|work|job|intern|employ|career)\b/.test(q))
+                return `${k.experience.fwc}\n\n${k.experience.uits}\n\n${k.experience.steel}`;
+            if (/\b(future wonder|ai intern|charioteer)\b/.test(q))
+                return k.experience.fwc;
+            if (/\b(uits|it consult|supervisor|servicenow)\b/.test(q))
+                return k.experience.uits;
+            if (/\b(steel|tube|uganda|manufactur)\b/.test(q))
+                return k.experience.steel;
+            if (/\b(project|built|made|portfolio|create)\b/.test(q))
+                return Object.values(k.projects).map(p => "• " + p).join("\n");
+            if (/\b(avemenu|restaurant|menu)\b/.test(q))
+                return k.projects.avemenu;
+            if (/\b(debate|ld|lincoln|douglas|tournament)\b/.test(q))
+                return k.projects.lddebate;
+            if (/\b(eazy\s?flow|traffic)\b/.test(q))
+                return k.projects.eazyflow;
+            if (/\b(pixel\s?scout|image|cnn|classify)\b/.test(q))
+                return k.projects.pixelscout;
+            if (/\b(aldi|case comp|competition)\b/.test(q))
+                return k.projects.aldi;
+            if (/\b(flippa|memory game)\b/.test(q))
+                return k.projects.flippa;
+            if (/\b(flappy|bird)\b/.test(q))
+                return k.projects.flappybird;
+            if (/\b(nsbe|black engineer|vice president)\b/.test(q))
+                return k.leadership.nsbe;
+            if (/\b(lead|involve|org|club|frat)\b/.test(q))
+                return Object.values(k.leadership).map(l => "• " + l).join("\n");
+            if (/\b(kappa|theta|pi|ktp)\b/.test(q))
+                return k.leadership.ktp;
+            if (/\b(ta|teach|tutor)\b/.test(q))
+                return k.leadership.ta;
+            if (/\b(deloitte|ey|big four|consult)\b/.test(q))
+                return k.leadership.ey + " He's also in the " + k.leadership.lca;
+            if (/\b(contact|reach|email|connect|linkedin|github|social|phone|call)\b/.test(q))
+                return "Email: yigabenedict5@gmail.com\nLinkedIn: linkedin.com/in/bdyiga\nGitHub: github.com/bdyiga\nPhone: (812) 650-8891";
+            if (/\b(resume|cv)\b/.test(q))
+                return "You can view and download Benedict's full resume on the Resume page!";
+            if (/\b(thank|thanks|appreciate)\b/.test(q))
+                return "You're welcome! Feel free to ask anything else.";
+            if (/\b(bye|goodbye|see you|later)\b/.test(q))
+                return "Thanks for stopping by! Have a great day.";
+            return "Great question! I can tell you about Benedict's experience, projects, skills, education, leadership, certifications, or contact info. What interests you?";
         }
 
         window.toggleChat = function() {
             document.getElementById('chatContainer').classList.toggle('active');
         };
-
         window.sendMessage = function() {
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
             if (!msg) return;
-
             const messagesDiv = document.getElementById('chatMessages');
-
             const userBubble = document.createElement('div');
             userBubble.className = 'message user-message';
             userBubble.textContent = msg;
             messagesDiv.appendChild(userBubble);
             input.value = '';
-
             const typing = document.getElementById('typingIndicator');
             typing.classList.add('active');
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
             setTimeout(() => {
                 typing.classList.remove('active');
                 const botBubble = document.createElement('div');
                 botBubble.className = 'message bot-message';
-                botBubble.textContent = getBotResponse(msg);
+                botBubble.style.whiteSpace = 'pre-line';
+                botBubble.textContent = respond(msg);
                 messagesDiv.appendChild(botBubble);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }, 600 + Math.random() * 800);
+            }, 500 + Math.random() * 700);
         };
     })();
     </script>
