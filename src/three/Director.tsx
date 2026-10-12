@@ -7,23 +7,27 @@ import { experiences, leadership, projects, skillGroups } from '../data/portfoli
 import {
   bagCamera,
   bannerCamera,
+  CONVERSION_LANDING,
   experienceCamera,
   INTRO_END,
   INTRO_START,
+  KICK,
   OVERVIEW,
+  PLAYER_INTRO,
+  PLAYER_SPOTS,
   projectCamera,
   SECTION_BY_ID,
   type SectionId,
   type Vec3,
 } from '../lib/sections'
 import { ball, cameraState, flyBall, lighting } from '../lib/sceneState'
+import { newSequence, player, playAction, runTo, waitUntil } from '../lib/player'
 import { useStore } from '../state/store'
 import { towerPower } from './Atmosphere'
 
 type View = { position: Vec3; target: Vec3 }
 
 const v = (a: Vec3) => new Vector3(a[0], a[1], a[2])
-const CONVERSION_LANDING: Vec3 = [64, 0.62, -7]
 
 function viewFor(section: SectionId | null, item: number | null): View {
   if (!section) return OVERVIEW
@@ -141,6 +145,9 @@ export function Director() {
     if (phase === 'intro') {
       c.enabled = false
       introTl.current?.kill()
+      // #13 waits behind the ball, facing the camera's final intro position
+      newSequence()
+      runTo(PLAYER_INTRO, { instant: true, face: INTRO_END.position })
       if (reduced) {
         lighting.level = 1
         towerPower.fill(1)
@@ -206,8 +213,14 @@ export function Director() {
         return
       }
       c.enabled = false
-      // up-and-under: the ball goes sky high and the camera rides up with it
-      flyBall(ball.home, { height: 15, duration: 2.4, style: 'tumble' })
+      // up-and-under: #13 boots the ball sky high and the camera rides up with it
+      const alive = newSequence()
+      playAction('kick', {
+        at: 0.45,
+        onAt: () => flyBall(ball.home, { height: 15, duration: 2.4, style: 'tumble' }),
+      }).then((ok) => {
+        if (ok && alive()) runTo(PLAYER_SPOTS.home.pos, { face: PLAYER_SPOTS.home.face })
+      })
       const fromP = c.getPosition(new Vector3())
       const ctrl = new Vector3(12, 20, 42)
       const toP = v(overview.position)
@@ -266,6 +279,7 @@ export function Director() {
       style: 'tumble',
       onComplete: () => {
         const s = useStore.getState()
+        if (player.mode === 'idle') playAction('celebrate', { instant: s.reducedMotion })
         s.scoreConversion()
         const n = useStore.getState().conversions
         s.showToast({
@@ -281,10 +295,19 @@ export function Director() {
     })
   }
 
+  /** Ball to the tee, #13 to the run-up, a short approach, then boot meets ball. */
   const passThenKick = () => {
-    const spot = SECTION_BY_ID.contact.ballSpot
-    if (ball.pos.distanceTo(v(spot)) < 1) kickConversion()
-    else flyBall(spot, { instant: useStore.getState().reducedMotion, onComplete: () => window.setTimeout(kickConversion, 250) })
+    const reduced = useStore.getState().reducedMotion
+    const alive = newSequence()
+    const tee = v(SECTION_BY_ID.contact.ballSpot)
+    const ballOnTee = () => ball.mode === 'idle' && ball.pos.distanceTo(tee) < 1
+    if (!ballOnTee()) flyBall(tee, { instant: reduced })
+    runTo(KICK.runUp, { face: tee, instant: reduced })
+      .then((ok) => ok && waitUntil(ballOnTee, alive))
+      .then((ok) => ok && alive() && runTo(KICK.plant, { speed: 6, face: CONVERSION_LANDING, instant: reduced }))
+      .then((ok) => {
+        if (ok && alive()) playAction('kick', { at: 0.45, onAt: kickConversion, instant: reduced, face: CONVERSION_LANDING })
+      })
   }
 
   useEffect(() => {
@@ -301,8 +324,20 @@ export function Director() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, section])
 
+  // ---- #13 runs to each section, then presents it ----
   useEffect(() => {
-    if (kickNonce === 0 || ball.mode === 'flight') return
+    if (phase !== 'world' || section === 'contact') return
+    const reduced = useStore.getState().reducedMotion
+    const alive = newSequence()
+    const spot = PLAYER_SPOTS[section ?? 'home']
+    runTo(spot.pos, { face: spot.face, instant: reduced }).then((ok) => {
+      if (!ok || !alive() || !section || reduced) return
+      playAction(section === 'about' ? 'wave' : 'point', { face: spot.face })
+    })
+  }, [phase, section])
+
+  useEffect(() => {
+    if (kickNonce === 0 || ball.mode === 'flight' || player.action === 'kick') return
     passThenKick()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kickNonce])

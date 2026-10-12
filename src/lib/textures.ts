@@ -468,3 +468,65 @@ export function drawTotem(
   for (let gx = 0; gx < W; gx += 5) ctx.fillRect(gx, 0, 1.2, H)
   for (let gy = 0; gy < H; gy += 5) ctx.fillRect(0, gy, W, 1.2)
 }
+
+export const IU = { crimson: '#990000', crimsonDark: '#5e0000', cream: '#EEEDEB' }
+
+/**
+ * IU rugby jersey wrapped around the torso cylinder.
+ * Cylinder UVs: u = 0 (and 1) is the chest, u = 0.5 is the back.
+ */
+export function drawJersey(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  ctx.fillStyle = IU.crimson
+  ctx.fillRect(0, 0, W, H)
+  // knit texture
+  const r = rand(13)
+  for (let i = 0; i < 9000; i++) {
+    ctx.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.06)'
+    ctx.fillRect(r() * W, r() * H, 2, 2)
+  }
+  // collar and hem
+  ctx.fillStyle = IU.cream
+  ctx.fillRect(0, 0, W, H * 0.06)
+  ctx.fillStyle = IU.crimsonDark
+  ctx.fillRect(0, H * 0.06, W, H * 0.015)
+  ctx.fillRect(0, H * 0.95, W, H * 0.05)
+  // cream side piping
+  ctx.fillStyle = IU.cream
+  for (const u of [0.25, 0.75]) ctx.fillRect(W * u - 4, H * 0.08, 8, H * 0.87)
+
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const outlined = (text: string, x: number, y: number) => {
+    ctx.lineJoin = 'round'
+    ctx.lineWidth = 10
+    ctx.strokeStyle = IU.crimsonDark
+    ctx.strokeText(text, x, y)
+    ctx.fillStyle = IU.cream
+    ctx.fillText(text, x, y)
+  }
+
+  // back: name and number
+  setFont(ctx, 900, H * 0.14)
+  outlined('YIGA', W / 2, H * 0.2)
+  setFont(ctx, 900, H * 0.5, HEAD, false)
+  outlined('13', W / 2, H * 0.6)
+
+  // chest: IU monogram, drawn at both seams so it wraps cleanly
+  setFont(ctx, 900, H * 0.24, HEAD, false)
+  for (const x of [0, W]) outlined('IU', x, H * 0.36)
+}
+
+/** Cream shorts with an IU candy-stripe side panel. */
+export function drawShorts(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  ctx.fillStyle = IU.cream
+  ctx.fillRect(0, 0, W, H)
+  for (const u of [0.25, 0.75]) {
+    const x0 = W * u - W * 0.06
+    for (let i = 0; i < 6; i++) {
+      ctx.fillStyle = i % 2 ? IU.cream : IU.crimson
+      ctx.fillRect(x0 + (i * W * 0.12) / 6, 0, (W * 0.12) / 6, H)
+    }
+  }
+  ctx.fillStyle = IU.crimson
+  ctx.fillRect(0, H * 0.9, W, H * 0.1)
+}

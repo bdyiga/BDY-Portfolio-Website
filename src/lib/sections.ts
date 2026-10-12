@@ -79,7 +79,8 @@ export const SECTIONS: SectionMeta[] = [
     zone: 'Goalposts',
     blurb: "Let's build something great together",
     hotspot: [50, 18.5, 0],
-    camera: { position: [24, 4.5, 16], target: [50, 8, 0] },
+    // from behind the kicker: #13 on the left, posts in the middle, panel on the right
+    camera: { position: [18, 5, 19], target: [46, 7, -3] },
     ballSpot: [32, 0.62, 9],
   },
 ]
@@ -153,3 +154,28 @@ export function bagCamera(i: number, count: number) {
 
 export const GOALPOSTS_X = 50
 export const TROPHY_POS: Vec3 = [-63.5, 0, -31]
+
+// ---- #13 player positions ----
+
+/** Where the player stands for each section, and what he faces once there. */
+export const PLAYER_SPOTS: Record<SectionId | 'home', { pos: Vec3; face: Vec3 }> = {
+  home: { pos: [2.4, 0, 1.3], face: [0, 0, 60] },
+  about: { pos: [1.9, 0, 0.9], face: [5.5, 0, 7.5] },
+  projects: { pos: [-25, 0, 7.5], face: [-40, 0, 0] },
+  experience: { pos: [27, 0, -2.5], face: [44, 0, -6] },
+  leadership: { pos: [2.6, 0, -25.5], face: [0, 0, -42] },
+  skills: { pos: [3.4, 0, 30.8], face: [0, 0, 42] },
+  contact: { pos: [27.5, 0, 9.45], face: [32, 0, 9] },
+}
+
+/** Where the player waits during the intro, just behind the ball on its tee. */
+export const PLAYER_INTRO: Vec3 = [0.55, 0, -1.7]
+
+/** Conversion geometry: tee -> through the posts -> landing. */
+export const CONVERSION_LANDING: Vec3 = [64, 0.62, -7]
+export const KICK = {
+  /** Start of the run-up: behind the ball and to the kicker's left. */
+  runUp: [27.5, 0, 9.45] as Vec3,
+  /** Plant foot beside the ball. */
+  plant: [31.3, 0, 8.85] as Vec3,
+}
