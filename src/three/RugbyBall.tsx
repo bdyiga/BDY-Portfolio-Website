@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import { Group, LatheGeometry, Mesh, Quaternion, Vector2, Vector3 } from 'three'
 import { ball, bounceBall, flyBall } from '../lib/sceneState'
+import { player } from '../lib/player'
 import { drawBall } from '../lib/textures'
 import { useCanvasTexture } from './useCanvasTexture'
 import { useStore } from '../state/store'
@@ -10,6 +11,8 @@ import { SECTION_BY_ID } from '../lib/sections'
 const LENGTH = 1.15
 const RADIUS = 0.36
 const UP = new Vector3(0, 1, 0)
+/** Rotates the ball's long axis (local Y) to point forward (+Z). */
+const CARRY_TILT = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
 
 function ballGeometry() {
   const pts: Vector2[] = []
@@ -71,6 +74,10 @@ export function RugbyBall() {
           flyBall(ball.rest, { height: 1.2, duration: 0.7 })
         }
       }
+    } else if (ball.mode === 'carried') {
+      // tucked in both hands, long axis pointing the way #13 is facing
+      tmpQ.setFromAxisAngle(UP, player.yaw).multiply(CARRY_TILT)
+      s.q.slerp(tmpQ, Math.min(1, dt * 10))
     } else if (ball.mode === 'flight') {
       tmpV.copy(ball.pos).sub(s.prev)
       if (ball.style === 'spiral') {
@@ -109,6 +116,9 @@ export function RugbyBall() {
       s.hop = Math.max(0, s.hop - dt * 2.2)
       const bob = ball.mode === 'idle' && !reducedMotion ? Math.sin(t * 1.8) * 0.05 + Math.sin(s.hop * Math.PI) * 0.45 : 0
       group.current.position.set(ball.pos.x, ball.pos.y + bob, ball.pos.z)
+      // a touch smaller in his hands so the hero ball doesn't swamp the player
+      const sc = group.current.scale.x + ((ball.mode === 'carried' ? 0.78 : 1) - group.current.scale.x) * Math.min(1, dt * 8)
+      group.current.scale.setScalar(sc)
     }
     if (mesh.current) mesh.current.quaternion.copy(s.q)
     if (shadow.current) {

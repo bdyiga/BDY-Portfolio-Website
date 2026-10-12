@@ -1,13 +1,21 @@
 import gsap from 'gsap'
 import { MathUtils, Vector3 } from 'three'
-import type { Vec3 } from './sections'
+import { experiences, projects, skillGroups } from '../data/portfolio'
+import {
+  bagPosition,
+  experienceMarkerPosition,
+  GOALPOSTS_X,
+  projectCardTransform,
+  TROPHY_POS,
+  type Vec3,
+} from './sections'
 
 /**
  * The #13 player: a code-only character that runs around the stadium.
  * Like the ball, its per-frame state lives outside React; the <Player/>
  * component reads it every frame and turns it into a pose.
  */
-export type Action = 'kick' | 'pass' | 'celebrate' | 'wave' | 'point'
+export type Action = 'kick' | 'pass' | 'celebrate' | 'wave' | 'point' | 'pickup' | 'place'
 
 export const ACTION_DURATION: Record<Action, number> = {
   kick: 0.95,
@@ -15,10 +23,12 @@ export const ACTION_DURATION: Record<Action, number> = {
   celebrate: 1.6,
   wave: 1.4,
   point: 1.1,
+  pickup: 0.6,
+  place: 0.6,
 }
 
 export const player = {
-  pos: new Vector3(0.6, 0, -1.8),
+  pos: new Vector3(0.55, 0, -1.7),
   /** Current facing (radians, 0 = +Z). Eased toward targetYaw each frame. */
   yaw: 0,
   targetYaw: 0,
@@ -53,7 +63,81 @@ function stopAction() {
   player.action = null
 }
 
-/** Jog/sprint in a straight line. Resolves false if interrupted by another move. */
+/* ------------------------------------------------------------------ */
+/* Obstacle-aware paths                                                */
+/* ------------------------------------------------------------------ */
+
+type Obstacle = { x: number; z: number; r: number }
+
+/** Things #13 should run around (radius includes his body). */
+const OBSTACLES: Obstacle[] = [
+  // goalposts + crossbar (too low to run under at his height)
+  { x: -GOALPOSTS_X, z: 0, r: 4.4 },
+  { x: GOALPOSTS_X, z: 0, r: 4.4 },
+  // project holograms: wide screens on projector bases
+  ...projects.map((_, i) => {
+    const p = projectCardTransform(i, projects.length).position
+    return { x: p[0], z: p[2], r: 3.6 }
+  }),
+  // experience totems
+  ...experiences.map((_, i) => {
+    const p = experienceMarkerPosition(i, experiences.length)
+    return { x: p[0], z: p[2], r: 2.4 }
+  }),
+  // tackle bags
+  ...skillGroups.map((_, i) => {
+    const p = bagPosition(i, skillGroups.length)
+    return { x: p[0], z: p[2], r: 1.4 }
+  }),
+  { x: TROPHY_POS[0], z: TROPHY_POS[2], r: 1.2 },
+]
+
+const inside = (p: Vector3, o: Obstacle) => Math.hypot(p.x - o.x, p.z - o.z) < o.r
+
+/** Straight line, bent around any obstacle it would clip. */
+function planPath(from: Vector3, to: Vector3): Vector3[] {
+  const pts = [from.clone(), to.clone()]
+  for (let iter = 0; iter < 8; iter++) {
+    let inserted = false
+    for (let i = 0; i < pts.length - 1 && !inserted; i++) {
+      const a = pts[i]
+      const b = pts[i + 1]
+      const abx = b.x - a.x
+      const abz = b.z - a.z
+      const len2 = abx * abx + abz * abz
+      if (len2 < 1e-6) continue
+      let best: { o: Obstacle; t: number; d: number } | null = null
+      for (const o of OBSTACLES) {
+        // obstacles the endpoints are already inside are ignored (start/finish beside them)
+        if (inside(a, o) || inside(b, o)) continue
+        const t = MathUtils.clamp(((o.x - a.x) * abx + (o.z - a.z) * abz) / len2, 0, 1)
+        const d = Math.hypot(a.x + abx * t - o.x, a.z + abz * t - o.z)
+        if (d < o.r && (!best || t < best.t)) best = { o, t, d }
+      }
+      if (best) {
+        const { o, t } = best
+        const cx = a.x + abx * t
+        const cz = a.z + abz * t
+        let nx = cx - o.x
+        let nz = cz - o.z
+        let n = Math.hypot(nx, nz)
+        if (n < 1e-3) {
+          // dead centre: sidestep perpendicular to the run
+          nx = -abz
+          nz = abx
+          n = Math.hypot(nx, nz)
+        }
+        const k = (o.r + 0.9) / n
+        pts.splice(i + 1, 0, new Vector3(o.x + nx * k, 0, o.z + nz * k))
+        inserted = true
+      }
+    }
+    if (!inserted) break
+  }
+  return pts
+}
+
+/** Jog/sprint to a point, around obstacles. Resolves false if interrupted by another move. */
 export function runTo(
   to: Vec3 | Vector3,
   opts: { face?: XZ | number; speed?: number; instant?: boolean } = {},
@@ -62,12 +146,11 @@ export function runTo(
     player.moveTween?.kill()
     stopAction()
     const target = Array.isArray(to) ? new Vector3(to[0], 0, to[2]) : new Vector3(to.x, 0, to.z)
-    const from = player.pos.clone()
-    const dist = from.distanceTo(target)
+    const from = player.pos.clone().setY(0)
     const faceYaw =
       typeof opts.face === 'number' ? opts.face : opts.face !== undefined ? yawTo(target, opts.face) : undefined
 
-    if (opts.instant || dist < 0.05) {
+    if (opts.instant || from.distanceTo(target) < 0.05) {
       player.pos.copy(target)
       if (faceYaw !== undefined) {
         player.targetYaw = faceYaw
@@ -79,19 +162,37 @@ export function runTo(
       return
     }
 
-    const speed = opts.speed ?? MathUtils.clamp(dist / 2.4, 9, 24)
+    const path = planPath(from, target)
+    const lens: number[] = []
+    let total = 0
+    for (let i = 0; i < path.length - 1; i++) {
+      const l = path[i].distanceTo(path[i + 1])
+      lens.push(l)
+      total += l
+    }
+
+    const speed = opts.speed ?? MathUtils.clamp(total / 2.4, 9, 24)
     player.mode = 'run'
     player.speed = speed
-    player.targetYaw = yawTo(from, target)
+    player.targetYaw = yawTo(path[0], path[1])
     const p = { t: 0 }
     player.moveTween = gsap.to(p, {
       t: 1,
-      duration: dist / speed,
+      duration: total / speed,
       ease: 'power1.inOut',
       onUpdate: () => {
-        player.pos.lerpVectors(from, target, p.t)
+        // walk the polyline by distance travelled
+        let d = p.t * total
+        let i = 0
+        while (i < lens.length - 1 && d > lens[i]) {
+          d -= lens[i]
+          i++
+        }
+        player.pos.lerpVectors(path[i], path[i + 1], lens[i] > 0 ? Math.min(1, d / lens[i]) : 1)
+        player.targetYaw = yawTo(path[i], path[i + 1])
       },
       onComplete: () => {
+        player.pos.copy(target)
         player.mode = 'idle'
         player.speed = 0
         player.moveTween = null
@@ -114,6 +215,7 @@ export function playAction(
     stopAction()
     if (opts.face !== undefined) {
       player.targetYaw = typeof opts.face === 'number' ? opts.face : yawTo(player.pos, opts.face)
+      if (opts.instant) player.yaw = player.targetYaw
     }
     if (opts.instant) {
       opts.onAt?.()

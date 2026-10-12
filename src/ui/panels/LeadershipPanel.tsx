@@ -19,7 +19,7 @@ export function LeadershipPanel() {
   const selectItem = useStore((s) => s.selectItem)
   const sel = index ?? 0
   useEffect(() => {
-    if (index === null) selectItem('leadership', 0)
+    if (index === null && window.innerWidth >= 900) selectItem('leadership', 0)
   }, [index, selectItem])
   const l = leadership[sel]
 

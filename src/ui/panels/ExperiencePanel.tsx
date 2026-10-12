@@ -10,7 +10,7 @@ export function ExperiencePanel() {
   const index = stored ?? experiences.length - 1
   // open on the latest role so the 3D totem, camera and panel agree
   useEffect(() => {
-    if (stored === null) selectItem('experience', experiences.length - 1)
+    if (stored === null && window.innerWidth >= 900) selectItem('experience', experiences.length - 1)
   }, [stored, selectItem])
   const e = experiences[index]
   const pct = (index / (experiences.length - 1)) * 100

@@ -1,7 +1,8 @@
 import { useMemo, useRef } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
-import { Group, MathUtils, Mesh, MeshStandardMaterial } from 'three'
+import { Group, MathUtils, Mesh, MeshStandardMaterial, Vector3 } from 'three'
 import { player, playAction, yawTo, type Action } from '../lib/player'
+import { ball } from '../lib/sceneState'
 import { SECTION_BY_ID } from '../lib/sections'
 import { drawJersey, drawShorts, IU } from '../lib/textures'
 import { useStore } from '../state/store'
@@ -71,6 +72,16 @@ const ACTIONS: Record<Action, Frame[]> = {
     [0.85, { rShZ: 2.5, rEl: 0.6, twist: 0.1 }],
     [1, {}],
   ],
+  pickup: [
+    [0, {}],
+    [0.45, { lean: 0.7, lHip: 0.55, rHip: 0.55, lKnee: 1.0, rKnee: 1.0, bob: -0.38, lShX: 1.2, rShX: 1.2, lEl: 0.25, rEl: 0.25, lShZ: 0.05, rShZ: 0.05 }],
+    [1, { lShX: 0.9, rShX: 0.9, lEl: 1.5, rEl: 1.5, lShZ: 0.05, rShZ: 0.05 }],
+  ],
+  place: [
+    [0, { lShX: 0.9, rShX: 0.9, lEl: 1.5, rEl: 1.5, lShZ: 0.05, rShZ: 0.05 }],
+    [0.5, { lean: 0.7, lHip: 0.55, rHip: 0.55, lKnee: 1.0, rKnee: 1.0, bob: -0.38, lShX: 1.2, rShX: 1.2, lEl: 0.25, rEl: 0.25, lShZ: 0.05, rShZ: 0.05 }],
+    [1, {}],
+  ],
   point: [
     [0, {}],
     [0.3, { rShX: 1.45, rShZ: 0.15, rEl: 0.05, twist: -0.2, lean: 0.06, head: -0.1 }],
@@ -102,6 +113,7 @@ const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a))
 
 const HIP_Y = 1.61
 const SKIN = '#6b4226'
+const carry = new Vector3()
 const HAIR = '#140e0b'
 
 function useMats() {
@@ -192,7 +204,7 @@ export function Player() {
   const lKnee = useRef<Group>(null)
   const rKnee = useRef<Group>(null)
   const shadow = useRef<Mesh>(null)
-  const state = useRef({ phase: 0, cur: { ...IDLE }, target: { ...IDLE } })
+  const state = useRef({ phase: 0, cur: { ...IDLE }, target: { ...IDLE }, prev: player.pos.clone() })
 
   useFrame((frame, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30)
@@ -236,6 +248,11 @@ export function Player() {
       }
     }
 
+    // carrying: both hands hold the ball in front of the chest (actions animate their own arms)
+    if (ball.mode === 'carried' && player.mode !== 'action') {
+      Object.assign(target, { lShX: 0.9, rShX: 0.9, lEl: 1.5, rEl: 1.5, lShZ: 0.05, rShZ: 0.05 })
+    }
+
     // ease toward the target pose so mode changes blend instead of snapping
     const k = 1 - Math.exp(-dt * 14)
     for (const key of KEYS) s.cur[key] += (target[key] - s.cur[key]) * k
@@ -262,6 +279,21 @@ export function Player() {
     if (lKnee.current) lKnee.current.rotation.x = p.lKnee
     if (rKnee.current) rKnee.current.rotation.x = p.rKnee
     if (shadow.current) shadow.current.position.set(player.pos.x, 0.025, player.pos.z)
+
+    // keep a carried ball in his hands: travel with him, then settle into the grip
+    if (ball.mode === 'carried') {
+      ball.pos.x += player.pos.x - s.prev.x
+      ball.pos.z += player.pos.z - s.prev.z
+      const yaw = player.yaw + p.twist
+      const reach = 0.62 + p.lean * 0.6
+      carry.set(
+        player.pos.x + Math.sin(yaw) * reach,
+        HIP_Y + p.bob + 0.62 - p.lean * 0.5,
+        player.pos.z + Math.cos(yaw) * reach,
+      )
+      ball.pos.lerp(carry, 1 - Math.exp(-dt * 16))
+    }
+    s.prev.copy(player.pos)
   })
 
   const onClick = (e: ThreeEvent<MouseEvent>) => {
