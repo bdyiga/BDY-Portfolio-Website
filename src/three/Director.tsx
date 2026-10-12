@@ -11,7 +11,6 @@ import {
   experienceCamera,
   INTRO_END,
   INTRO_START,
-  KICK,
   OVERVIEW,
   PLAYER_INTRO,
   PLAYER_SPOTS,
@@ -21,13 +20,33 @@ import {
   type Vec3,
 } from '../lib/sections'
 import { ball, cameraState, flyBall, lighting } from '../lib/sceneState'
-import { newSequence, player, playAction, runTo, waitUntil } from '../lib/player'
+import { newSequence, player, playAction, runTo } from '../lib/player'
+import { deliver, kickAgain } from '../lib/choreo'
 import { useStore } from '../state/store'
 import { towerPower } from './Atmosphere'
 
 type View = { position: Vec3; target: Vec3 }
 
 const v = (a: Vec3) => new Vector3(a[0], a[1], a[2])
+
+/**
+ * Phone framing for a section: #13 in the foreground at his spot, the zone's
+ * content behind him. About is shot from the front so you see the IU crest.
+ */
+function playerCam(section: SectionId): View {
+  const spot = section === 'contact' ? { pos: PLAYER_SPOTS.contact.pos, face: CONVERSION_LANDING } : PLAYER_SPOTS[section]
+  const p = v(spot.pos)
+  const f = v(spot.face).sub(p).setY(0).normalize()
+  const right = new Vector3(-f.z, 0, f.x)
+  // aim at him (not past him) so the sheet offset lifts him into the visible strip
+  if (section === 'about') {
+    const pos = p.clone().addScaledVector(f, 8).addScaledVector(right, 1.5)
+    return { position: [pos.x, 3.2, pos.z], target: [p.x, 1.9, p.z] }
+  }
+  const pos = p.clone().addScaledVector(f, -8).addScaledVector(right, 2.4)
+  const tgt = p.clone().addScaledVector(f, 1.5)
+  return { position: [pos.x, 4, pos.z], target: [tgt.x, 2, tgt.z] }
+}
 
 function viewFor(section: SectionId | null, item: number | null): View {
   if (!section) return OVERVIEW
@@ -66,6 +85,7 @@ export function Director() {
   const section = useStore((s) => s.section)
   const item = useStore((s) => (s.section ? s.item[s.section] : null))
   const kickNonce = useStore((s) => s.kickNonce)
+  const sheetCollapsed = useStore((s) => s.sheetCollapsed)
   const camTween = useRef<gsap.core.Animation | null>(null)
   const introTl = useRef<gsap.core.Timeline | null>(null)
   const prevSection = useRef<SectionId | null>(null)
@@ -263,12 +283,21 @@ export function Director() {
   // ---- Section / item camera framing ----
   useEffect(() => {
     if (phase !== 'world') return
-    const view = fitToAspect(viewFor(section, item), aspect, section === null)
+    // phones: when a section opens (no specific item picked yet), follow #13 over the shoulder
+    const phoneCam = !wide && section !== null && item === null
+    const view = phoneCam ? playerCam(section) : fitToAspect(viewFor(section, item), aspect, section === null)
     const dist = v(view.position).distanceTo(v(view.target))
-    const offset: Vec3 = !panelOpen ? [0, 0, 0] : wide ? [dist * 0.24, 0, 0] : [0, -dist * 0.24, 0]
+    let offset: Vec3 = [0, 0, 0]
+    if (panelOpen && wide) offset = [dist * 0.24, 0, 0]
+    else if (panelOpen) {
+      // lift the subject into the strip of screen above the bottom sheet
+      // (camera-controls applies a positive Y focal offset as "frame moves down, subject rises")
+      const sheet = sheetCollapsed ? 0.19 : 0.5
+      offset = [0, sheet * Math.tan(MathUtils.degToRad(fovFor(aspect) / 2)) * dist, 0]
+    }
     moveTo(view, { offset })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, section, item, aspect, wide, panelOpen])
+  }, [phase, section, item, aspect, wide, panelOpen, sheetCollapsed])
 
   // ---- Ball choreography: pass to the section, kick for contact ----
   const kickConversion = () => {
@@ -286,59 +315,23 @@ export function Director() {
           title: 'Conversion! +2',
           body: n === 1 ? 'Straight between the posts. The crowd is on its feet.' : `That's ${n} conversions this visit. Coach is impressed.`,
         })
-        window.setTimeout(() => {
-          const now = useStore.getState()
-          const spot = now.section ? SECTION_BY_ID[now.section].ballSpot : ball.home.toArray()
-          if (ball.mode === 'idle') flyBall(spot as Vec3, { instant: now.reducedMotion })
-        }, 1400)
+        // the ball stays in the in-goal; #13 fetches it on his next play
       },
     })
   }
 
-  /** Ball to the tee, #13 to the run-up, a short approach, then boot meets ball. */
-  const passThenKick = () => {
-    const reduced = useStore.getState().reducedMotion
-    const alive = newSequence()
-    const tee = v(SECTION_BY_ID.contact.ballSpot)
-    const ballOnTee = () => ball.mode === 'idle' && ball.pos.distanceTo(tee) < 1
-    if (!ballOnTee()) flyBall(tee, { instant: reduced })
-    runTo(KICK.runUp, { face: tee, instant: reduced })
-      .then((ok) => ok && waitUntil(ballOnTee, alive))
-      .then((ok) => ok && alive() && runTo(KICK.plant, { speed: 6, face: CONVERSION_LANDING, instant: reduced }))
-      .then((ok) => {
-        if (ok && alive()) playAction('kick', { at: 0.45, onAt: kickConversion, instant: reduced, face: CONVERSION_LANDING })
-      })
-  }
-
+  // ---- #13 fetches the ball, carries it to the section and passes (or kicks) it ----
   useEffect(() => {
     if (phase !== 'world') return
     if (section === prevSection.current) return
     prevSection.current = section
-    const reduced = useStore.getState().reducedMotion
-    if (section === 'contact') {
-      passThenKick()
-      return
-    }
-    const spot = section ? SECTION_BY_ID[section].ballSpot : ball.home.toArray()
-    flyBall(spot as Vec3, { instant: reduced })
+    deliver(section, useStore.getState().reducedMotion, kickConversion)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, section])
 
-  // ---- #13 runs to each section, then presents it ----
   useEffect(() => {
-    if (phase !== 'world' || section === 'contact') return
-    const reduced = useStore.getState().reducedMotion
-    const alive = newSequence()
-    const spot = PLAYER_SPOTS[section ?? 'home']
-    runTo(spot.pos, { face: spot.face, instant: reduced }).then((ok) => {
-      if (!ok || !alive() || !section || reduced) return
-      playAction(section === 'about' ? 'wave' : 'point', { face: spot.face })
-    })
-  }, [phase, section])
-
-  useEffect(() => {
-    if (kickNonce === 0 || ball.mode === 'flight' || player.action === 'kick') return
-    passThenKick()
+    if (kickNonce === 0) return
+    kickAgain(useStore.getState().reducedMotion, kickConversion)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kickNonce])
 

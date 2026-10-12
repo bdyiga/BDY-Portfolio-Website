@@ -15,7 +15,7 @@ export const lighting = {
 
 export { cameraState } from './cameraState'
 
-type BallMode = 'idle' | 'flight' | 'physics'
+type BallMode = 'idle' | 'flight' | 'physics' | 'carried'
 
 export const ball = {
   pos: new Vector3(...BALL_HOME),

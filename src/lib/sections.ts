@@ -40,7 +40,7 @@ export const SECTIONS: SectionMeta[] = [
     blurb: 'The playbook: seven plays I have run',
     hotspot: [-44, 10.8, 0],
     camera: { position: [0, 10, 0], target: [-40, 5, 0] },
-    ballSpot: [-28, 0.62, 5],
+    ballSpot: [-31, 0.62, 2],
   },
   {
     id: 'experience',
@@ -161,7 +161,7 @@ export const TROPHY_POS: Vec3 = [-63.5, 0, -31]
 export const PLAYER_SPOTS: Record<SectionId | 'home', { pos: Vec3; face: Vec3 }> = {
   home: { pos: [2.4, 0, 1.3], face: [0, 0, 60] },
   about: { pos: [1.9, 0, 0.9], face: [5.5, 0, 7.5] },
-  projects: { pos: [-25, 0, 7.5], face: [-40, 0, 0] },
+  projects: { pos: [-24, 0, -2], face: [-40, 0, 0] },
   experience: { pos: [27, 0, -2.5], face: [44, 0, -6] },
   leadership: { pos: [2.6, 0, -25.5], face: [0, 0, -42] },
   skills: { pos: [3.4, 0, 30.8], face: [0, 0, 42] },
@@ -172,7 +172,7 @@ export const PLAYER_SPOTS: Record<SectionId | 'home', { pos: Vec3; face: Vec3 }>
 export const PLAYER_INTRO: Vec3 = [0.55, 0, -1.7]
 
 /** Conversion geometry: tee -> through the posts -> landing. */
-export const CONVERSION_LANDING: Vec3 = [64, 0.62, -7]
+export const CONVERSION_LANDING: Vec3 = [60, 0.62, -5.5]
 export const KICK = {
   /** Start of the run-up: behind the ball and to the kicker's left. */
   runUp: [27.5, 0, 9.45] as Vec3,

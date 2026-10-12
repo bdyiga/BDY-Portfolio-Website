@@ -19,6 +19,8 @@ type State = {
   quality: Quality
   coachOpen: boolean
   menuOpen: boolean
+  /** Phone bottom sheet shrunk to its header so the field is visible. */
+  sheetCollapsed: boolean
   interacted: boolean
   toast: Toast | null
   conversions: number
@@ -38,6 +40,7 @@ type State = {
   setWebglFailed: () => void
   setCoachOpen: (v: boolean) => void
   setMenuOpen: (v: boolean) => void
+  setSheetCollapsed: (v: boolean) => void
   markInteracted: () => void
   showToast: (t: Omit<Toast, 'id'>) => void
   clearToast: () => void
@@ -75,6 +78,7 @@ export const useStore = create<State>((set, get) => ({
   quality: lowEnd ? 'low' : 'high',
   coachOpen: false,
   menuOpen: false,
+  sheetCollapsed: false,
   interacted: false,
   toast: null,
   conversions: 0,
@@ -85,13 +89,14 @@ export const useStore = create<State>((set, get) => ({
   openSection: (section, item = null) =>
     set((s) => ({
       section,
+      sheetCollapsed: false,
       item: { ...s.item, [section]: item },
       menuOpen: false,
       interacted: true,
       phase: s.phase === 'world' ? s.phase : 'world',
     })),
   selectItem: (section, item) => set((s) => ({ item: { ...s.item, [section]: item } })),
-  closeSection: () => set({ section: null, item: { ...emptyItems } }),
+  closeSection: () => set({ section: null, item: { ...emptyItems }, sheetCollapsed: false }),
   setHovered: (hovered) => {
     if (get().hovered !== hovered) set({ hovered })
   },
@@ -102,6 +107,7 @@ export const useStore = create<State>((set, get) => ({
   setWebglFailed: () => set({ webglFailed: true, quickView: true }),
   setCoachOpen: (coachOpen) => set({ coachOpen, menuOpen: false }),
   setMenuOpen: (menuOpen) => set({ menuOpen }),
+  setSheetCollapsed: (sheetCollapsed) => set({ sheetCollapsed }),
   markInteracted: () => {
     if (!get().interacted) set({ interacted: true })
   },

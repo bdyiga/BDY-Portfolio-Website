@@ -12,7 +12,7 @@ export function SkillsPanel() {
   const group = skillGroups[index]
   const [skill, setSkill] = useState<string | null>(null)
   useEffect(() => {
-    if (stored === null) selectItem('skills', 0)
+    if (stored === null && window.innerWidth >= 900) selectItem('skills', 0)
   }, [stored, selectItem])
   const used = skill ? whereUsed(skill) : []
 
