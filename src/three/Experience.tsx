@@ -14,6 +14,7 @@ import { Goalposts } from './Goalposts'
 import { Hotspot } from './Hotspot'
 import { LeadershipBanners } from './LeadershipBanners'
 import { Pitch } from './Pitch'
+import { Player } from './Player'
 import { ProjectHolograms } from './ProjectHolograms'
 import { RugbyBall } from './RugbyBall'
 import { Scoreboard } from './Scoreboard'
@@ -69,6 +70,7 @@ function Scene({ onReady }: { onReady: () => void }) {
         <TrainingGround />
         <Trophy />
         <RugbyBall />
+        <Player />
         {SECTIONS.map((s) => (
           <Hotspot key={s.id} meta={s} />
         ))}
