@@ -62,9 +62,6 @@ export function Panel({ id, children }: { id: SectionId; children: ReactNode }) 
         <button className="btn btn-ghost !px-3" onClick={() => openSection(prev.id)} aria-label={`Previous: ${prev.title}`}>
           <ArrowLeft size={16} /> <span className="hidden sm:inline">{prev.title}</span>
         </button>
-        <button className="btn btn-ghost !px-3" onClick={closeSection}>
-          Back to field
-        </button>
         <button className="btn btn-ghost !px-3" onClick={() => openSection(next.id)} aria-label={`Next: ${next.title}`}>
           <span className="hidden sm:inline">{next.title}</span> <ArrowRight size={16} />
         </button>

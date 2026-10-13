@@ -67,10 +67,7 @@ export function Hotspot({ meta }: { meta: SectionMeta }) {
             <span className="hotspot-key" aria-hidden>
               {meta.key}
             </span>
-            <span className="flex flex-col items-start leading-tight">
-              <span className="hotspot-zone">{meta.zone}</span>
-              <span className="hotspot-title">{meta.title}</span>
-            </span>
+            <span className="hotspot-title leading-tight">{meta.title}</span>
           </button>
         </Html>
       )}
