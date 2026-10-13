@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { profile } from '../data/portfolio'
-import { SECTIONS, SECTION_BY_ID } from '../lib/sections'
+import { SECTIONS } from '../lib/sections'
 import { useStore } from '../state/store'
-import { ArrowLeft, CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SunIcon, WhistleIcon } from './icons'
+import { CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SunIcon, WhistleIcon } from './icons'
 import { Minimap } from './Minimap'
 
 function LightsToggle() {
@@ -161,34 +161,19 @@ export function HUD() {
   const setCoachOpen = useStore((s) => s.setCoachOpen)
   const coachOpen = useStore((s) => s.coachOpen)
   const interacted = useStore((s) => s.interacted)
-  const meta = section ? SECTION_BY_ID[section] : null
 
   return (
     <>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-start justify-between gap-3 p-3 md:p-4">
-        <div className="pointer-events-auto flex items-center gap-2">
-          <button
-            onClick={closeSection}
-            className="glass display grid h-10 place-items-center rounded-full px-4 text-lg"
-            aria-label="BDY's World: back to stadium overview"
-          >
-            <span>
-              BDY<span className="text-lime">.</span>
-            </span>
-          </button>
-          <div className="glass hidden h-10 items-center gap-2 rounded-full pl-4 pr-1.5 sm:flex" aria-live="polite">
-            <span className="h-2 w-2 rounded-full bg-lime shadow-[0_0_10px_#c6ff3d]" aria-hidden />
-            <span className="text-xs">
-              <span className="text-silver-dim">You are at </span>
-              <span className="font-semibold">{meta ? `${meta.zone} · ${meta.title}` : 'Stadium Overview'}</span>
-            </span>
-            {meta && (
-              <button onClick={closeSection} className="ml-1 flex h-7 items-center gap-1 rounded-full bg-white/5 px-2.5 text-xs hover:text-lime">
-                <ArrowLeft size={13} /> Overview
-              </button>
-            )}
-          </div>
-        </div>
+        <button
+          onClick={closeSection}
+          className="glass display pointer-events-auto grid h-10 place-items-center rounded-full px-4 text-lg"
+          aria-label="BDY's World: back to stadium overview"
+        >
+          <span>
+            BDY<span className="text-lime">.</span>
+          </span>
+        </button>
         <div className="pointer-events-auto flex items-center gap-2">
           <LightsToggle />
           <button className="btn btn-ghost glass !h-10" onClick={() => setQuickView(true)} title="Quick View (Q)">
@@ -201,9 +186,12 @@ export function HUD() {
         </div>
       </header>
 
-      <div className={`fixed bottom-4 left-4 z-20 ${section ? 'hidden md:block' : ''}`}>
-        <Minimap />
-      </div>
+      {/* desktop overview only: on phones the hotspot labels already do this job */}
+      {!section && (
+        <div className="fixed bottom-4 left-4 z-20 hidden md:block">
+          <Minimap />
+        </div>
+      )}
 
       <AnimatePresence>
         {!interacted && !section && (
