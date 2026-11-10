@@ -20,7 +20,7 @@ export const profile = {
   linkedin: 'https://www.linkedin.com/in/bdyiga',
   github: 'https://github.com/bdyiga',
   availability:
-    'Graduating May 2027. Open to internships in Software Engineering, AI/ML, and Technology Consulting.',
+    'Graduating May 2027. Open to full-time roles in Software Engineering, AI/ML, Product Management, Sales Engineering, Solutions Engineering, and Technology Consulting.',
   rugbyIntro:
     'On the field, every play requires strategy, teamwork, and execution. I bring that same mindset to engineering intelligent solutions.',
   bio: [
