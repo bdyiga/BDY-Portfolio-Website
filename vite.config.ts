@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 const REACT = /\/node_modules\/(react|react-dom|scheduler|zustand|use-sync-external-store)\//
 const THREE = /\/node_modules\/(three|@react-three|postprocessing|three-stdlib|camera-controls|maath|meshline|stats-gl|troika[^/]*|@monogrid|n8ao)\//
 const GSAP = /\/node_modules\/gsap\//
+const ATHLETE = /\/node_modules\/three\/examples\/jsm\/(loaders\/GLTFLoader|libs\/meshopt_decoder|utils\/BufferGeometryUtils)/
 
 // Relative base works for both GitHub Pages (/BDY-Portfolio-Website/) and Netlify (/).
 export default defineConfig({
@@ -19,6 +20,8 @@ export default defineConfig({
         manualChunks(id) {
           const p = id.replace(/\\/g, '/')
           if (REACT.test(p)) return 'react-vendor'
+          // the glTF loader and meshopt decoder ride with the lazily loaded athlete, not the 3D stack
+          if (ATHLETE.test(p)) return undefined
           if (THREE.test(p)) return 'three-vendor'
           if (GSAP.test(p)) return 'gsap'
         },

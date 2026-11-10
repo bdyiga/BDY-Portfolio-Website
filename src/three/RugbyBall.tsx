@@ -1,15 +1,15 @@
 import { useMemo, useRef } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import { Group, LatheGeometry, Mesh, Quaternion, Vector2, Vector3 } from 'three'
-import { ball, bounceBall, flyBall } from '../lib/sceneState'
+import { ball, BALL_CARRY_SCALE, bounceBall, flyBall } from '../lib/sceneState'
 import { player } from '../lib/player'
 import { drawBall } from '../lib/textures'
 import { useCanvasTexture } from './useCanvasTexture'
 import { useStore } from '../state/store'
 import { SECTION_BY_ID } from '../lib/sections'
 
-const LENGTH = 1.15
-const RADIUS = 0.36
+export const BALL_LENGTH = 1.15
+export const BALL_RADIUS = 0.36
 const UP = new Vector3(0, 1, 0)
 /** Rotates the ball's long axis (local Y) to point forward (+Z). */
 const CARRY_TILT = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
@@ -18,10 +18,10 @@ function ballGeometry() {
   const pts: Vector2[] = []
   const n = 40
   for (let i = 0; i <= n; i++) {
-    const y = -LENGTH / 2 + (LENGTH * i) / n
-    const k = 1 - Math.pow((2 * y) / LENGTH, 2)
+    const y = -BALL_LENGTH / 2 + (BALL_LENGTH * i) / n
+    const k = 1 - Math.pow((2 * y) / BALL_LENGTH, 2)
     // slightly pointed tips: exponent < 0.5 on a spheroid profile
-    const r = RADIUS * Math.pow(Math.max(0, k), 0.62)
+    const r = BALL_RADIUS * Math.pow(Math.max(0, k), 0.62)
     pts.push(new Vector2(Math.max(r, i === 0 || i === n ? 0 : 0.002), y))
   }
   const g = new LatheGeometry(pts, 48)
@@ -63,8 +63,8 @@ export function RugbyBall() {
       ball.pos.addScaledVector(ball.vel, dt)
       tmpQ.setFromAxisAngle(tmpAxis.copy(ball.angVel).normalize(), ball.angVel.length() * dt)
       s.q.premultiply(tmpQ)
-      if (ball.pos.y < RADIUS) {
-        ball.pos.y = RADIUS
+      if (ball.pos.y < BALL_RADIUS) {
+        ball.pos.y = BALL_RADIUS
         ball.bounces++
         // rugby balls kick off at odd angles when they land
         ball.vel.set((Math.random() - 0.5) * 6, Math.abs(ball.vel.y) * 0.5, (Math.random() - 0.5) * 6)
@@ -75,9 +75,10 @@ export function RugbyBall() {
         }
       }
     } else if (ball.mode === 'carried') {
-      // tucked in both hands, long axis pointing the way #13 is facing
-      tmpQ.setFromAxisAngle(UP, player.yaw).multiply(CARRY_TILT)
-      s.q.slerp(tmpQ, Math.min(1, dt * 10))
+      // the carrier says how it sits in his hands; otherwise long axis pointing the way #13 is facing
+      if (ball.hold) tmpQ.copy(ball.hold)
+      else tmpQ.setFromAxisAngle(UP, player.yaw).multiply(CARRY_TILT)
+      s.q.slerp(tmpQ, Math.min(1, dt * 18))
     } else if (ball.mode === 'flight') {
       tmpV.copy(ball.pos).sub(s.prev)
       if (ball.style === 'spiral') {
@@ -116,13 +117,12 @@ export function RugbyBall() {
       s.hop = Math.max(0, s.hop - dt * 2.2)
       const bob = ball.mode === 'idle' && !reducedMotion ? Math.sin(t * 1.8) * 0.05 + Math.sin(s.hop * Math.PI) * 0.45 : 0
       group.current.position.set(ball.pos.x, ball.pos.y + bob, ball.pos.z)
-      // a touch smaller in his hands so the hero ball doesn't swamp the player
-      const sc = group.current.scale.x + ((ball.mode === 'carried' ? 0.78 : 1) - group.current.scale.x) * Math.min(1, dt * 8)
+      const sc = group.current.scale.x + ((ball.mode === 'carried' ? BALL_CARRY_SCALE : 1) - group.current.scale.x) * Math.min(1, dt * 8)
       group.current.scale.setScalar(sc)
     }
     if (mesh.current) mesh.current.quaternion.copy(s.q)
     if (shadow.current) {
-      const h = Math.max(0, ball.pos.y - RADIUS)
+      const h = Math.max(0, ball.pos.y - BALL_RADIUS)
       shadow.current.position.set(ball.pos.x, 0.03, ball.pos.z)
       const k = 1 / (1 + h * 0.18)
       shadow.current.scale.setScalar(k)
