@@ -30,9 +30,32 @@ export function ProjectsPanel() {
                 <CloseIcon size={14} />
               </button>
             </div>
+            {/* the result leads: it is what a recruiter came for */}
+            {p.result && (
+              <div className="mt-3 border-l-2 border-cream bg-cream/[0.07] px-3 py-2">
+                <p className="kicker">Result</p>
+                <p className="mt-0.5 text-[0.95rem] font-semibold leading-snug text-ink">{p.result}</p>
+              </div>
+            )}
             <p className="mt-2 text-[0.95rem] leading-relaxed text-silver">{p.description}</p>
+            {(p.problem || p.built) && (
+              <dl className="mt-3 grid gap-3">
+                {p.problem && (
+                  <div>
+                    <dt className="kicker">The problem</dt>
+                    <dd className="mt-0.5 text-sm leading-relaxed text-silver">{p.problem}</dd>
+                  </div>
+                )}
+                {p.built && (
+                  <div>
+                    <dt className="kicker">What I built</dt>
+                    <dd className="mt-0.5 text-sm leading-relaxed text-silver">{p.built}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
             <div className="mt-3">
-              <Tags items={p.tags} />
+              <Tags items={p.stack ?? p.tags} />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {p.link && (
@@ -47,9 +70,21 @@ export function ProjectsPanel() {
               )}
               {!p.link && !p.github && <span className="text-xs text-silver-dim">Case competition: no public repository.</span>}
             </div>
-            <div className="mt-4 opacity-80">
-              <PlayDiagram seed={index + 3} label={p.title} />
-            </div>
+            {p.screenshot && (
+              <img
+                src={`${import.meta.env.BASE_URL}${p.screenshot.src}`}
+                alt={p.screenshot.alt}
+                loading="lazy"
+                decoding="async"
+                className="mt-4 aspect-video w-full border border-white/10 object-cover object-top"
+              />
+            )}
+            {p.steps && p.steps.length > 0 && (
+              <div className="mt-4">
+                <p className="kicker mb-1.5">The play: {p.play}</p>
+                <PlayDiagram steps={p.steps} label={p.title} />
+              </div>
+            )}
           </article>
         </Reveal>
       ) : (

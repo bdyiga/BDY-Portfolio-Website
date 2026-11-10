@@ -60,6 +60,25 @@ export type Project = {
   badge?: string
   /** A rugby "play call" name used for the playbook framing. Decorative only. */
   play: string
+  /**
+   * Case study. Every field below is optional and the project page shows only
+   * what is filled in, so leave a field out until it is true and you can stand behind it.
+   */
+  /** The problem, in a sentence or two: who had it and why it mattered. */
+  problem?: string
+  /** What you built, and the part of it that was yours. */
+  built?: string
+  /** What came of it. Shown first on the page, so lead with a number or an outcome if there is one. */
+  result?: string
+  /** What it is built with. The page falls back to `tags` when this is left out. */
+  stack?: string[]
+  /** A picture of the project, as a path inside /public (for example 'projects/plyntiq.webp'). */
+  screenshot?: { src: string; alt: string }
+  /**
+   * How it works, in order, two to five short steps (for example a request's path
+   * through the system). Drawn as the play diagram: one player per step, the last one scores.
+   */
+  steps?: string[]
 }
 
 export const projects: Project[] = [

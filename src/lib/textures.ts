@@ -2,8 +2,7 @@
 
 export const PALETTE = {
   forest: '#0b2a1c',
-  pitchA: '#1d5a35',
-  pitchB: '#174d2d',
+  turf: '#1f5c2e',
   charcoal: '#111513',
   /** In-world accent. Was lime; now IU cream, with crimson for fills. */
   accent: '#eeedeb',
@@ -54,24 +53,34 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
   const X = (x: number) => (x + 60) * S
   const Z = (z: number) => (z + 35) * S
 
-  // mown stripes, 5m wide, across the length
-  for (let i = 0; i < 24; i++) {
-    ctx.fillStyle = i % 2 ? PALETTE.pitchA : PALETTE.pitchB
-    ctx.fillRect(i * 5 * S, 0, 5 * S + 1, H)
+  // base turf. The mown stripes are not painted here: the pitch shader draws them,
+  // because on real grass they brighten and darken with the angle you look from.
+  ctx.fillStyle = PALETTE.turf
+  ctx.fillRect(0, 0, W, H)
+  const r = rand(7)
+  // uneven growth: broad soft patches, a little lighter or darker than the base
+  for (let i = 0; i < 90; i++) {
+    const x = r() * W
+    const y = r() * H
+    const rad = (4 + r() * 9) * S
+    const g = ctx.createRadialGradient(x, y, 0, x, y, rad)
+    g.addColorStop(0, r() > 0.5 ? 'rgba(190,210,120,0.07)' : 'rgba(0,20,8,0.1)')
+    g.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.fillStyle = g
+    ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2)
+  }
+  // wear where the game is played: the middle of the park and in front of both sets of posts
+  for (const [wx, wz, wr] of [[0, 0, 9], [-50, 0, 6], [50, 0, 6], [-28, 4, 5], [28, -4, 5]] as const) {
+    const g = ctx.createRadialGradient(X(wx), Z(wz), 0, X(wx), Z(wz), wr * S)
+    g.addColorStop(0, 'rgba(150,140,80,0.1)')
+    g.addColorStop(1, 'rgba(150,140,80,0)')
+    ctx.fillStyle = g
+    ctx.fillRect(X(wx - wr), Z(wz - wr), wr * 2 * S, wr * 2 * S)
   }
   // in-goal areas a touch darker
   ctx.fillStyle = 'rgba(5, 25, 14, 0.28)'
   ctx.fillRect(0, 0, 10 * S, H)
   ctx.fillRect(110 * S, 0, 10 * S, H)
-
-  // grass speckle
-  const r = rand(7)
-  for (let i = 0; i < 26000; i++) {
-    const x = r() * W
-    const y = r() * H
-    ctx.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.05)'
-    ctx.fillRect(x, y, 2, 2)
-  }
 
   const lw = Math.max(2, 0.12 * S)
   ctx.strokeStyle = 'rgba(244,247,245,0.92)'
@@ -131,6 +140,33 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.textAlign = 'center'
   ctx.fillText("BDY'S WORLD", X(0), Z(-24))
   ctx.restore()
+}
+
+/**
+ * Tiling grass blades, mid-grey on average. The pitch shader multiplies it in at
+ * two scales, so the turf has grain up close and never shows the repeat from afar.
+ */
+export function drawTurfDetail(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  ctx.fillStyle = '#808080'
+  ctx.fillRect(0, 0, W, H)
+  const r = rand(11)
+  ctx.lineCap = 'round'
+  for (let i = 0; i < 5200; i++) {
+    const x = r() * W
+    const y = r() * H
+    const len = 3 + r() * 7
+    const lean = (r() - 0.5) * 3
+    const light = r() > 0.5
+    ctx.strokeStyle = light ? `rgba(255,255,255,${0.05 + r() * 0.16})` : `rgba(0,0,0,${0.06 + r() * 0.2})`
+    ctx.lineWidth = 0.8 + r() * 1.2
+    // drawn three times so a blade that crosses an edge wraps round to the other side
+    for (const [ox, oy] of [[0, 0], [x < W / 2 ? W : -W, 0], [0, y < H / 2 ? H : -H]]) {
+      ctx.beginPath()
+      ctx.moveTo(x + ox, y + oy)
+      ctx.lineTo(x + ox + lean, y + oy - len)
+      ctx.stroke()
+    }
+  }
 }
 
 /** Outer ground around the pitch. */

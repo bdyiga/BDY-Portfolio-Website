@@ -9,7 +9,7 @@ The interactive portfolio of **Benedict Deogratius Yiga**: a floodlit rugby stad
 | Zone | Section | What's there |
 | --- | --- | --- |
 | Center field | About | The hero rugby ball on its kicking tee. Click it to meet Benedict. |
-| Left try zone | Projects | Nine holographic "plays" from the playbook, each with a whiteboard play diagram. |
+| Left try zone | Projects | Nine holographic "plays" from the playbook. A project page leads with its result, then the problem, what was built and how it works, drawn as a play. |
 | Right try zone | Experience | Four LED totems forming a match timeline from kick-off (2023) to now. |
 | North stand | Leadership | Team banners on the stand facade, plus a team-sheet formation. |
 | Training ground | Skills | Tackle bags for each skill group. Skills orbit the active bag and link to where they were used. |
@@ -24,6 +24,14 @@ The intro title card is usable from its first frame: degree and graduation date,
 ### Look
 
 Broadcast graphics, not glass: opaque slabs, square corners, condensed caption type, IU crimson and cream. One graphic on screen at a time, each in a fixed place. Lime is kept for the single primary action and the focus ring.
+
+### The ground
+
+Mown turf whose stripes swap light and dark as the camera goes round, the way real grass does. Stands built in bays, with stairways, tunnel mouths, a players' tunnel and a steel roof frame. The crowd is seated people, not blocks, and it still does the wave. All of it is procedural: no models or images to download.
+
+### Camera
+
+Each zone has its own move into it: a push-in to #13, a jib up to the playbook, a truck along the try line, a pedestal up to the banners, a whip pan to the training ground and a low arc round to the kicker. On a phone, every zone has its own portrait framing, which shoots down a row of objects instead of across it. The framing stays put whether the bottom sheet is open or collapsed with "Show field".
 
 ### Keyboard
 
@@ -40,6 +48,7 @@ All content lives in [`src/data/portfolio.ts`](src/data/portfolio.ts). It was ta
 - To swap the resume, replace `public/Yiga Benedict, Resume 2026.pdf` and update `resumeUrl` if the name changes.
 - To swap the photo, replace `public/bdy-portrait.webp`. It is about 720px wide.
 - `featuredProjectIds` picks the three projects on the intro title card. Reorder or swap the ids freely.
+- Each project can also have `result`, `problem`, `built`, `stack`, `screenshot` and `steps` (two to five short steps, drawn as the play diagram). They are optional, and a project page shows only the ones that are filled in. Screenshots go in `public/projects/`.
 - `rugbyFunFact` is an intentional **placeholder**. Set it to a real rugby fact and it appears in the hidden-trophy Easter egg.
 
 ## Tech

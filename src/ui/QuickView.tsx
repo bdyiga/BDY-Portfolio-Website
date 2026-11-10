@@ -187,9 +187,22 @@ export function QuickView() {
                 <h3 className="mt-1 text-lg font-bold">
                   {p.title} {p.badge && <span className="ml-1 rounded bg-gold px-1.5 py-0.5 align-middle text-[0.65rem] font-bold text-charcoal">{p.badge}</span>}
                 </h3>
+                {p.result && <p className="mt-2 border-l-2 border-cream pl-2.5 text-sm font-semibold text-ink">{p.result}</p>}
                 <p className="mt-2 flex-1 text-sm text-silver">{p.description}</p>
+                {p.problem && (
+                  <p className="mt-2 text-sm text-silver">
+                    <span className="font-semibold text-ink">The problem: </span>
+                    {p.problem}
+                  </p>
+                )}
+                {p.built && (
+                  <p className="mt-2 text-sm text-silver">
+                    <span className="font-semibold text-ink">What I built: </span>
+                    {p.built}
+                  </p>
+                )}
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {p.tags.map((t) => (
+                  {(p.stack ?? p.tags).map((t) => (
                     <span key={t} className="tag">
                       {t}
                     </span>
