@@ -97,7 +97,8 @@ export const INTRO_END = { position: [-2.2, 1.9, 7.4] as Vec3, target: [-3.4, 1.
 export function projectCardTransform(i: number, count: number) {
   const center = { x: -20, z: 0 }
   const radius = 24
-  const spread = Math.PI * 0.5
+  // a quarter circle holds 7 cards edge to edge; widen the arc for more so they never overlap
+  const spread = Math.PI * 0.5 * Math.max(1, (count - 1) / 6)
   const a = Math.PI + (count === 1 ? 0 : -spread / 2 + (spread * i) / (count - 1))
   const x = center.x + radius * Math.cos(a)
   const z = center.z + radius * Math.sin(a)

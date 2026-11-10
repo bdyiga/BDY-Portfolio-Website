@@ -28,6 +28,8 @@ const norm = (s: string) =>
 const has = (q: string, re: RegExp) => re.test(q)
 
 const projectAliases: Record<string, RegExp> = {
+  plyntiq: /\b(plyntiq|athletic|cloudflare)/,
+  'sec-mcp': /\b(sec|filings?|mcp|xbrl|financebench|rag)\b/,
   avemenu: /\b(ave ?menu|restaurant|menu)\b/,
   'ld-debate': /\b(debate|lincoln|douglas|ld app|tournament)\b/,
   eazyflow: /\b(eazy ?flow|easy ?flow|traffic|intersection)/,
