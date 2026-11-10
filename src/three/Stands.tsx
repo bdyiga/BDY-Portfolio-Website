@@ -23,7 +23,7 @@ function rowTransform(spec: StandSpec, row: number) {
   return { y, z }
 }
 
-const CROWD_COLORS = ['#2a3330', '#222a27', '#353f3b', '#0f3a24', '#174d2d', '#3d4744', '#4f5a56', '#1b2420', '#2a3330', '#0b2a1c', '#5c6763', '#8f9a97', '#c6ff3d']
+const CROWD_COLORS = ['#3a4541', '#2c3632', '#4a5651', '#1c4a31', '#5a6661', '#6d7975', '#2a3330', '#3f4a46', '#7d1414', '#8f9a97', '#d8d6d0', '#b01010']
 
 function Crowd({ specs }: { specs: StandSpec[] }) {
   const ref = useRef<InstancedMesh>(null)
@@ -61,8 +61,8 @@ function Crowd({ specs }: { specs: StandSpec[] }) {
       o.updateMatrix()
       mesh.setMatrixAt(i, o.matrix)
       const pick = rnd()
-      // lime and silver supporters are rare accents, not noise
-      const idx = pick > 0.985 ? CROWD_COLORS.length - 1 : pick > 0.95 ? CROWD_COLORS.length - 2 : Math.floor((pick / 0.95) * (CROWD_COLORS.length - 2))
+      // a home crowd: roughly one in six in IU crimson, a few in cream
+      const idx = pick > 0.86 ? CROWD_COLORS.length - 1 : pick > 0.8 ? CROWD_COLORS.length - 2 : Math.floor((pick / 0.8) * (CROWD_COLORS.length - 2))
       c.set(CROWD_COLORS[idx])
       mesh.setColorAt(i, c)
     })
@@ -112,10 +112,10 @@ function StandStructure({ spec }: { spec: StandSpec }) {
         <boxGeometry args={[spec.length, spec.facade, 0.6]} />
         <meshStandardMaterial color="#39413e" roughness={0.9} />
       </mesh>
-      {/* lime trim along the facade top */}
+      {/* IU crimson trim along the facade top */}
       <mesh position={[0, spec.facade, spec.side * (spec.frontZ - 0.32)]}>
         <boxGeometry args={[spec.length, 0.14, 0.06]} />
-        <meshStandardMaterial color="#c6ff3d" emissive="#c6ff3d" emissiveIntensity={1.4} toneMapped={false} />
+        <meshStandardMaterial color="#990000" emissive="#990000" emissiveIntensity={1.6} toneMapped={false} />
       </mesh>
       {rows.map((r, i) => (
         <mesh key={i} position={[0, r.y - 0.2, r.z]}>

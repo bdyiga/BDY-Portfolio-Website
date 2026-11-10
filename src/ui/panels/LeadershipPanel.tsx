@@ -57,8 +57,8 @@ export function LeadershipPanel() {
               >
                 <motion.path
                   d={`M${x - 13} ${y - 10} l6 -5 h14 l6 5 l-4 6 h-2 v16 h-20 v-16 h-2 z`}
-                  fill={active ? '#c6ff3d' : '#0b2a1c'}
-                  stroke="#c6ff3d"
+                  fill={active ? '#eeedeb' : '#0b2a1c'}
+                  stroke="#eeedeb"
                   strokeWidth="1.5"
                   animate={{ scale: active ? 1.15 : 1 }}
                   style={{ transformOrigin: `${x}px ${y}px` }}
@@ -72,7 +72,7 @@ export function LeadershipPanel() {
         </svg>
       </Reveal>
 
-      <motion.article key={l.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-2xl border border-white/10 bg-black/35 p-4">
+      <motion.article key={l.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-sm border border-white/10 bg-black/35 p-4">
         <p className="kicker">
           #{l.number} · {l.period ?? 'Team member'}
         </p>
@@ -86,11 +86,11 @@ export function LeadershipPanel() {
           <li key={m.id}>
             <button
               onClick={() => selectItem('leadership', i)}
-              className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm transition-colors ${
-                i === sel ? 'border-lime/60 bg-lime/10' : 'border-white/8 hover:border-lime/35'
+              className={`flex w-full items-center gap-3 rounded-sm border px-3 py-2 text-left text-sm transition-colors ${
+                i === sel ? 'border-white/15 bg-white/[0.05]' : 'border-white/8 hover:border-white/40'
               }`}
             >
-              <span className="w-6 font-display font-black text-lime">{m.number}</span>
+              <span className="w-6 font-display font-black text-cream">{m.number}</span>
               <span className="flex-1">
                 <span className="block font-semibold leading-tight">{m.role}</span>
                 <span className="block text-xs text-silver-dim">{m.org}</span>

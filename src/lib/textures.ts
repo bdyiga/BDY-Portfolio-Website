@@ -5,7 +5,9 @@ export const PALETTE = {
   pitchA: '#1d5a35',
   pitchB: '#174d2d',
   charcoal: '#111513',
-  lime: '#c6ff3d',
+  /** In-world accent. Was lime; now IU cream, with crimson for fills. */
+  accent: '#eeedeb',
+  crimson: '#990000',
   silver: '#c9d1cf',
   white: '#f4f7f5',
   gold: '#e8c35a',
@@ -102,7 +104,7 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
   // in-goal branding, painted on the grass
   ctx.save()
   ctx.globalAlpha = 0.16
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   setFont(ctx, 900, 7 * S)
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -112,7 +114,7 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.restore()
   ctx.save()
   ctx.globalAlpha = 0.16
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   setFont(ctx, 900, 7 * S)
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -164,15 +166,15 @@ export function drawBall(ctx: CanvasRenderingContext2D, W: number, H: number) {
     ctx.lineTo(x, H)
     ctx.stroke()
   }
-  // end bands: charcoal + lime
+  // end bands: forest + crimson
   const band = (v: number, h: number, c: string) => {
     ctx.fillStyle = c
     ctx.fillRect(0, v * H, W, h * H)
   }
   band(0.12, 0.07, PALETTE.forest)
-  band(0.195, 0.025, PALETTE.lime)
+  band(0.195, 0.025, PALETTE.crimson)
   band(0.81, 0.07, PALETTE.forest)
-  band(0.78, 0.025, PALETTE.lime)
+  band(0.78, 0.025, PALETTE.crimson)
   // centre wordmark
   ctx.save()
   ctx.translate(W * 0.62, H * 0.5)
@@ -226,16 +228,16 @@ export function drawCard(
   ctx.fillStyle = g
   ctx.fillRect(0, 0, W, H)
   // scanlines
-  ctx.fillStyle = 'rgba(198,255,61,0.035)'
+  ctx.fillStyle = 'rgba(238,237,235,0.035)'
   for (let y = 0; y < H; y += 6) ctx.fillRect(0, y, W, 2)
-  ctx.strokeStyle = 'rgba(198,255,61,0.35)'
+  ctx.strokeStyle = 'rgba(238,237,235,0.35)'
   ctx.lineWidth = 2
   ctx.strokeRect(10, 10, W - 20, H - 20)
-  corners(ctx, 10, 10, W - 20, H - 20, 46, PALETTE.lime, 6)
+  corners(ctx, 10, 10, W - 20, H - 20, 46, PALETTE.accent, 6)
 
   const pad = 56
   setFont(ctx, 600, 30, MONO, false)
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   ctx.textBaseline = 'top'
   ctx.fillText(`PLAY ${String(d.index + 1).padStart(2, '0')} · ${d.play.toUpperCase()}`, pad, pad)
 
@@ -276,10 +278,10 @@ export function drawCard(
   for (const t of d.tags.slice(0, 4)) {
     const w = ctx.measureText(t).width + 28
     if (tx + w > W - pad) break
-    ctx.strokeStyle = 'rgba(198,255,61,0.55)'
+    ctx.strokeStyle = 'rgba(238,237,235,0.55)'
     ctx.lineWidth = 2
     ctx.strokeRect(tx, ty, w, 40)
-    ctx.fillStyle = PALETTE.lime
+    ctx.fillStyle = PALETTE.accent
     ctx.fillText(t, tx + 14, ty + 8)
     tx += w + 12
   }
@@ -296,10 +298,10 @@ export function drawLedBoard(ctx: CanvasRenderingContext2D, W: number, H: number
   let i = 0
   while (x < W) {
     const t = parts[i % parts.length]
-    ctx.fillStyle = i % 2 ? PALETTE.lime : PALETTE.white
+    ctx.fillStyle = i % 2 ? PALETTE.accent : PALETTE.white
     ctx.fillText(t, x, H / 2 + 2)
     x += ctx.measureText(t).width + 40
-    ctx.fillStyle = PALETTE.lime
+    ctx.fillStyle = PALETTE.accent
     ctx.fillText('/', x, H / 2 + 2)
     x += 60
     i++
@@ -319,11 +321,11 @@ export function drawBanner(
 ) {
   ctx.fillStyle = d.active ? '#123d27' : PALETTE.forest
   ctx.fillRect(0, 0, W, H)
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.crimson
   ctx.fillRect(0, 0, W, 14)
   ctx.fillRect(0, H - 14, W, 14)
   // chevron
-  ctx.fillStyle = 'rgba(198,255,61,0.12)'
+  ctx.fillStyle = 'rgba(238,237,235,0.12)'
   ctx.beginPath()
   ctx.moveTo(0, H * 0.55)
   ctx.lineTo(W / 2, H * 0.72)
@@ -338,7 +340,7 @@ export function drawBanner(
   ctx.fillStyle = PALETTE.white
   setFont(ctx, 900, H * 0.3)
   ctx.fillText(String(d.number), W / 2, H * 0.27)
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   setFont(ctx, 800, 30)
   const roleLines = wrapText(ctx, d.role.split(',')[0].toUpperCase(), W - 50)
   roleLines.slice(0, 2).forEach((l, i) => ctx.fillText(l, W / 2, H * 0.48 + i * 36))
@@ -360,14 +362,14 @@ export function drawScoreboard(
   ctx.fillStyle = '#040605'
   ctx.fillRect(0, 0, W, H)
   // header strip
-  ctx.fillStyle = '#0b2a1c'
+  ctx.fillStyle = PALETTE.crimson
   ctx.fillRect(0, 0, W, H * 0.2)
   setFont(ctx, 900, H * 0.1)
   ctx.textBaseline = 'middle'
   ctx.fillStyle = PALETTE.white
   ctx.textAlign = 'left'
   ctx.fillText('BDY', W * 0.04, H * 0.1)
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   ctx.textAlign = 'center'
   setFont(ctx, 600, H * 0.075, MONO, false)
   ctx.fillText('CAREER HIGHLIGHTS', W / 2, H * 0.1)
@@ -376,7 +378,7 @@ export function drawScoreboard(
   ctx.fillText(`${d.index + 1}/${d.total}`, W * 0.96, H * 0.1)
 
   ctx.textAlign = 'center'
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   setFont(ctx, 900, H * 0.38)
   ctx.fillText(d.value, W / 2, H * 0.5)
   ctx.fillStyle = PALETTE.white
@@ -400,7 +402,7 @@ export function drawScoreboard(
 export function drawChip(ctx: CanvasRenderingContext2D, W: number, H: number, text: string) {
   ctx.clearRect(0, 0, W, H)
   ctx.fillStyle = 'rgba(8, 24, 16, 0.85)'
-  ctx.strokeStyle = PALETTE.lime
+  ctx.strokeStyle = PALETTE.accent
   ctx.lineWidth = 4
   const r = H / 2 - 4
   ctx.beginPath()
@@ -441,7 +443,7 @@ export function drawTotem(
 ) {
   ctx.fillStyle = d.active ? '#0d2b1c' : '#060908'
   ctx.fillRect(0, 0, W, H)
-  ctx.fillStyle = d.active ? PALETTE.lime : '#1e4a30'
+  ctx.fillStyle = d.active ? PALETTE.crimson : '#3a1414'
   ctx.fillRect(0, 0, W, 10)
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -449,7 +451,7 @@ export function drawTotem(
   ctx.fillStyle = PALETTE.silver
   ctx.fillText(`PERIOD ${d.index + 1}`, W / 2, 70)
   setFont(ctx, 900, 150)
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   ctx.fillText(String(d.year), W / 2, 210)
   ctx.fillStyle = PALETTE.white
   setFont(ctx, 900, 58)
@@ -462,7 +464,7 @@ export function drawTotem(
     .slice(0, 3)
     .forEach((l, i) => ctx.fillText(l, W / 2, 560 + i * 44))
   setFont(ctx, 600, 30, MONO, false)
-  ctx.fillStyle = PALETTE.lime
+  ctx.fillStyle = PALETTE.accent
   ctx.fillText(d.dates.toUpperCase(), W / 2, H - 90)
   ctx.fillStyle = 'rgba(0,0,0,0.35)'
   for (let gx = 0; gx < W; gx += 5) ctx.fillRect(gx, 0, 1.2, H)

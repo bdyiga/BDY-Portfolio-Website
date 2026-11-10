@@ -13,6 +13,10 @@
   --color-silver-dim: #8f9a97;
   --color-gold: #e8c35a;
   --color-ink: #f4f7f5;
+  --color-crimson: #990000;
+  --color-crimson-dark: #5e0000;
+  --color-cream: #eeedeb;
+  --color-slab: #0c0f0e;
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Archivo', 'Arial Black', ui-sans-serif, sans-serif;
@@ -21,8 +25,6 @@
 
 :root {
   color-scheme: dark;
-  --glass: rgba(9, 14, 12, 0.8);
-  --glass-strong: rgba(9, 14, 12, 0.92);
   --hairline: rgba(201, 209, 207, 0.14);
   --glow: 0 0 0 1px rgba(198, 255, 61, 0.35), 0 0 24px rgba(198, 255, 61, 0.28);
 }
@@ -57,20 +59,26 @@ body {
   font-size: 0.72rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-lime);
+  color: var(--color-silver);
+}
+/* broadcast caption type: condensed, tight, uppercase */
+.strap {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.glass {
-  background: var(--glass);
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  border: 1px solid var(--hairline);
+/* Broadcast graphics: opaque slabs, square corners, no blur */
+.slab {
+  background: var(--color-slab);
+  border: 1px solid rgba(238, 237, 235, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
-.glass-strong {
-  background: var(--glass-strong);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--hairline);
+.slab-band {
+  background: var(--color-crimson);
+  color: var(--color-cream);
 }
 
 /* Buttons */
@@ -78,7 +86,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 999px;
+  border-radius: 4px;
   padding: 0.6rem 1rem;
   font-weight: 600;
   font-size: 0.875rem;
@@ -107,15 +115,48 @@ body {
   color: var(--color-ink);
 }
 .btn-ghost:hover {
-  border-color: rgba(198, 255, 61, 0.55);
-  color: var(--color-lime);
+  border-color: rgba(238, 237, 235, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+}
+.btn-cream {
+  background: var(--color-cream);
+  color: #141414;
+}
+.btn-cream:hover {
+  background: #ffffff;
+}
+/* top-bar buttons: condensed caption type, 40px targets.
+   In the components layer so display utilities (hidden, md:inline-flex) can override it. */
+@layer components {
+  .bar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    font-family: var(--font-display);
+    font-stretch: 75%;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-cream);
+    background: var(--color-slab);
+    border: 1px solid rgba(238, 237, 235, 0.12);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .bar-btn:hover {
+    background: #1d2220;
+  }
 }
 .icon-btn {
   display: inline-grid;
   place-items: center;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--hairline);
   color: var(--color-ink);
@@ -125,8 +166,8 @@ body {
   cursor: pointer;
 }
 .icon-btn:hover {
-  border-color: rgba(198, 255, 61, 0.55);
-  color: var(--color-lime);
+  border-color: rgba(238, 237, 235, 0.55);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 :focus-visible {
@@ -137,65 +178,19 @@ body {
 .tag {
   display: inline-flex;
   align-items: center;
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 0.22rem 0.55rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  color: var(--color-lime);
-  background: rgba(198, 255, 61, 0.07);
-  border: 1px solid rgba(198, 255, 61, 0.28);
-}
-
-/* 3D hotspot labels (rendered via drei <Html>) */
-.hotspot-label {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.45rem 0.85rem 0.45rem 0.45rem;
-  border-radius: 999px;
-  background: rgba(8, 14, 11, 0.82);
-  border: 1px solid rgba(198, 255, 61, 0.35);
-  color: var(--color-ink);
-  backdrop-filter: blur(8px);
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s;
-  user-select: none;
-}
-.hotspot-label:hover,
-.hotspot-label.is-hovered {
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: var(--glow);
-  border-color: var(--color-lime);
-}
-.hotspot-key {
-  display: grid;
-  place-items: center;
-  width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 999px;
-  background: var(--color-lime);
-  color: #08100b;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.8rem;
-}
-.hotspot-title {
-  font-family: var(--font-display);
-  font-stretch: 112%;
-  font-weight: 800;
-  font-size: 0.95rem;
-  text-transform: uppercase;
+  color: var(--color-cream);
+  background: rgba(238, 237, 235, 0.06);
+  border: 1px solid rgba(238, 237, 235, 0.18);
 }
 
 /* Custom scrollbars inside panels */
 .scroll-area {
   scrollbar-width: thin;
-  scrollbar-color: rgba(198, 255, 61, 0.35) transparent;
+  scrollbar-color: rgba(238, 237, 235, 0.3) transparent;
 }
 
 .sr-only {
@@ -226,8 +221,8 @@ body {
 /* Field-line texture for quick view */
 .pitch-lines {
   background-image:
-    linear-gradient(90deg, rgba(198, 255, 61, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(198, 255, 61, 0.03) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(238, 237, 235, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(238, 237, 235, 0.03) 1px, transparent 1px);
   background-size: 80px 80px;
 }
 
@@ -245,19 +240,4 @@ body {
 /* programmatic focus targets (panel headings) don't need a ring */
 [tabindex='-1']:focus {
   outline: none;
-}
-
-@media (max-width: 640px) {
-  .hotspot-label {
-    gap: 0.4rem;
-    padding: 0.3rem 0.6rem 0.3rem 0.3rem;
-  }
-  .hotspot-key {
-    width: 1.35rem;
-    height: 1.35rem;
-    font-size: 0.7rem;
-  }
-  .hotspot-title {
-    font-size: 0.72rem;
-  }
 }

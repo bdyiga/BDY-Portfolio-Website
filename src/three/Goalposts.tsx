@@ -14,7 +14,7 @@ export function Goalposts({ x, interactive = false }: { x: number; interactive?:
   const setHovered = useStore((s) => s.setHovered)
   const [hover, setHover] = useState(false)
   const glow = useMemo(
-    () => new MeshStandardMaterial({ color: '#c6ff3d', emissive: '#c6ff3d', emissiveIntensity: 0.4 }),
+    () => new MeshStandardMaterial({ color: '#eeedeb', emissive: '#eeedeb', emissiveIntensity: 0.4 }),
     [],
   )
 

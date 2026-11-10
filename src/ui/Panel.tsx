@@ -10,6 +10,8 @@ export function Panel({ id, children }: { id: SectionId; children: ReactNode }) 
   const closeSection = useStore((s) => s.closeSection)
   const openSection = useStore((s) => s.openSection)
   const heading = useRef<HTMLHeadingElement>(null)
+  const body = useRef<HTMLDivElement>(null)
+  const item = useStore((s) => s.item[id])
   const collapsed = useStore((s) => s.sheetCollapsed)
   const setCollapsed = useStore((s) => s.setSheetCollapsed)
   const idx = SECTIONS.findIndex((s) => s.id === id)
@@ -20,45 +22,51 @@ export function Panel({ id, children }: { id: SectionId; children: ReactNode }) 
     heading.current?.focus({ preventScroll: true })
   }, [id])
 
+  // a new pick shows its detail at the top of the panel, inside the phone sheet
+  useEffect(() => {
+    body.current?.scrollTo({ top: 0 })
+  }, [item])
+
   return (
     <motion.aside
       key={id}
       role="dialog"
       aria-modal="false"
       aria-labelledby={`panel-title-${id}`}
-      className={`glass-strong fixed z-30 flex flex-col overflow-hidden
-        inset-x-0 bottom-0 rounded-t-3xl transition-[height] duration-300 ${collapsed ? 'h-[19dvh]' : 'h-[50dvh]'}
-        md:inset-x-auto md:right-4 md:top-20 md:bottom-4 md:h-auto md:w-[min(500px,calc(100vw-2rem))] md:rounded-3xl`}
-      initial={{ opacity: 0, x: 40, y: 0 }}
-      animate={{ opacity: 1, x: 0, y: 0 }}
-      exit={{ opacity: 0, x: 40 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+      className={`slab fixed z-30 flex flex-col overflow-hidden
+        inset-x-0 bottom-0 transition-[height] duration-300 ${collapsed ? 'h-[19dvh]' : 'h-[50dvh]'}
+        md:inset-x-auto md:right-4 md:top-[4.5rem] md:bottom-4 md:h-auto md:w-[min(500px,calc(100vw-2rem))]`}
+      initial={{ opacity: 0, x: 32 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 32 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* phone only: shrink the sheet to watch #13 on the field */}
-      <button
-        type="button"
-        onClick={() => setCollapsed(!collapsed)}
-        aria-expanded={!collapsed}
-        className="mx-auto mt-1.5 flex flex-col items-center gap-1 px-6 pt-1 text-[0.65rem] uppercase tracking-widest text-silver-dim md:hidden"
-      >
-        <span className="h-1 w-10 rounded-full bg-white/25" aria-hidden />
-        {collapsed ? 'Show details' : 'Show the field'}
-      </button>
-      <header className="flex items-start justify-between gap-4 px-6 pt-4 pb-3 md:pt-6">
-        <div>
-          <p className="kicker">
-            {meta.zone} · {meta.key}/{SECTIONS.length}
-          </p>
-          <h2 id={`panel-title-${id}`} ref={heading} tabIndex={-1} className="display mt-2 text-3xl md:text-4xl outline-none">
+      <header className="slab-band flex items-center justify-between gap-3 py-2 pl-5 pr-2">
+        <div className="flex min-w-0 items-baseline gap-3">
+          <span className="font-mono text-xs text-cream/70">
+            {meta.key}/{SECTIONS.length}
+          </span>
+          <h2 id={`panel-title-${id}`} ref={heading} tabIndex={-1} className="strap truncate text-xl outline-none md:text-2xl">
             {meta.title}
           </h2>
         </div>
-        <button className="icon-btn shrink-0" onClick={closeSection} aria-label="Back to the stadium overview (Esc)" title="Back to field (Esc)">
-          <CloseIcon />
-        </button>
+        <div className="flex shrink-0 items-center">
+          {/* phone only: shrink the sheet to watch #13 on the field */}
+          <button
+            type="button"
+            onClick={() => setCollapsed(!collapsed)}
+            aria-expanded={!collapsed}
+            className="strap px-2 text-xs text-cream/80 md:hidden"
+          >
+            {collapsed ? 'Show details' : 'Show field'}
+          </button>
+          <button className="icon-btn !border-transparent !bg-transparent" onClick={closeSection} aria-label="Back to the stadium overview (Esc)" title="Back to field (Esc)">
+            <CloseIcon />
+          </button>
+        </div>
       </header>
-      <div className="scroll-area flex-1 overflow-y-auto px-6 pb-6">{children}</div>
-      <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-4 py-3 text-sm">
+      <div ref={body} className="scroll-area flex-1 overflow-y-auto px-5 pt-4 pb-6">{children}</div>
+      <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-3 py-2 text-sm">
         <button className="btn btn-ghost !px-3" onClick={() => openSection(prev.id)} aria-label={`Previous: ${prev.title}`}>
           <ArrowLeft size={16} /> <span className="hidden sm:inline">{prev.title}</span>
         </button>
@@ -78,9 +86,9 @@ export function Tags({ items, delay = 0 }: { items: string[]; delay?: number }) 
         <motion.li
           key={t}
           className="tag"
-          initial={{ opacity: 0, y: 8, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: delay + i * 0.05, type: 'spring', stiffness: 400, damping: 24 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: Math.min(delay, 0.1) + i * 0.02, duration: 0.25 }}
         >
           {t}
         </motion.li>
@@ -93,9 +101,9 @@ export function Reveal({ children, delay = 0, className = '' }: { children: Reac
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.3, delay: Math.min(delay, 0.1), ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>

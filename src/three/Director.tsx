@@ -9,17 +9,17 @@ import {
   bannerCamera,
   CONVERSION_LANDING,
   experienceCamera,
-  INTRO_END,
-  INTRO_START,
+  INTRO_SHOT,
   OVERVIEW,
   PLAYER_INTRO,
+  PLAYER_INTRO_FACE,
   PLAYER_SPOTS,
   projectCamera,
   SECTION_BY_ID,
   type SectionId,
   type Vec3,
 } from '../lib/sections'
-import { ball, cameraState, flyBall, lighting } from '../lib/sceneState'
+import { ball, flyBall, lighting } from '../lib/sceneState'
 import { newSequence, player, playAction, runTo } from '../lib/player'
 import { deliver, kickAgain } from '../lib/choreo'
 import { useStore } from '../state/store'
@@ -89,6 +89,8 @@ export function Director() {
   const camTween = useRef<gsap.core.Animation | null>(null)
   const introTl = useRef<gsap.core.Timeline | null>(null)
   const prevSection = useRef<SectionId | null>(null)
+  /** Vertical lens shift (fraction of the viewport height); only the title card uses it. */
+  const lens = useRef({ shift: 0, applied: '' })
 
   const panelOpen = section !== null
   const aspect = size.width / size.height
@@ -106,10 +108,15 @@ export function Director() {
     const toT = v(view.target)
     const toO = v(opts.offset ?? [0, 0, 0])
     const dist = fromP.distanceTo(toP)
+    // the title card is shot on a long lens; every move out of it eases back to the normal one
+    const fromZ = camera.zoom
+    const fromS = lens.current.shift
     const reduced = useStore.getState().reducedMotion
-    if (opts.instant || reduced || dist < 0.01) {
+    if (opts.instant || reduced || (dist < 0.01 && fromZ === 1)) {
       c.setLookAt(toP.x, toP.y, toP.z, toT.x, toT.y, toT.z, false)
       c.setFocalOffset(toO.x, toO.y, toO.z, false)
+      c.zoomTo(1, false)
+      lens.current.shift = 0
       c.enabled = true
       return
     }
@@ -131,6 +138,8 @@ export function Director() {
         O.lerpVectors(fromO, toO, p.t)
         c.setLookAt(P.x, P.y, P.z, T.x, T.y, T.z, false)
         c.setFocalOffset(O.x, O.y, O.z, false)
+        if (fromZ !== 1) c.zoomTo(MathUtils.lerp(fromZ, 1, p.t), false)
+        lens.current.shift = fromS * (1 - p.t)
       },
       onComplete: () => {
         c.enabled = true
@@ -165,56 +174,56 @@ export function Director() {
     if (phase === 'intro') {
       c.enabled = false
       introTl.current?.kill()
-      // #13 waits behind the ball, facing the camera's final intro position
+      // #13 stands over the ball with his back (YIGA 13) to the camera
       newSequence()
-      runTo(PLAYER_INTRO, { instant: true, face: INTRO_END.position })
+      runTo(PLAYER_INTRO, { instant: true, face: PLAYER_INTRO_FACE })
+      const shot = wide ? INTRO_SHOT.wide : INTRO_SHOT.tall
+      const E = v(shot.position)
+      const T = v(shot.target)
+      c.zoomTo(shot.zoom, false)
+      c.setFocalOffset(0, 0, 0, false)
+      lens.current.shift = shot.shift
       if (reduced) {
         lighting.level = 1
         towerPower.fill(1)
-        c.setLookAt(...INTRO_END.position, ...INTRO_END.target, false)
+        c.setLookAt(E.x, E.y, E.z, T.x, T.y, T.z, false)
         return
       }
+      // locked-off shot: the floodlights are the motion, the camera only creeps in
       lighting.level = 0
       towerPower.fill(0)
-      c.setLookAt(...INTRO_START.position, ...INTRO_START.target, false)
+      const S = E.clone().sub(T).multiplyScalar(1 + INTRO_SHOT.push).add(T)
+      c.setLookAt(S.x, S.y, S.z, T.x, T.y, T.z, false)
       const tl = gsap.timeline()
-      tl.to(lighting, { level: 1, duration: 3.2, ease: 'power1.in' }, 0.2)
-      towerPower.forEach((_, i) => {
+      tl.to(lighting, { level: 1, duration: 1.4, ease: 'power2.out' }, 0.1)
+      // far towers first, so the light arrives from the posts towards the camera
+      ;[1, 3, 0, 2].forEach((i, n) => {
         tl.to(
           towerPower,
           {
             keyframes: [
-              { [i]: 0.9, duration: 0.06 },
-              { [i]: 0.1, duration: 0.09 },
-              { [i]: 0.7, duration: 0.05 },
-              { [i]: 1, duration: 0.35 },
+              { [i]: 0.9, duration: 0.05 },
+              { [i]: 0.15, duration: 0.07 },
+              { [i]: 1, duration: 0.3, ease: 'power2.out' },
             ],
           },
-          0.5 + i * 0.45,
+          0.25 + n * 0.3,
         )
       })
       const p = { t: 0 }
-      const S = v(INTRO_START.position)
-      const E = v(INTRO_END.position)
-      const ST = v(INTRO_START.target)
-      const ET = v(INTRO_END.target)
       const P = new Vector3()
-      const T = new Vector3()
       tl.to(
         p,
         {
           t: 1,
-          duration: 7,
-          ease: 'power2.inOut',
+          duration: 14,
+          ease: 'power2.out',
           onUpdate: () => {
             P.lerpVectors(S, E, p.t)
-            // swing in from slightly off-axis for parallax
-            P.x += Math.sin(p.t * Math.PI) * 18
-            T.lerpVectors(ST, ET, p.t)
             c.setLookAt(P.x, P.y, P.z, T.x, T.y, T.z, false)
           },
         },
-        0.1,
+        0,
       )
       introTl.current = tl
       return () => {
@@ -229,6 +238,8 @@ export function Director() {
       const overview = fitToAspect(OVERVIEW, aspect, true)
       if (reduced) {
         c.setLookAt(...overview.position, ...overview.target, false)
+        c.zoomTo(1, false)
+        lens.current.shift = 0
         useStore.getState().setPhase('world')
         return
       }
@@ -242,7 +253,9 @@ export function Director() {
         if (ok && alive()) runTo(PLAYER_SPOTS.home.pos, { face: PLAYER_SPOTS.home.face })
       })
       const fromP = c.getPosition(new Vector3())
-      const ctrl = new Vector3(12, 20, 42)
+      const fromZ = camera.zoom
+      const fromS = lens.current.shift
+      const ctrl = new Vector3(-14, 22, 44)
       const toP = v(overview.position)
       const toT = v(overview.target)
       const P = new Vector3()
@@ -262,6 +275,10 @@ export function Director() {
           const follow = 1 - MathUtils.smoothstep(t, 0.3, 0.95)
           T.copy(toT).lerp(ball.pos, follow)
           c.setLookAt(P.x, P.y, P.z, T.x, T.y, T.z, false)
+          // ease off the long lens early so the pull-back reads as one move
+          const k = MathUtils.smootherstep(t, 0, 0.6)
+          c.zoomTo(MathUtils.lerp(fromZ, 1, k), false)
+          lens.current.shift = fromS * (1 - k)
         },
         onComplete: () => {
           c.enabled = true
@@ -335,13 +352,15 @@ export function Director() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kickNonce])
 
-  // ---- Share camera pose with the DOM minimap ----
-  const dir = useRef(new Vector3())
+  // ---- Apply the lens shift (a view offset keeps the perspective; only the framing slides) ----
   useFrame(() => {
-    camera.getWorldDirection(dir.current)
-    cameraState.x = camera.position.x
-    cameraState.z = camera.position.z
-    cameraState.yaw = Math.atan2(dir.current.x, dir.current.z)
+    const l = lens.current
+    const key = `${l.shift.toFixed(4)}:${size.width}x${size.height}`
+    if (key === l.applied) return
+    l.applied = key
+    const cam = camera as PerspectiveCamera
+    if (l.shift === 0) cam.clearViewOffset()
+    else cam.setViewOffset(size.width, size.height, 0, l.shift * size.height, size.width, size.height)
   })
 
   return (

@@ -1,3 +1,4 @@
+import { projects } from '../data/portfolio'
 /**
  * Stadium layout. 1 unit = 1 metre. Pitch runs along X (try lines at x = ±50,
  * dead-ball lines at x = ±60), touchlines at z = ±35. +Z is the near (camera) side.
@@ -37,7 +38,7 @@ export const SECTIONS: SectionMeta[] = [
     key: '2',
     title: 'Projects',
     zone: 'Left Try Zone',
-    blurb: 'The playbook: seven plays I have run',
+    blurb: `The playbook: ${projects.length} plays I have run`,
     hotspot: [-44, 10.8, 0],
     camera: { position: [0, 10, 0], target: [-40, 5, 0] },
     ballSpot: [-31, 0.62, 2],
@@ -88,8 +89,18 @@ export const SECTIONS: SectionMeta[] = [
 export const SECTION_BY_ID = Object.fromEntries(SECTIONS.map((s) => [s.id, s])) as Record<SectionId, SectionMeta>
 
 export const OVERVIEW = { position: [0, 64, 100] as Vec3, target: [0, 0, 6] as Vec3 }
-export const INTRO_START = { position: [0, 30, 120] as Vec3, target: [0, 2, 0] as Vec3 }
-export const INTRO_END = { position: [-2.2, 1.9, 7.4] as Vec3, target: [-3.4, 1.5, 0] as Vec3 }
+/**
+ * Title-card shot: a long lens from behind #13 as he stands over the ball,
+ * looking down the pitch at the posts. `shift` slides the whole picture up the
+ * screen (fraction of its height, like a shift lens) so he clears the lower-third;
+ * phones stack the card under the shot, so they shift further.
+ */
+export const INTRO_SHOT = {
+  wide: { position: [-17.5, 3.4, -4.2] as Vec3, target: [8, 2.0, 0.9] as Vec3, zoom: 1.9, shift: 0.2 },
+  tall: { position: [-15, 3.2, -2.9] as Vec3, target: [8, 1.9, 0.5] as Vec3, zoom: 2.2, shift: 0.3 },
+  /** How far the camera pushes in while the card is up (fraction of the distance to the target). */
+  push: 0.12,
+}
 
 // ---- Object layouts shared by the 3D scene and the camera rig ----
 
@@ -97,7 +108,8 @@ export const INTRO_END = { position: [-2.2, 1.9, 7.4] as Vec3, target: [-3.4, 1.
 export function projectCardTransform(i: number, count: number) {
   const center = { x: -20, z: 0 }
   const radius = 24
-  const spread = Math.PI * 0.5
+  // a quarter circle holds 7 cards edge to edge; widen the arc for more so they never overlap
+  const spread = Math.PI * 0.5 * Math.max(1, (count - 1) / 6)
   const a = Math.PI + (count === 1 ? 0 : -spread / 2 + (spread * i) / (count - 1))
   const x = center.x + radius * Math.cos(a)
   const z = center.z + radius * Math.sin(a)
@@ -168,8 +180,9 @@ export const PLAYER_SPOTS: Record<SectionId | 'home', { pos: Vec3; face: Vec3 }>
   contact: { pos: [27.5, 0, 9.45], face: [32, 0, 9] },
 }
 
-/** Where the player waits during the intro, just behind the ball on its tee. */
-export const PLAYER_INTRO: Vec3 = [0.55, 0, -1.7]
+/** Where the player waits during the intro: behind the ball on its tee, facing the far posts. */
+export const PLAYER_INTRO: Vec3 = [-1.7, 0, -0.55]
+export const PLAYER_INTRO_FACE: Vec3 = [60, 0, -0.55]
 
 /** Conversion geometry: tee -> through the posts -> landing. */
 export const CONVERSION_LANDING: Vec3 = [60, 0.62, -5.5]

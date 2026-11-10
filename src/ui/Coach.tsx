@@ -66,7 +66,7 @@ export function Coach() {
         <motion.section
           role="dialog"
           aria-label="Ask the Coach: portfolio assistant"
-          className="glass-strong fixed inset-x-2 bottom-2 z-50 flex h-[min(560px,80dvh)] flex-col overflow-hidden rounded-3xl shadow-2xl md:inset-x-auto md:bottom-4 md:right-4 md:w-[400px]"
+          className="slab fixed inset-x-2 bottom-2 z-50 flex h-[min(560px,80dvh)] flex-col overflow-hidden rounded-sm shadow-2xl md:inset-x-auto md:bottom-4 md:right-4 md:w-[400px]"
           initial={{ opacity: 0, y: 30, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 30, scale: 0.97 }}
@@ -74,7 +74,7 @@ export function Coach() {
           onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), setOpen(false))}
         >
           <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-lime text-charcoal">
+            <span className="grid h-10 w-10 place-items-center rounded-sm bg-cream text-charcoal">
               <WhistleIcon />
             </span>
             <div className="flex-1">
@@ -90,15 +90,15 @@ export function Coach() {
             {msgs.map((m) => (
               <div key={m.id} className={`flex ${m.from === 'you' ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-[88%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                    m.from === 'you' ? 'rounded-br-md bg-lime text-charcoal' : 'rounded-bl-md border border-white/10 bg-white/[0.04] text-silver'
+                  className={`max-w-[88%] whitespace-pre-line rounded-sm px-3.5 py-2.5 text-sm leading-relaxed ${
+                    m.from === 'you' ? 'rounded-br-md bg-cream text-charcoal' : 'rounded-bl-md border border-white/10 bg-white/[0.04] text-silver'
                   }`}
                 >
                   {m.text}
                   {m.actions && m.actions.length > 0 && (
                     <div className="mt-2.5 flex flex-wrap gap-1.5">
                       {m.actions.map((a) => (
-                        <button key={a.label} onClick={() => runAction(a)} className="rounded-full border border-lime/40 px-2.5 py-1 text-xs text-lime hover:bg-lime/10">
+                        <button key={a.label} onClick={() => runAction(a)} className="rounded-sm border border-white/15 px-2.5 py-1 text-xs text-cream hover:bg-white/[0.05]">
                           {a.label} →
                         </button>
                       ))}
@@ -112,7 +112,7 @@ export function Coach() {
                 {[0, 1, 2].map((i) => (
                   <motion.span
                     key={i}
-                    className="h-2 w-2 rounded-full bg-lime/70"
+                    className="h-2 w-2 rounded-full bg-crimson/70"
                     animate={{ y: [0, -4, 0] }}
                     transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.12 }}
                   />
@@ -124,7 +124,7 @@ export function Coach() {
           {msgs.length <= 2 && (
             <div className="flex gap-1.5 overflow-x-auto px-4 pb-2 scroll-area">
               {COACH_SUGGESTIONS.map((s) => (
-                <button key={s} onClick={() => ask(s)} className="shrink-0 rounded-full border border-white/15 px-3 py-1.5 text-xs text-silver hover:border-lime/50 hover:text-lime">
+                <button key={s} onClick={() => ask(s)} className="shrink-0 rounded-sm border border-white/15 px-3 py-1.5 text-xs text-silver hover:border-white/40 hover:text-cream">
                   {s}
                 </button>
               ))}
@@ -141,10 +141,10 @@ export function Coach() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about experience, projects, skills…"
-              className="flex-1 rounded-full border border-white/10 bg-black/30 px-4 py-2.5 text-sm text-ink placeholder:text-silver-dim focus:border-lime/60 focus:outline-none"
+              className="flex-1 rounded-sm border border-white/10 bg-black/30 px-4 py-2.5 text-sm text-ink placeholder:text-silver-dim focus:border-white/50 focus:outline-none"
               autoComplete="off"
             />
-            <button type="submit" className="icon-btn !bg-lime !text-charcoal" aria-label="Send question" disabled={!input.trim()}>
+            <button type="submit" className="icon-btn !bg-crimson !text-charcoal" aria-label="Send question" disabled={!input.trim()}>
               <SendIcon size={16} />
             </button>
           </form>

@@ -64,6 +64,28 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    id: 'plyntiq',
+    title: 'Plyntiq',
+    short: 'Full-stack athletic performance platform.',
+    description:
+      'A full-stack athletic performance platform on Cloudflare Workers with session auth, CSRF protection, and integration-tested cross-account data isolation.',
+    tags: ['TypeScript', 'React', 'Cloudflare Workers', 'D1', 'Drizzle', 'Better Auth', 'Vitest'],
+    period: 'Oct 2026 – Present',
+    github: 'https://github.com/bdyiga/plyntiq_fitness',
+    play: 'Rolling Maul',
+  },
+  {
+    id: 'sec-mcp',
+    title: 'SEC Filings MCP Server',
+    short: 'Open-source MCP server for SEC financial data.',
+    description:
+      'Building an open-source MCP server and agentic RAG pipeline that gives AI agents exact SEC XBRL financial data, benchmarked on FinanceBench.',
+    tags: ['Python', 'MCP', 'Google Gemini', 'pytest'],
+    period: 'Aug 2026 – Present',
+    github: 'https://github.com/bdyiga/finmcp-eval',
+    play: 'Up & Under',
+  },
+  {
     id: 'avemenu',
     title: 'AveMenu',
     short: 'Full-stack restaurant management system.',
@@ -134,6 +156,9 @@ export const projects: Project[] = [
     play: 'Lineout Drive',
   },
 ]
+
+/** The three projects shown on the intro title card, by id. Reorder or swap freely. */
+export const featuredProjectIds = ['plyntiq', 'sec-mcp', 'ld-debate']
 
 export type Experience = {
   id: string
@@ -334,7 +359,7 @@ export const highlights: { value: string; label: string }[] = [
   { value: '3', label: 'Internships' },
   { value: '3.87', label: 'GPA' },
   { value: 'AWS', label: 'Certified Cloud Practitioner' },
-  { value: '7', label: 'Projects & plays' },
+  { value: String(projects.length), label: 'Projects & plays' },
   { value: '5x', label: "Dean's List" },
   { value: 'VP', label: 'NSBE Vice President' },
   { value: '25+', label: 'Consultants coached' },

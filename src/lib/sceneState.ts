@@ -13,7 +13,6 @@ export const lighting = {
   day: 0,
 }
 
-export { cameraState } from './cameraState'
 
 type BallMode = 'idle' | 'flight' | 'physics' | 'carried'
 

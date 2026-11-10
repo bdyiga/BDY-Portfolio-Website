@@ -54,11 +54,11 @@ function Card({ project, index }: { project: Project; index: number }) {
       </mesh>
       <mesh position-y={0.21} rotation-x={-Math.PI / 2}>
         <ringGeometry args={[0.35, 0.6, 32]} />
-        <meshBasicMaterial color="#c6ff3d" toneMapped={false} />
+        <meshBasicMaterial color="#eeedeb" toneMapped={false} />
       </mesh>
       <mesh position-y={(position[1] - H / 2) / 2 + 0.2}>
         <cylinderGeometry args={[W * 0.36, 0.5, position[1] - H / 2, 4, 1, true]} />
-        <meshBasicMaterial ref={beam} color="#c6ff3d" transparent opacity={0.14} blending={AdditiveBlending} depthWrite={false} side={2} toneMapped={false} />
+        <meshBasicMaterial ref={beam} color="#eeedeb" transparent opacity={0.14} blending={AdditiveBlending} depthWrite={false} side={2} toneMapped={false} />
       </mesh>
       <group
         ref={group}
