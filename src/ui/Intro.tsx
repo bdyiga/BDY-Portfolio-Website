@@ -183,7 +183,7 @@ export function Loader() {
         <div className="relative mt-4 h-0.5 overflow-hidden bg-white/10">
           <div className="loader-bar absolute inset-y-0 w-2/5 bg-cream" />
         </div>
-        <p className="mt-4 text-xs text-silver-dim">Building the stadium in your browser. Nothing heavy to download.</p>
+        <p className="mt-4 text-xs text-silver-dim">Building the stadium in your browser. #13 runs out once the lights are up.</p>
         <button className="btn btn-cream mt-6" onClick={() => setQuickView(true)}>
           <ListIcon size={16} /> See everything on one page
         </button>

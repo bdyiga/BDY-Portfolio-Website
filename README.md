@@ -29,6 +29,12 @@ Broadcast graphics, not glass: opaque slabs, square corners, condensed caption t
 
 Mown turf whose stripes swap light and dark as the camera goes round, the way real grass does. Stands built in bays, with stairways, tunnel mouths, a players' tunnel and a steel roof frame. The crowd is seated people, not blocks, and it still does the wave. All of it is procedural: no models or images to download.
 
+### #13
+
+#13 is a rigged athlete in the red #13 YIGA kit. He jogs, sprints, carries the ball in two hands or tucked under one arm at speed, passes, kicks and celebrates. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. The kit is painted onto the body in a shader, so there are no extra textures for it.
+
+The model loads after the stadium is up (867 KB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
+
 ### Camera
 
 Each zone has its own move into it: a push-in to #13, a jib up to the playbook, a truck along the try line, a pedestal up to the banners, a whip pan to the training ground and a low arc round to the kicker. On a phone, every zone has its own portrait framing, which shoots down a row of objects instead of across it. The framing stays put whether the bottom sheet is open or collapsed with "Show field".
@@ -55,7 +61,11 @@ All content lives in [`src/data/portfolio.ts`](src/data/portfolio.ts). It was ta
 
 React 19 + TypeScript + Vite, React Three Fiber + Drei for the 3D scene, GSAP for cinematic camera moves and ball flights, Motion for UI animation, Tailwind CSS v4, and Zustand for state.
 
-The scene uses no downloaded 3D models. The pitch, ball, banners, scoreboard and LED boards are all drawn procedurally on canvas, so the 3D part costs only JavaScript.
+The only downloaded 3D model is #13 ([`src/assets/athlete.glb`](src/assets/athlete.glb)). The pitch, stands, crowd, ball, banners, scoreboard and LED boards are all drawn procedurally, in code and on canvas.
+
+### #13's model
+
+Built from two free CC0 packs by [Quaternius](https://quaternius.com): the male base character from [Universal Base Characters](https://quaternius.com/packs/universalbasecharacters.html) and the idle, walk, jog and sprint clips from the [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html). Both share one skeleton, so the clips play on the body directly. The textures were shrunk to 1024 px JPEGs and the file meshopt-compressed, without quantising positions, because the kit shader paints by height on the body in metres. CC0 needs no credit; this note is here so the source is easy to find.
 
 ```
 src/
@@ -64,6 +74,7 @@ src/
   lib/sceneState.ts      per-frame shared state (lighting, ball controller)
   lib/coach.ts           retrieval-only portfolio assistant
   lib/textures.ts        procedural canvas textures
+  lib/poses.ts           hand-keyed moves for #13 (kick, pass, wave, celebrate, …)
   state/store.ts         app state (phase, section, day/night, …)
   three/                 R3F scene, lazy-loaded (Director = camera + choreography)
   ui/                    intro title card, HUD (top bar, rundown, menu), panels, Coach, Quick View

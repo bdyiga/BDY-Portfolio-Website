@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import gsap from 'gsap'
 import { BALL_HOME, type Vec3 } from './sections'
 
@@ -30,7 +30,12 @@ export const ball = {
   rest: new Vector3(...BALL_HOME),
   tween: null as gsap.core.Tween | null,
   bounces: 0,
+  /** While carried: how the ball sits in his hands, set by whoever is carrying it. */
+  hold: null as Quaternion | null,
 }
+
+/** The ball is drawn smaller in his hands, so the hero ball doesn't swamp the player. */
+export const BALL_CARRY_SCALE = 0.52
 
 type FlightOpts = {
   height?: number
