@@ -9,8 +9,13 @@ import {
   bannerCamera,
   CONVERSION_LANDING,
   experienceCamera,
+  type Framing,
   INTRO_SHOT,
+  ITEM_MOVE,
+  type Move,
   OVERVIEW,
+  OVERVIEW_MOVE,
+  OVERVIEW_TALL,
   PLAYER_INTRO,
   PLAYER_INTRO_FACE,
   PLAYER_SPOTS,
@@ -25,39 +30,41 @@ import { deliver, kickAgain } from '../lib/choreo'
 import { useStore } from '../state/store'
 import { towerPower } from './Atmosphere'
 
-type View = { position: Vec3; target: Vec3 }
+type View = Framing
 
 const v = (a: Vec3) => new Vector3(a[0], a[1], a[2])
 
-/**
- * Phone framing for a section: #13 in the foreground at his spot, the zone's
- * content behind him. About is shot from the front so you see the IU crest.
- */
-function playerCam(section: SectionId): View {
-  const spot = section === 'contact' ? { pos: PLAYER_SPOTS.contact.pos, face: CONVERSION_LANDING } : PLAYER_SPOTS[section]
-  const p = v(spot.pos)
-  const f = v(spot.face).sub(p).setY(0).normalize()
-  const right = new Vector3(-f.z, 0, f.x)
-  // aim at him (not past him) so the sheet offset lifts him into the visible strip
-  if (section === 'about') {
-    const pos = p.clone().addScaledVector(f, 8).addScaledVector(right, 1.5)
-    return { position: [pos.x, 3.2, pos.z], target: [p.x, 1.9, p.z] }
-  }
-  const pos = p.clone().addScaledVector(f, -8).addScaledVector(right, 2.4)
-  const tgt = p.clone().addScaledVector(f, 1.5)
-  return { position: [pos.x, 4, pos.z], target: [tgt.x, 2, tgt.z] }
+/** Ease with zero speed at both ends. `bias` below 1 rushes then settles, above 1 builds slowly. */
+const eased = (t: number, bias: number) => MathUtils.smootherstep(Math.pow(t, bias), 0, 1)
+
+/** Keeps a camera path off the grass without a visible kink where it levels out. */
+const softFloor = (y: number, floor: number) => {
+  const knee = floor + 2.4
+  return y >= knee ? y : floor + 2.4 * Math.exp((y - knee) / 2.4)
 }
 
-function viewFor(section: SectionId | null, item: number | null): View {
-  if (!section) return OVERVIEW
+/** Where a camera at `from` looking at `to` is pointing: heading, elevation and distance. */
+function aim(from: Vector3, to: Vector3) {
+  const d = to.clone().sub(from)
+  const r = Math.max(d.length(), 0.001)
+  return { r, az: Math.atan2(d.x, d.z), el: Math.asin(MathUtils.clamp(d.y / r, -1, 1)) }
+}
+
+function viewFor(section: SectionId | null, item: number | null, tall: boolean): View {
+  if (!section) return tall ? OVERVIEW_TALL : OVERVIEW
   if (item !== null) {
     if (section === 'projects') return projectCamera(item, projects.length)
     if (section === 'experience') return experienceCamera(item, experiences.length)
     if (section === 'leadership') return bannerCamera(item, leadership.length)
     if (section === 'skills') return bagCamera(item, skillGroups.length)
   }
-  return SECTION_BY_ID[section].camera
+  return tall ? SECTION_BY_ID[section].tall : SECTION_BY_ID[section].camera
 }
+
+/** The top bar covers this much of a phone screen; the sheet covers `sheet` of it from the bottom. */
+const TOP_BAR = 0.066
+/** Lens shift that centres the subject in the strip of screen left between the top bar and the sheet. */
+const shiftFor = (sheet: number) => Math.max(0, (sheet - TOP_BAR) / 2)
 
 /** Vertical FOV: widen on portrait screens so the pitch still fits without a huge pull-back. */
 export function fovFor(aspect: number) {
@@ -77,6 +84,12 @@ function fitToAspect(view: View, aspect: number, isOverview: boolean): View {
   return { position: [p.x, p.y, p.z], target: view.target }
 }
 
+/** The rundown strip at the bottom of the phone overview, as a fraction of the screen. */
+const RUNDOWN = 0.2
+/** Lowest the camera may look up from: enough for a hero angle on the posts, never under the pitch. */
+const LOW_ANGLE = Math.PI * 0.62
+const _target = new Vector3()
+
 export function Director() {
   const controls = useRef<CameraControls>(null)
   const camera = useThree((s) => s.camera)
@@ -94,13 +107,24 @@ export function Director() {
 
   const panelOpen = section !== null
   const aspect = size.width / size.height
-  const wide = size.width >= 900
+  /** Below this width the panel is a bottom sheet (matches the `md` breakpoint in the CSS). */
+  const sheetLayout = size.width < 768
+  /** Portrait phones get their own framings; everything else reuses the landscape ones. */
+  const tall = sheetLayout && aspect < 1
 
-  /** Smooth GSAP camera move with a gentle crane lift on long hops. */
-  const moveTo = (view: View, opts: { duration?: number; offset?: Vec3; instant?: boolean } = {}) => {
+  /**
+   * Camera move. The position travels along a bowed path and the camera pans
+   * and tilts between the two headings (it never swings through its own
+   * subject); `move` sets the timing and shape, so each zone arrives differently.
+   */
+  const moveTo = (
+    view: View,
+    opts: { move?: Move; duration?: number; offset?: Vec3; shift?: number; instant?: boolean } = {},
+  ) => {
     const c = controls.current
     if (!c) return
     camTween.current?.kill()
+    const move = opts.move ?? OVERVIEW_MOVE
     const fromP = c.getPosition(new Vector3())
     const fromT = c.getTarget(new Vector3())
     const fromO = c.getFocalOffset(new Vector3())
@@ -111,37 +135,59 @@ export function Director() {
     // the title card is shot on a long lens; every move out of it eases back to the normal one
     const fromZ = camera.zoom
     const fromS = lens.current.shift
+    const toS = opts.shift ?? 0
     const reduced = useStore.getState().reducedMotion
-    if (opts.instant || reduced || (dist < 0.01 && fromZ === 1)) {
+    const reframed = Math.abs(fromS - toS) > 0.001 || fromO.distanceTo(toO) > 0.01 || fromT.distanceTo(toT) > 0.01
+    if (opts.instant || reduced || (dist < 0.01 && fromZ === 1 && !reframed)) {
+      c.maxPolarAngle = LOW_ANGLE
       c.setLookAt(toP.x, toP.y, toP.z, toT.x, toT.y, toT.z, false)
       c.setFocalOffset(toO.x, toO.y, toO.z, false)
       c.zoomTo(1, false)
-      lens.current.shift = 0
+      lens.current.shift = toS
       c.enabled = true
       return
     }
-    const lift = Math.min(18, dist * 0.18)
-    const duration = opts.duration ?? MathUtils.clamp(0.9 + dist / 70, 1.1, 2.3)
+    const a0 = aim(fromP, fromT)
+    const a1 = aim(toP, toT)
+    // pan the short way round
+    const pan = MathUtils.euclideanModulo(a1.az - a0.az + Math.PI, Math.PI * 2) - Math.PI
+    const rise = MathUtils.clamp(dist * move.rise, -8, 18)
+    const swing = MathUtils.clamp(dist * move.swing, -22, 22)
+    const side = new Vector3(toP.z - fromP.z, 0, fromP.x - toP.x)
+    if (side.lengthSq() > 1) side.normalize()
+    else side.set(0, 0, 0)
+    const floor = Math.min(1.5, fromP.y, toP.y)
+    const duration =
+      opts.duration ??
+      MathUtils.clamp((0.9 + dist / 70 + (Math.abs(pan) / Math.PI) * 0.5) * move.time, dist < 0.01 ? 0.5 : 1.1, 2.8)
     const p = { t: 0 }
     const P = new Vector3()
     const T = new Vector3()
     const O = new Vector3()
     c.enabled = false
+    c.maxPolarAngle = LOW_ANGLE
     camTween.current = gsap.to(p, {
       t: 1,
       duration,
-      ease: 'power3.inOut',
+      ease: 'none',
       onUpdate: () => {
-        P.lerpVectors(fromP, toP, p.t)
-        P.y += Math.sin(Math.PI * p.t) * lift
-        T.lerpVectors(fromT, toT, p.t)
-        O.lerpVectors(fromO, toO, p.t)
+        const e = eased(p.t, move.pace)
+        const l = eased(p.t, move.look)
+        const bow = Math.sin(Math.PI * e)
+        P.lerpVectors(fromP, toP, e).addScaledVector(side, bow * swing)
+        P.y = softFloor(P.y + bow * rise, floor)
+        const az = a0.az + pan * l
+        const el = MathUtils.lerp(a0.el, a1.el, l)
+        const r = MathUtils.lerp(a0.r, a1.r, e)
+        T.set(P.x + Math.sin(az) * Math.cos(el) * r, P.y + Math.sin(el) * r, P.z + Math.cos(az) * Math.cos(el) * r)
+        O.lerpVectors(fromO, toO, e)
         c.setLookAt(P.x, P.y, P.z, T.x, T.y, T.z, false)
         c.setFocalOffset(O.x, O.y, O.z, false)
-        if (fromZ !== 1) c.zoomTo(MathUtils.lerp(fromZ, 1, p.t), false)
-        lens.current.shift = fromS * (1 - p.t)
+        if (fromZ !== 1) c.zoomTo(MathUtils.lerp(fromZ, 1, e), false)
+        lens.current.shift = MathUtils.lerp(fromS, toS, e)
       },
       onComplete: () => {
+        c.setLookAt(toP.x, toP.y, toP.z, toT.x, toT.y, toT.z, false)
         c.enabled = true
       },
     })
@@ -177,7 +223,7 @@ export function Director() {
       // #13 stands over the ball with his back (YIGA 13) to the camera
       newSequence()
       runTo(PLAYER_INTRO, { instant: true, face: PLAYER_INTRO_FACE })
-      const shot = wide ? INTRO_SHOT.wide : INTRO_SHOT.tall
+      const shot = size.width >= 900 ? INTRO_SHOT.wide : INTRO_SHOT.tall
       const E = v(shot.position)
       const T = v(shot.target)
       c.zoomTo(shot.zoom, false)
@@ -235,11 +281,13 @@ export function Director() {
       introTl.current?.kill()
       lighting.level = 1
       towerPower.fill(1)
-      const overview = fitToAspect(OVERVIEW, aspect, true)
+      const overview = tall ? OVERVIEW_TALL : fitToAspect(OVERVIEW, aspect, true)
+      const toS = tall ? shiftFor(RUNDOWN) : 0
+      c.maxPolarAngle = LOW_ANGLE
       if (reduced) {
         c.setLookAt(...overview.position, ...overview.target, false)
         c.zoomTo(1, false)
-        lens.current.shift = 0
+        lens.current.shift = toS
         useStore.getState().setPhase('world')
         return
       }
@@ -255,7 +303,8 @@ export function Director() {
       const fromP = c.getPosition(new Vector3())
       const fromZ = camera.zoom
       const fromS = lens.current.shift
-      const ctrl = new Vector3(-14, 22, 44)
+      // landscape swings out over the near touchline; portrait cranes straight up and back from behind him
+      const ctrl = tall ? new Vector3(-58, 14, -2) : new Vector3(-14, 22, 44)
       const toP = v(overview.position)
       const toT = v(overview.target)
       const P = new Vector3()
@@ -278,7 +327,7 @@ export function Director() {
           // ease off the long lens early so the pull-back reads as one move
           const k = MathUtils.smootherstep(t, 0, 0.6)
           c.zoomTo(MathUtils.lerp(fromZ, 1, k), false)
-          lens.current.shift = fromS * (1 - k)
+          lens.current.shift = MathUtils.lerp(fromS, toS, k)
         },
         onComplete: () => {
           c.enabled = true
@@ -298,23 +347,25 @@ export function Director() {
   }, [phase])
 
   // ---- Section / item camera framing ----
+  const lastSection = useRef<SectionId | null>(null)
   useEffect(() => {
     if (phase !== 'world') return
-    // phones: when a section opens (no specific item picked yet), follow #13 over the shoulder
-    const phoneCam = !wide && section !== null && item === null
-    const view = phoneCam ? playerCam(section) : fitToAspect(viewFor(section, item), aspect, section === null)
+    const framed = viewFor(section, item, tall)
+    // the zone framings are composed per orientation; the close-ups and the landscape overview are fitted
+    const view = (section !== null && item === null) || (section === null && tall) ? framed : fitToAspect(framed, aspect, section === null)
     const dist = v(view.position).distanceTo(v(view.target))
     let offset: Vec3 = [0, 0, 0]
-    if (panelOpen && wide) offset = [dist * 0.24, 0, 0]
-    else if (panelOpen) {
-      // lift the subject into the strip of screen above the bottom sheet
-      // (camera-controls applies a positive Y focal offset as "frame moves down, subject rises")
-      const sheet = sheetCollapsed ? 0.19 : 0.5
-      offset = [0, sheet * Math.tan(MathUtils.degToRad(fovFor(aspect) / 2)) * dist, 0]
-    }
-    moveTo(view, { offset })
+    let shift = 0
+    if (sheetLayout) {
+      // slide the picture up into the strip of screen the sheet (or the rundown) leaves free
+      shift = shiftFor(panelOpen ? (sheetCollapsed ? 0.19 : 0.5) : RUNDOWN)
+    } else if (panelOpen) offset = [dist * 0.24, 0, 0]
+    // arriving in a zone plays that zone's move; moving about inside it is a short glide
+    const move = section === null ? OVERVIEW_MOVE : section !== lastSection.current ? SECTION_BY_ID[section].move : ITEM_MOVE
+    lastSection.current = section
+    moveTo(view, { move, offset, shift })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, section, item, aspect, wide, panelOpen, sheetCollapsed])
+  }, [phase, section, item, aspect, tall, sheetLayout, panelOpen, sheetCollapsed])
 
   // ---- Ball choreography: pass to the section, kick for contact ----
   const kickConversion = () => {
@@ -354,6 +405,12 @@ export function Director() {
 
   // ---- Apply the lens shift (a view offset keeps the perspective; only the framing slides) ----
   useFrame(() => {
+    // free orbit may drop to a low angle under a high subject (the posts, the stand) but never below the grass
+    const c = controls.current
+    if (c?.enabled) {
+      const ty = c.getTarget(_target).y
+      c.maxPolarAngle = MathUtils.clamp(Math.acos(MathUtils.clamp((1 - ty) / c.distance, -1, 1)), Math.PI * 0.3, LOW_ANGLE)
+    }
     const l = lens.current
     const key = `${l.shift.toFixed(4)}:${size.width}x${size.height}`
     if (key === l.applied) return
@@ -369,7 +426,6 @@ export function Director() {
       makeDefault
       minDistance={2.5}
       maxDistance={170}
-      maxPolarAngle={Math.PI * 0.47}
       smoothTime={0.3}
       draggingSmoothTime={0.14}
       dollySpeed={0.6}

@@ -6,6 +6,25 @@ import { projects } from '../data/portfolio'
 export type SectionId = 'about' | 'projects' | 'experience' | 'leadership' | 'skills' | 'contact'
 export type Vec3 = [number, number, number]
 
+export type Framing = { position: Vec3; target: Vec3 }
+
+/**
+ * How the camera travels to a framing. Every zone has its own, so the six
+ * arrivals never read as one move played six times.
+ */
+export type Move = {
+  /** Timing of the travel: below 1 rushes then settles for a long time, above 1 builds slowly. */
+  pace: number
+  /** Timing of the pan and tilt: below 1 finds the subject early, above 1 reveals it late. */
+  look: number
+  /** Height added mid-move, as a fraction of the distance travelled. Negative skims the grass. */
+  rise: number
+  /** Sideways bow of the path, as a fraction of the distance travelled. Positive bows to the right. */
+  swing: number
+  /** Duration multiplier. */
+  time: number
+}
+
 export type SectionMeta = {
   id: SectionId
   key: string
@@ -14,8 +33,14 @@ export type SectionMeta = {
   blurb: string
   /** Where the floating hotspot label sits. */
   hotspot: Vec3
-  /** Camera framing when the section is opened. */
-  camera: { position: Vec3; target: Vec3 }
+  /** Camera framing when the section is opened (landscape screens). */
+  camera: Framing
+  /**
+   * Portrait framing. Landscape shoots across a row of objects; portrait shoots
+   * down the row, so the same objects stack up the screen instead of shrinking to fit its width.
+   */
+  tall: Framing
+  move: Move
   /** Where the ball is passed to when travelling to this section. */
   ballSpot: Vec3
 }
@@ -31,6 +56,10 @@ export const SECTIONS: SectionMeta[] = [
     blurb: 'Who I am and how I play the game',
     hotspot: [0, 4.2, 0],
     camera: { position: [5.5, 2.6, 7.5], target: [0, 1.2, 0] },
+    // #13 head to toe from a low angle, the far floodlights over his shoulder
+    tall: { position: [5.6, 1.5, 7], target: [1.9, 1.2, 0.9] },
+    // push-in: covers the ground quickly, then creeps the last few metres
+    move: { pace: 0.62, look: 0.6, rise: 0.03, swing: 0.12, time: 1.25 },
     ballSpot: BALL_HOME,
   },
   {
@@ -41,6 +70,10 @@ export const SECTIONS: SectionMeta[] = [
     blurb: `The playbook: ${projects.length} plays I have run`,
     hotspot: [-44, 10.8, 0],
     camera: { position: [0, 10, 0], target: [-40, 5, 0] },
+    // #13 in the foreground, the arc of cards running away behind him
+    tall: { position: [-13.5, 3.7, -8.5], target: [-42, 5.7, 4] },
+    // jib: skims the grass, then tilts up to find the cards
+    move: { pace: 1.1, look: 1.5, rise: -0.1, swing: 0, time: 1.1 },
     ballSpot: [-31, 0.62, 2],
   },
   {
@@ -51,6 +84,10 @@ export const SECTIONS: SectionMeta[] = [
     blurb: 'Match progression, 2023 to now',
     hotspot: [44, 4.5, 16.5],
     camera: { position: [18, 10, 0], target: [44, 4, 0] },
+    // down the line of markers, oldest to newest
+    tall: { position: [36, 2.6, 27], target: [45, 5, -2] },
+    // truck: arrives travelling sideways along the try line
+    move: { pace: 0.9, look: 0.8, rise: 0.04, swing: 0.3, time: 1.1 },
     ballSpot: [30, 0.62, -5],
   },
   {
@@ -61,6 +98,10 @@ export const SECTIONS: SectionMeta[] = [
     blurb: 'The team sheet: no one scores alone',
     hotspot: [0, 13, -42],
     camera: { position: [0, 8.5, 4], target: [0, 7.5, -42] },
+    // along the facade and looking up: banners, crowd and roof stacked up the screen
+    tall: { position: [-9, 3, -17], target: [4, 9.5, -42] },
+    // pedestal: rises, and only tilts up to the banners at the end
+    move: { pace: 0.85, look: 1.7, rise: 0.1, swing: 0, time: 1.15 },
     ballSpot: [0, 0.62, -28],
   },
   {
@@ -71,6 +112,10 @@ export const SECTIONS: SectionMeta[] = [
     blurb: 'Drills I run every week',
     hotspot: [0, 6, 41],
     camera: { position: [0, 11, 8], target: [0, 2, 42] },
+    // down the row of tackle bags, the south stand behind them
+    tall: { position: [26, 5.5, 37], target: [-2, 1.8, 43] },
+    // whip pan: the head turns first, the body follows
+    move: { pace: 1.2, look: 0.58, rise: 0.02, swing: -0.15, time: 1 },
     ballSpot: [6, 0.62, 33],
   },
   {
@@ -82,13 +127,23 @@ export const SECTIONS: SectionMeta[] = [
     hotspot: [50, 18.5, 0],
     // from behind the kicker: #13 on the left, posts in the middle, panel on the right
     camera: { position: [18, 5, 19], target: [46, 7, -3] },
+    // low behind the kicker, the posts standing the full height of the frame
+    tall: { position: [20, 1.9, 13], target: [50, 7.5, 0] },
+    // low arc round to the kicker's shoulder
+    move: { pace: 0.8, look: 0.9, rise: -0.06, swing: -0.3, time: 1.2 },
     ballSpot: [32, 0.62, 9],
   },
 ]
 
 export const SECTION_BY_ID = Object.fromEntries(SECTIONS.map((s) => [s.id, s])) as Record<SectionId, SectionMeta>
 
-export const OVERVIEW = { position: [0, 64, 100] as Vec3, target: [0, 0, 6] as Vec3 }
+export const OVERVIEW: Framing = { position: [0, 64, 100], target: [0, 0, 6] }
+/** Portrait overview: from above the west end, so the pitch runs up the screen and fills it. */
+export const OVERVIEW_TALL: Framing = { position: [-96, 76, 0], target: [8, 0, 0] }
+/** Back to the overview: a crane out. */
+export const OVERVIEW_MOVE: Move = { pace: 1, look: 0.8, rise: 0.18, swing: 0, time: 1 }
+/** Between two things in the same zone: a short glide. */
+export const ITEM_MOVE: Move = { pace: 0.9, look: 0.9, rise: 0.06, swing: 0, time: 0.9 }
 /**
  * Title-card shot: a long lens from behind #13 as he stands over the ball,
  * looking down the pitch at the posts. `shift` slides the whole picture up the

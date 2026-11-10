@@ -1,70 +1,100 @@
+import { useId } from 'react'
 import { motion } from 'motion/react'
 
-/**
- * A coach's whiteboard play, procedurally generated per project so every
- * "play" in the playbook looks different. Purely decorative.
- */
-export function PlayDiagram({ seed, label }: { seed: number; label: string }) {
-  let s = seed * 9301 + 49297
-  const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280)
+const W = 320
+const H = 170
+const TRY_LINE = 22
 
-  const attackers = Array.from({ length: 5 }, (_, i) => ({ x: 40 + i * 52 + rnd() * 14, y: 150 - i * 12 - rnd() * 10 }))
-  const defenders = Array.from({ length: 4 }, (_, i) => ({ x: 60 + i * 62 + rnd() * 18, y: 62 + rnd() * 18 }))
-  const carrier = Math.floor(rnd() * 3) + 1
-  const runs = attackers.map((a, i) => ({
-    from: a,
-    to: { x: a.x + (rnd() - 0.4) * 60, y: a.y - 70 - rnd() * 40 - (i === carrier ? 30 : 0) },
+/**
+ * A coach's whiteboard play drawn from a project's real steps: one player per
+ * step, the ball passed down the line in order, and the last player through the
+ * gap to score. The steps are listed underneath with the same numbers.
+ */
+export function PlayDiagram({ steps, label }: { steps: string[]; label: string }) {
+  const id = useId()
+  const n = steps.length
+  const players = steps.map((_, i) => ({
+    x: n === 1 ? W / 2 : 46 + (i * 190) / (n - 1),
+    y: n === 1 ? 120 : 142 - (i * 56) / (n - 1),
   }))
+  const scorer = players[n - 1]
+  const score = { x: Math.min(W - 24, scorer.x + 44), y: TRY_LINE - 8 }
+  // the defensive line, with the gap where the last player goes through
+  const defenders = [58, 122, 186].map((x, i) => ({ x, y: 58 + (i % 2) * 7 })).filter((d) => Math.abs(d.x - (scorer.x + 24)) > 26)
 
   return (
-    <svg viewBox="0 0 320 180" className="w-full h-auto" role="img" aria-label={`Play diagram for ${label}`}>
-      <defs>
-        <marker id={`arrow-${seed}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M0 0L10 5L0 10z" fill="#eeedeb" />
-        </marker>
-      </defs>
-      <rect x="1" y="1" width="318" height="178" rx="2" fill="rgba(11,42,28,0.4)" stroke="rgba(201,209,207,0.15)" />
-      {[45, 90, 135].map((y) => (
-        <line key={y} x1="10" x2="310" y1={y} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 6" />
-      ))}
-      <line x1="10" x2="310" y1="22" y2="22" stroke="rgba(255,255,255,0.25)" />
-      <text x="14" y="16" fill="rgba(201,209,207,0.6)" fontSize="9" fontFamily="JetBrains Mono">TRY LINE</text>
-      {/* pass line along the attack */}
-      <motion.path
-        d={`M${attackers[0].x} ${attackers[0].y} ${attackers
-          .slice(1, carrier + 1)
-          .map((a) => `L${a.x} ${a.y}`)
-          .join(' ')}`}
-        stroke="#c9d1cf"
-        strokeWidth="1.5"
-        strokeDasharray="3 4"
-        fill="none"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      />
-      {runs.map((r, i) => (
+    <figure>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`How ${label} works: ${steps.join(', then ')}`}>
+        <defs>
+          <marker id={id} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#eeedeb" />
+          </marker>
+        </defs>
+        <rect x="1" y="1" width={W - 2} height={H - 2} fill="rgba(11,42,28,0.4)" stroke="rgba(201,209,207,0.15)" />
+        {[62, 102, 142].map((y) => (
+          <line key={y} x1="10" x2={W - 10} y1={y} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 6" />
+        ))}
+        <line x1="10" x2={W - 10} y1={TRY_LINE} y2={TRY_LINE} stroke="rgba(255,255,255,0.25)" />
+        <text x="14" y="15" fill="rgba(201,209,207,0.6)" fontSize="9" fontFamily="JetBrains Mono">
+          TRY LINE
+        </text>
+        {defenders.map((d) => (
+          <g key={d.x} stroke="#c43c3c" strokeWidth="2.2">
+            <line x1={d.x - 6} y1={d.y - 6} x2={d.x + 6} y2={d.y + 6} />
+            <line x1={d.x + 6} y1={d.y - 6} x2={d.x - 6} y2={d.y + 6} />
+          </g>
+        ))}
+        {/* the passes, in order */}
+        {n > 1 && (
+          <motion.path
+            d={`M${players.map((p) => `${p.x} ${p.y}`).join(' L')}`}
+            stroke="#c9d1cf"
+            strokeWidth="1.5"
+            strokeDasharray="3 4"
+            fill="none"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.25 * n, delay: 0.2, ease: 'easeInOut' }}
+          />
+        )}
+        {/* the run to the line */}
         <motion.path
-          key={i}
-          d={`M${r.from.x} ${r.from.y} Q${(r.from.x + r.to.x) / 2 + (rnd() - 0.5) * 40} ${(r.from.y + r.to.y) / 2} ${r.to.x} ${r.to.y}`}
-          stroke={i === carrier ? '#eeedeb' : 'rgba(238,237,235,0.4)'}
-          strokeWidth={i === carrier ? 2.5 : 1.5}
+          d={`M${scorer.x} ${scorer.y - 9} Q${scorer.x + 6} ${(scorer.y + score.y) / 2 + 8} ${score.x} ${score.y}`}
+          stroke="#eeedeb"
+          strokeWidth="2.5"
           fill="none"
-          markerEnd={`url(#arrow-${seed})`}
+          markerEnd={`url(#${id})`}
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 0.9, delay: 0.5 + i * 0.08 }}
+          transition={{ duration: 0.6, delay: 0.3 + 0.25 * n, ease: 'easeOut' }}
         />
-      ))}
-      {defenders.map((d, i) => (
-        <g key={i} stroke="#c43c3c" strokeWidth="2.2">
-          <line x1={d.x - 6} y1={d.y - 6} x2={d.x + 6} y2={d.y + 6} />
-          <line x1={d.x + 6} y1={d.y - 6} x2={d.x - 6} y2={d.y + 6} />
-        </g>
-      ))}
-      {attackers.map((a, i) => (
-        <circle key={i} cx={a.x} cy={a.y} r="8" fill={i === carrier ? '#eeedeb' : 'transparent'} stroke="#eeedeb" strokeWidth="2" />
-      ))}
-    </svg>
+        {players.map((p, i) => (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r="9" fill={i === n - 1 ? '#eeedeb' : '#0f1513'} stroke="#eeedeb" strokeWidth="2" />
+            <text
+              x={p.x}
+              y={p.y + 3.4}
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="700"
+              fontFamily="JetBrains Mono"
+              fill={i === n - 1 ? '#0f1513' : '#eeedeb'}
+            >
+              {i + 1}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <figcaption>
+        <ol className="mt-2 grid gap-1 text-sm text-silver">
+          {steps.map((step, i) => (
+            <li key={i} className="flex gap-2">
+              <span className="font-mono text-xs leading-5 text-cream">{i + 1}</span>
+              {step}
+            </li>
+          ))}
+        </ol>
+      </figcaption>
+    </figure>
   )
 }
