@@ -170,7 +170,7 @@ export function RugbyBall() {
       {/* kicking tee */}
       <mesh ref={tee} position={[ball.home.x, 0.12, ball.home.z]}>
         <cylinderGeometry args={[0.12, 0.26, 0.24, 20, 1, true]} />
-        <meshStandardMaterial color="#c6ff3d" emissive="#c6ff3d" emissiveIntensity={0.4} side={2} />
+        <meshStandardMaterial color="#eeedeb" emissive="#eeedeb" emissiveIntensity={0.2} side={2} />
       </mesh>
       {/* blob shadow */}
       <mesh ref={shadow} rotation-x={-Math.PI / 2}>

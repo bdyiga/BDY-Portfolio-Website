@@ -92,6 +92,7 @@ export default function Experience({ onReady, paused = false }: { onReady: () =>
     <Canvas
       style={{ position: 'fixed', inset: 0 }}
       frameloop={paused ? 'never' : 'always'}
+      shadows={quality === 'high'}
       dpr={quality === 'high' ? [1, 1.75] : [0.75, 1.25]}
       gl={{ antialias: quality === 'high', powerPreference: 'high-performance', alpha: false, stencil: false }}
       camera={{ fov: 45, near: 0.5, far: 1200, position: [0, 30, 120] }}

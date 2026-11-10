@@ -109,8 +109,8 @@ function TackleBag({ group, index }: { group: SkillGroup; index: number }) {
           <mesh key={y} position-y={y}>
             <cylinderGeometry args={[0.56, 0.56, 0.14, 20]} />
             <meshStandardMaterial
-              color="#c6ff3d"
-              emissive="#c6ff3d"
+              color="#eeedeb"
+              emissive="#eeedeb"
               emissiveIntensity={active ? 2.5 : hover ? 1.6 : 0.5}
               toneMapped={false}
             />
@@ -135,14 +135,14 @@ function Cones() {
       {cones.map((x) => (
         <mesh key={x} position={[x, 0.2, 38.8]}>
           <coneGeometry args={[0.18, 0.4, 12]} />
-          <meshStandardMaterial color={x % 8 === 2 ? '#c6ff3d' : '#e6e9e7'} />
+          <meshStandardMaterial color={x % 8 === 2 ? '#eeedeb' : '#e6e9e7'} />
         </mesh>
       ))}
       {/* agility ladder */}
       {Array.from({ length: 9 }, (_, i) => (
         <mesh key={i} position={[20 + i * 0.6, 0.03, 45.6]} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[0.06, 1]} />
-          <meshBasicMaterial color="#c6ff3d" />
+          <meshBasicMaterial color="#eeedeb" />
         </mesh>
       ))}
     </group>

@@ -19,7 +19,7 @@ export function Pitch({ quality }: { quality: 'high' | 'low' }) {
       {/* playing surface incl. in-goal areas */}
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[120, 70]} />
-        <meshStandardMaterial map={pitch} roughness={0.92} metalness={0} />
+        <meshLambertMaterial map={pitch} />
       </mesh>
       {/* corner flags */}
       {[-60, -50, 50, 60].flatMap((x) =>
@@ -31,7 +31,7 @@ export function Pitch({ quality }: { quality: 'high' | 'low' }) {
             </mesh>
             <mesh position={[0.22, 1.42, 0]}>
               <planeGeometry args={[0.44, 0.3]} />
-              <meshStandardMaterial color="#c6ff3d" emissive="#c6ff3d" emissiveIntensity={0.6} side={2} />
+              <meshStandardMaterial color="#990000" emissive="#990000" emissiveIntensity={0.5} side={2} />
             </mesh>
           </group>
         )),

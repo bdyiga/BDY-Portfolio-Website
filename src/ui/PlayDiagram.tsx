@@ -20,10 +20,10 @@ export function PlayDiagram({ seed, label }: { seed: number; label: string }) {
     <svg viewBox="0 0 320 180" className="w-full h-auto" role="img" aria-label={`Play diagram for ${label}`}>
       <defs>
         <marker id={`arrow-${seed}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M0 0L10 5L0 10z" fill="#c6ff3d" />
+          <path d="M0 0L10 5L0 10z" fill="#eeedeb" />
         </marker>
       </defs>
-      <rect x="1" y="1" width="318" height="178" rx="10" fill="rgba(11,42,28,0.55)" stroke="rgba(201,209,207,0.15)" />
+      <rect x="1" y="1" width="318" height="178" rx="2" fill="rgba(11,42,28,0.4)" stroke="rgba(201,209,207,0.15)" />
       {[45, 90, 135].map((y) => (
         <line key={y} x1="10" x2="310" y1={y} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 6" />
       ))}
@@ -47,7 +47,7 @@ export function PlayDiagram({ seed, label }: { seed: number; label: string }) {
         <motion.path
           key={i}
           d={`M${r.from.x} ${r.from.y} Q${(r.from.x + r.to.x) / 2 + (rnd() - 0.5) * 40} ${(r.from.y + r.to.y) / 2} ${r.to.x} ${r.to.y}`}
-          stroke={i === carrier ? '#c6ff3d' : 'rgba(198,255,61,0.45)'}
+          stroke={i === carrier ? '#eeedeb' : 'rgba(238,237,235,0.4)'}
           strokeWidth={i === carrier ? 2.5 : 1.5}
           fill="none"
           markerEnd={`url(#arrow-${seed})`}
@@ -57,13 +57,13 @@ export function PlayDiagram({ seed, label }: { seed: number; label: string }) {
         />
       ))}
       {defenders.map((d, i) => (
-        <g key={i} stroke="#e46a6a" strokeWidth="2.2">
+        <g key={i} stroke="#c43c3c" strokeWidth="2.2">
           <line x1={d.x - 6} y1={d.y - 6} x2={d.x + 6} y2={d.y + 6} />
           <line x1={d.x + 6} y1={d.y - 6} x2={d.x - 6} y2={d.y + 6} />
         </g>
       ))}
       {attackers.map((a, i) => (
-        <circle key={i} cx={a.x} cy={a.y} r="8" fill={i === carrier ? '#c6ff3d' : 'transparent'} stroke="#c6ff3d" strokeWidth="2" />
+        <circle key={i} cx={a.x} cy={a.y} r="8" fill={i === carrier ? '#eeedeb' : 'transparent'} stroke="#eeedeb" strokeWidth="2" />
       ))}
     </svg>
   )

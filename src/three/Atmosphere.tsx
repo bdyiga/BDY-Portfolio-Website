@@ -11,12 +11,16 @@ import {
   Fog,
   Group,
   HemisphereLight,
-  MeshBasicMaterial,
+  MathUtils,
   MeshStandardMaterial,
   Object3D,
   ShaderMaterial,
   SpotLight,
+  Sprite,
+  SpriteMaterial,
+  Vector3,
 } from 'three'
+import { player } from '../lib/player'
 import { lighting } from '../lib/sceneState'
 import { useStore } from '../state/store'
 import { drawTowerPanel } from '../lib/textures'
@@ -70,35 +74,43 @@ function SkyDome() {
   )
 }
 
-function beamAlpha() {
+function glareTexture() {
   const c = document.createElement('canvas')
-  c.width = 4
-  c.height = 256
+  c.width = c.height = 128
   const ctx = c.getContext('2d')!
-  const g = ctx.createLinearGradient(0, 0, 0, 256)
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
   g.addColorStop(0, 'rgba(255,255,255,1)')
-  g.addColorStop(0.7, 'rgba(255,255,255,0.25)')
+  g.addColorStop(0.18, 'rgba(255,255,255,0.45)')
+  g.addColorStop(0.5, 'rgba(255,255,255,0.08)')
   g.addColorStop(1, 'rgba(255,255,255,0)')
   ctx.fillStyle = g
-  ctx.fillRect(0, 0, 4, 256)
+  ctx.fillRect(0, 0, 128, 128)
   return new CanvasTexture(c)
 }
+
+/** The tower shadow maps follow #13, so four small maps give crisp shadows anywhere on the pitch. */
+const shadowFollow = new Object3D()
+const SHADOW_RADIUS = 7
+const _lightPos = new Vector3()
+const _toCam = new Vector3()
+const _fwd = new Vector3()
 
 function Tower({ index, x, z, quality }: { index: number; x: number; z: number; quality: 'high' | 'low' }) {
   const panelTex = useCanvasTexture(256, 128, drawTowerPanel)
   const spot = useRef<SpotLight>(null)
   const head = useRef<Group>(null)
-  const beamMat = useMemo(
+  const glare = useRef<Sprite>(null)
+  const glareMat = useMemo(
     () =>
-      new MeshBasicMaterial({
-        color: '#eaffd2',
+      new SpriteMaterial({
+        map: glareTexture(),
+        color: '#f1f5ff',
         transparent: true,
         opacity: 0,
         blending: AdditiveBlending,
         depthWrite: false,
-        side: 2,
-        alphaMap: beamAlpha(),
         fog: false,
+        toneMapped: false,
       }),
     [],
   )
@@ -111,11 +123,9 @@ function Tower({ index, x, z, quality }: { index: number; x: number; z: number; 
     panelMat.needsUpdate = true
   }, [panelMat, panelTex])
 
-  const aimWorld = useMemo(() => [x * 0.32, 0, z * 0.25] as const, [x, z])
-  const aim = useMemo(() => {
-    const o = new Object3D()
-    return o
-  }, [x, z])
+  // each tower lights its own quarter: four pools that overlap at halfway, with a long soft edge that spills onto the stands
+  const aimWorld = useMemo(() => [x * 0.42, 0, z * 0.16] as const, [x, z])
+  const aim = useMemo(() => new Object3D(), [])
 
   useEffect(() => {
     head.current?.parent?.updateWorldMatrix(true, false)
@@ -123,14 +133,43 @@ function Tower({ index, x, z, quality }: { index: number; x: number; z: number; 
     if (spot.current) spot.current.target = aim
   }, [aim, aimWorld])
 
-  const beamLen = Math.hypot(x - aimWorld[0], TOWER_H, z - aimWorld[2])
+  // shadows: aim the shadow camera at #13 (not at the pool) and narrow it to a few metres around him
+  useEffect(() => {
+    const light = spot.current
+    if (!light) return
+    const shadow = light.shadow
+    shadow.mapSize.set(1024, 1024)
+    shadow.camera.near = 20
+    shadow.camera.far = 220
+    shadow.bias = -0.0004
+    shadow.normalBias = 0.02
+    const base = shadow.updateMatrices
+    shadow.updateMatrices = function (l: SpotLight) {
+      const target = l.target
+      _lightPos.setFromMatrixPosition(l.matrixWorld)
+      this.focus = Math.min(1, Math.atan(SHADOW_RADIUS / _lightPos.distanceTo(shadowFollow.position)) / l.angle)
+      l.target = shadowFollow
+      base.call(this, l)
+      l.target = target
+    }
+    return () => {
+      shadow.updateMatrices = base
+    }
+  }, [])
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
     const night = 1 - lighting.day
     const p = towerPower[index] * lighting.level
-    if (spot.current) spot.current.intensity = p * (0.25 + night * 2.6)
+    if (spot.current) spot.current.intensity = p * (0.3 + night * 3.1)
     panelMat.emissiveIntensity = p * (0.6 + night * 2.4)
-    beamMat.opacity = p * night * (quality === 'high' ? 0.06 : 0.035)
+    if (glare.current && head.current) {
+      // only from in front of the lamps, never through the back of the head
+      glare.current.getWorldPosition(_lightPos)
+      _toCam.copy(camera.position).sub(_lightPos).normalize()
+      head.current.getWorldDirection(_fwd)
+      const facing = MathUtils.smoothstep(_toCam.dot(_fwd), 0.1, 0.7)
+      glareMat.opacity = p * night * facing * (quality === 'high' ? 0.55 : 0.8)
+    }
   })
 
   return (
@@ -147,19 +186,17 @@ function Tower({ index, x, z, quality }: { index: number; x: number; z: number; 
         <mesh position-z={0.31} material={panelMat}>
           <planeGeometry args={[8.6, 4.1]} />
         </mesh>
-        {/* fake volumetric beam: a cone pointing along the head's +Z */}
-        <mesh position-z={beamLen / 2} rotation-x={-Math.PI / 2} material={beamMat}>
-          <cylinderGeometry args={[4.5, 30, beamLen, 24, 1, true]} />
-        </mesh>
+        <sprite ref={glare} position-z={0.6} scale={[26, 26, 1]} material={glareMat} />
       </group>
       <spotLight
         ref={spot}
         position-y={TOWER_H}
-        angle={0.62}
-        penumbra={0.7}
+        angle={0.72}
+        penumbra={0.9}
         decay={0}
         distance={0}
-        color="#f2ffe6"
+        color="#f1f5ff"
+        castShadow={quality === 'high'}
       />
       <primitive object={aim} position={[aimWorld[0] - x, 0, aimWorld[2] - z]} />
     </group>
@@ -198,6 +235,8 @@ export function Atmosphere() {
   useFrame(() => {
     const d = lighting.day
     const lv = lighting.level
+    shadowFollow.position.set(player.pos.x, 1, player.pos.z)
+    shadowFollow.updateMatrixWorld()
     fog.color.copy(NIGHT.fog).lerp(DAY.fog, d)
     fog.near = 110 - d * 30
     fog.far = 380 + d * 20
@@ -220,7 +259,7 @@ export function Atmosphere() {
       </group>
       {quality === 'high' && !reducedMotion && (
         <group ref={sparkles}>
-          <Sparkles count={140} scale={[118, 16, 72]} position={[0, 8, 0]} size={3} speed={0.25} opacity={0.55} color="#d9ff8a" />
+          <Sparkles count={140} scale={[118, 16, 72]} position={[0, 8, 0]} size={3} speed={0.25} opacity={0.55} color="#f1f5ff" />
         </group>
       )}
       {TOWERS.map(([x, z], i) => (

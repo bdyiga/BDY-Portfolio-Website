@@ -28,7 +28,7 @@ export function ExperiencePanel() {
           <span>Now</span>
         </div>
         <div className="relative mt-3 h-1.5 rounded-full bg-white/10">
-          <motion.div className="absolute inset-y-0 left-0 rounded-full bg-lime" animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
+          <motion.div className="absolute inset-y-0 left-0 rounded-full bg-crimson" animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
           <div className="absolute inset-0 flex items-center justify-between" role="tablist" aria-label="Career timeline">
             {experiences.map((x, i) => (
               <button
@@ -38,11 +38,11 @@ export function ExperiencePanel() {
                 aria-controls="exp-detail"
                 onClick={() => selectItem('experience', i)}
                 className={`relative grid h-5 w-5 -translate-x-0 place-items-center rounded-full border-2 transition-all ${
-                  i <= index ? 'border-lime bg-charcoal' : 'border-white/30 bg-charcoal'
+                  i <= index ? 'border-crimson bg-charcoal' : 'border-white/30 bg-charcoal'
                 } ${i === index ? 'scale-125 shadow-[0_0_16px_rgba(198,255,61,0.6)]' : ''}`}
                 title={`${x.shortName} (${x.year})`}
               >
-                <span className={`h-2 w-2 rounded-full ${i === index ? 'bg-lime' : 'bg-transparent'}`} />
+                <span className={`h-2 w-2 rounded-full ${i === index ? 'bg-crimson' : 'bg-transparent'}`} />
                 <span className="absolute top-6 whitespace-nowrap font-mono text-[0.65rem] text-silver">{x.year}</span>
               </button>
             ))}
@@ -59,7 +59,7 @@ export function ExperiencePanel() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+        <div className="rounded-sm border border-white/10 bg-black/40 p-4">
           <div className="flex items-baseline justify-between gap-2 font-mono text-[0.7rem] uppercase tracking-widest text-silver-dim">
             <span>Period {index + 1}</span>
             <span>
@@ -67,7 +67,7 @@ export function ExperiencePanel() {
             </span>
           </div>
           <h3 className="display mt-2 text-2xl leading-tight">{e.company}</h3>
-          <p className="mt-1 text-lime">{e.role}</p>
+          <p className="mt-1 text-cream">{e.role}</p>
           <p className="text-sm text-silver-dim">{e.location}</p>
         </div>
 
@@ -75,12 +75,12 @@ export function ExperiencePanel() {
           {e.achievements.map((a, i) => (
             <motion.div
               key={a.label}
-              className="rounded-xl border border-lime/25 bg-[#040605] p-3"
+              className="rounded-sm border border-white/15 bg-[#040605] p-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 + i * 0.08 }}
             >
-              <p className="font-display text-xl font-black text-lime [font-stretch:110%]">{a.value}</p>
+              <p className="font-display text-xl font-black text-cream [font-stretch:110%]">{a.value}</p>
               <p className="mt-1 text-[0.72rem] leading-tight text-silver">{a.label}</p>
             </motion.div>
           ))}
@@ -91,7 +91,7 @@ export function ExperiencePanel() {
           <ul className="space-y-2 text-[0.93rem] leading-relaxed text-silver">
             {e.responsibilities.map((r) => (
               <li key={r} className="flex gap-2">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lime" aria-hidden />
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-crimson" aria-hidden />
                 <span>{r}</span>
               </li>
             ))}

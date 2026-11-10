@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import { Group, MathUtils, Mesh, MeshStandardMaterial, Vector3 } from 'three'
 import { player, playAction, yawTo, type Action } from '../lib/player'
@@ -191,6 +191,8 @@ function Leg({ side, mats, hip, knee }: { side: 1 | -1; mats: Mats; hip: React.R
 
 export function Player() {
   const mats = useMats()
+  // on high the floodlights cast his real shadows; the blob stays as soft contact shading
+  const quality = useStore((s) => s.quality)
   const root = useRef<Group>(null)
   const hips = useRef<Group>(null)
   const torso = useRef<Group>(null)
@@ -205,6 +207,13 @@ export function Player() {
   const rKnee = useRef<Group>(null)
   const shadow = useRef<Mesh>(null)
   const state = useRef({ phase: 0, cur: { ...IDLE }, target: { ...IDLE }, prev: player.pos.clone() })
+
+  // floodlight shadows (high quality only; the lights decide whether they cast)
+  useEffect(() => {
+    root.current?.traverse((o) => {
+      if ((o as Mesh).isMesh) o.castShadow = true
+    })
+  }, [])
 
   useFrame((frame, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30)
@@ -301,7 +310,7 @@ export function Player() {
     const st = useStore.getState()
     if (st.phase !== 'world' || player.mode !== 'idle') return
     playAction('wave', { instant: st.reducedMotion })
-    st.showToast({ title: '#13 says hi', body: 'Thanks for stopping by the stadium. Pick a marker and I will run you there.' })
+    st.showToast({ title: '#13 says hi', body: 'Thanks for stopping by the stadium. Pick a zone in the rundown and I will run you there.' })
   }
 
   return (
@@ -353,7 +362,7 @@ export function Player() {
       {/* blob shadow */}
       <mesh ref={shadow} rotation-x={-Math.PI / 2}>
         <circleGeometry args={[0.75, 24]} />
-        <meshBasicMaterial color="#000" transparent opacity={0.35} depthWrite={false} />
+        <meshBasicMaterial color="#000" transparent opacity={quality === 'high' ? 0.16 : 0.35} depthWrite={false} />
       </mesh>
     </>
   )

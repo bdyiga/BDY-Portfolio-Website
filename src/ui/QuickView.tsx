@@ -50,33 +50,33 @@ export function QuickView() {
       role="document"
     >
       <header className="sticky top-0 z-10 border-b border-white/10 bg-charcoal/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 md:px-5">
           <button className="display text-lg" onClick={() => root.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
-            BDY<span className="text-lime">.</span>
+            BDY<span className="text-cream">.</span>
           </button>
           <nav aria-label="Quick View sections" className="hidden gap-5 text-sm text-silver md:flex">
             {NAV.map(([id, label]) => (
-              <button key={id} onClick={() => go(id)} className="hover:text-lime">
+              <button key={id} onClick={() => go(id)} className="hover:text-cream">
                 {label}
               </button>
             ))}
           </nav>
           <div className="flex gap-2">
             <a className="btn btn-ghost !py-2" href={profile.resumeUrl} download>
-              <DownloadIcon size={15} /> <span className="hidden sm:inline">Resume</span>
+              <DownloadIcon size={15} /> Resume
             </a>
             {!webglFailed && (
               <button className="btn btn-lime !py-2" onClick={() => setQuickView(false)}>
-                <StadiumIcon size={16} /> <span className="hidden sm:inline">Enter the stadium</span>
+                <StadiumIcon size={16} /> <span className="sm:hidden">Stadium</span><span className="hidden sm:inline">Enter the stadium</span>
               </button>
             )}
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-5">
+      <main className="mx-auto max-w-5xl overflow-x-hidden px-4 md:px-5">
         {webglFailed && (
-          <p className="mt-6 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-silver" role="note">
+          <p className="mt-6 rounded-sm border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-silver" role="note">
             Your browser or device couldn't start the 3D stadium, so here's the full portfolio in classic form. Nothing is missing.
           </p>
         )}
@@ -84,7 +84,7 @@ export function QuickView() {
         <section className="grid items-center gap-10 py-14 md:grid-cols-[1fr_auto]" aria-labelledby="qv-name">
           <div>
             <p className="kicker">Quick View · BDY's World</p>
-            <h1 id="qv-name" ref={heading} tabIndex={-1} className="display mt-3 text-5xl outline-none md:text-7xl">
+            <h1 id="qv-name" ref={heading} tabIndex={-1} className="display mt-3 text-[clamp(2.1rem,9.6vw,4.5rem)] outline-none [overflow-wrap:anywhere]">
               {profile.name}
             </h1>
             <p className="mt-5 font-display text-xl font-extrabold italic [font-stretch:110%] md:text-2xl">“{profile.tagline}”</p>
@@ -93,8 +93,8 @@ export function QuickView() {
               {education.degree} ({education.specialization}) with minors in {education.minors.join(' and ')} at {education.school}. {profile.availability}
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
-              <a className="btn btn-lime" href={`mailto:${profile.email}`}>
-                <MailIcon size={16} /> {profile.email}
+              <a className="btn btn-lime max-w-full" href={`mailto:${profile.email}`}>
+                <MailIcon size={16} /> <span className="truncate">{profile.email}</span>
               </a>
               <a className="btn btn-ghost" href={profile.linkedin} target="_blank" rel="noreferrer">
                 <LinkedinIcon size={16} /> LinkedIn
@@ -110,7 +110,7 @@ export function QuickView() {
           <img
             src={profile.photo}
             alt={`Portrait of ${profile.name}`}
-            className="mx-auto w-56 rounded-3xl object-cover ring-1 ring-lime/40 md:w-72"
+            className="mx-auto w-56 rounded-sm object-cover ring-1 ring-white/20 md:w-72"
             width={288}
             height={304}
           />
@@ -119,12 +119,12 @@ export function QuickView() {
         <Section id="about" kicker="Center Field" title="About & Education">
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-4 text-silver">
-              <p className="border-l-2 border-lime pl-4 text-lg text-ink">“{profile.rugbyIntro}”</p>
+              <p className="border-l-2 border-crimson pl-4 text-lg text-ink">“{profile.rugbyIntro}”</p>
               {profile.bio.map((p) => (
                 <p key={p.slice(0, 16)}>{p}</p>
               ))}
             </div>
-            <div className="rounded-2xl border border-white/10 bg-forest/30 p-5 text-sm">
+            <div className="rounded-sm border border-white/10 bg-forest/30 p-5 text-sm">
               <p className="font-semibold text-ink">{education.school}</p>
               <p className="text-silver-dim">{education.college}</p>
               <ul className="mt-4 space-y-1.5 text-silver">
@@ -147,16 +147,16 @@ export function QuickView() {
               .slice()
               .reverse()
               .map((e) => (
-                <li key={e.id} className="rounded-2xl border border-white/10 bg-charcoal-2/70 p-5">
+                <li key={e.id} className="rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h3 className="text-lg font-bold">
-                      {e.role} · <span className="text-lime">{e.company}</span>
+                      {e.role} · <span className="text-cream">{e.company}</span>
                     </h3>
                     <p className="font-mono text-xs text-silver-dim">
                       {e.start} – {e.end} · {e.location}
                     </p>
                   </div>
-                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-silver marker:text-lime">
+                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-silver marker:text-cream">
                     {e.responsibilities.map((r) => (
                       <li key={r}>{r}</li>
                     ))}
@@ -179,8 +179,8 @@ export function QuickView() {
         <Section id="projects" kicker="Left Try Zone · The Playbook" title="Projects">
           <ul className="grid gap-4 md:grid-cols-2">
             {projects.map((p, i) => (
-              <li key={p.id} className="flex flex-col rounded-2xl border border-white/10 bg-charcoal-2/70 p-5">
-                <p className="font-mono text-xs text-lime">
+              <li key={p.id} className="flex flex-col rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
+                <p className="font-mono text-xs text-cream">
                   Play {String(i + 1).padStart(2, '0')}
                   {p.period ? ` · ${p.period}` : ''}
                 </p>
@@ -197,12 +197,12 @@ export function QuickView() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3 text-sm">
                   {p.link && (
-                    <a href={p.link.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-lime hover:underline">
+                    <a href={p.link.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-cream hover:underline">
                       {p.link.label} <ExternalIcon size={14} />
                     </a>
                   )}
                   {p.github && (
-                    <a href={p.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-lime hover:underline">
+                    <a href={p.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-cream hover:underline">
                       <GithubIcon size={14} /> GitHub
                     </a>
                   )}
@@ -215,7 +215,7 @@ export function QuickView() {
         <Section id="skills" kicker="Training Ground" title="Technical Skills">
           <dl className="grid gap-4 md:grid-cols-2">
             {skillGroups.map((g) => (
-              <div key={g.id} className="rounded-2xl border border-white/10 bg-charcoal-2/70 p-5">
+              <div key={g.id} className="rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
                 <dt className="font-semibold">{g.name}</dt>
                 <dd className="mt-3 flex flex-wrap gap-1.5">
                   {g.skills.map((s) => (
@@ -233,9 +233,9 @@ export function QuickView() {
         <Section id="leadership" kicker="North Stand · The Team Sheet" title="Leadership & Involvement">
           <ul className="grid gap-4 md:grid-cols-2">
             {leadership.map((l) => (
-              <li key={l.id} className="rounded-2xl border border-white/10 bg-charcoal-2/70 p-5">
+              <li key={l.id} className="rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
                 <p className="font-semibold">{l.role}</p>
-                <p className="text-sm text-lime">{l.org}</p>
+                <p className="text-sm text-cream">{l.org}</p>
                 {l.period && <p className="mt-1 font-mono text-xs text-silver-dim">{l.period}</p>}
                 {l.description && <p className="mt-2 text-sm text-silver">{l.description}</p>}
               </li>

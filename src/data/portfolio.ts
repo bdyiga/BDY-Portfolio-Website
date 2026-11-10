@@ -157,6 +157,9 @@ export const projects: Project[] = [
   },
 ]
 
+/** The three projects shown on the intro title card, by id. Reorder or swap freely. */
+export const featuredProjectIds = ['plyntiq', 'sec-mcp', 'ld-debate']
+
 export type Experience = {
   id: string
   company: string

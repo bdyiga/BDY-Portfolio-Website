@@ -1,17 +1,14 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
 import { AdditiveBlending, Group, Mesh, MeshBasicMaterial } from 'three'
 import type { SectionMeta } from '../lib/sections'
 import { useStore } from '../state/store'
 
-/** Ground ring + light pillar + floating DOM label (a real, focusable button). */
+/** Ground ring, plus a light pillar while the zone is hovered in the rundown. The labels live in the DOM rundown. */
 export function Hotspot({ meta }: { meta: SectionMeta }) {
   const ring = useRef<Mesh>(null)
   const pillar = useRef<Mesh>(null)
   const group = useRef<Group>(null)
-  const openSection = useStore((s) => s.openSection)
-  const setHovered = useStore((s) => s.setHovered)
   const hovered = useStore((s) => s.hovered === meta.id)
   const visible = useStore((s) => s.phase === 'world' && s.section === null && !s.quickView)
   const reducedMotion = useStore((s) => s.reducedMotion)
@@ -31,7 +28,7 @@ export function Hotspot({ meta }: { meta: SectionMeta }) {
       group.current.scale.setScalar(Math.max(0.0001, s))
       group.current.visible = s > 0.02
     }
-    if (pillar.current) (pillar.current.material as MeshBasicMaterial).opacity = hovered ? 0.5 : 0.22
+    if (pillar.current) (pillar.current.material as MeshBasicMaterial).opacity = hovered ? 0.55 : 0
   })
 
   const ground = meta.id === 'leadership' || meta.id === 'contact' ? null : [hx, 0.06, hz]
@@ -48,29 +45,10 @@ export function Hotspot({ meta }: { meta: SectionMeta }) {
         {ground && (
           <mesh ref={pillar} position={[hx, hy / 2, hz]}>
             <cylinderGeometry args={[0.05, 0.05, hy, 6, 1, true]} />
-            <meshBasicMaterial color="#c6ff3d" transparent opacity={0.22} blending={AdditiveBlending} depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial color="#c6ff3d" transparent opacity={0} blending={AdditiveBlending} depthWrite={false} toneMapped={false} />
           </mesh>
         )}
       </group>
-      {visible && (
-        <Html position={[hx, hy, hz]} center zIndexRange={[30, 10]} className="pointer-events-none">
-          <button
-            type="button"
-            className={`hotspot-label ${hovered ? 'is-hovered' : ''}`}
-            onClick={() => openSection(meta.id)}
-            onMouseEnter={() => setHovered(meta.id)}
-            onMouseLeave={() => setHovered(null)}
-            onFocus={() => setHovered(meta.id)}
-            onBlur={() => setHovered(null)}
-            aria-label={`${meta.title}: ${meta.zone}. ${meta.blurb}`}
-          >
-            <span className="hotspot-key" aria-hidden>
-              {meta.key}
-            </span>
-            <span className="hotspot-title leading-tight">{meta.title}</span>
-          </button>
-        </Html>
-      )}
     </group>
   )
 }

@@ -1,6 +1,6 @@
 # BDY's World — Beyond the Try Line
 
-The interactive portfolio of **Benedict Deogratius Yiga**: a futuristic rugby stadium you can explore in the browser, plus a one-page **Quick View** for recruiters.
+The interactive portfolio of **Benedict Deogratius Yiga**: a floodlit rugby stadium you can explore in the browser, styled like a match-night TV broadcast, plus a one-page **Quick View** ("See everything on one page") for recruiters.
 
 **Live:** https://bdyiga.github.io/BDY-Portfolio-Website/
 
@@ -9,13 +9,21 @@ The interactive portfolio of **Benedict Deogratius Yiga**: a futuristic rugby st
 | Zone | Section | What's there |
 | --- | --- | --- |
 | Center field | About | The hero rugby ball on its kicking tee. Click it to meet Benedict. |
-| Left try zone | Projects | Seven holographic "plays" from the playbook, each with a whiteboard play diagram. |
+| Left try zone | Projects | Nine holographic "plays" from the playbook, each with a whiteboard play diagram. |
 | Right try zone | Experience | Four LED totems forming a match timeline from kick-off (2023) to now. |
 | North stand | Leadership | Team banners on the stand facade, plus a team-sheet formation. |
 | Training ground | Skills | Tackle bags for each skill group. Skills orbit the active bag and link to where they were used. |
 | Goalposts | Contact | Opening it kicks a conversion through the posts and the crowd does a wave. |
 
-Also included: a career-highlights scoreboard (click it), a day/night toggle, a minimap, and **The Coach** (a portfolio assistant). Easter eggs include a ball that bounces unpredictably, a hidden trophy cabinet, and the `K` key for a shot at goal.
+Also included: a career-highlights scoreboard (click it), a day/night toggle, and **The Coach** (a portfolio assistant, opened from the whistle button, the menu or `C`). Easter eggs include a ball that bounces unpredictably, a hidden trophy cabinet, and the `K` key for a shot at goal.
+
+### For a recruiter in a hurry
+
+The intro title card is usable from its first frame: degree and graduation date, three featured projects (one click to a project's detail), and Resume, Email and LinkedIn. Once inside, a fixed top bar keeps **Resume**, **Contact** and **One page** in the same place on every screen.
+
+### Look
+
+Broadcast graphics, not glass: opaque slabs, square corners, condensed caption type, IU crimson and cream. One graphic on screen at a time, each in a fixed place. Lime is kept for the single primary action and the focus ring.
 
 ### Keyboard
 
@@ -31,6 +39,7 @@ All content lives in [`src/data/portfolio.ts`](src/data/portfolio.ts). It was ta
 
 - To swap the resume, replace `public/Yiga Benedict, Resume 2026.pdf` and update `resumeUrl` if the name changes.
 - To swap the photo, replace `public/bdy-portrait.webp`. It is about 720px wide.
+- `featuredProjectIds` picks the three projects on the intro title card. Reorder or swap the ids freely.
 - `rugbyFunFact` is an intentional **placeholder**. Set it to a real rugby fact and it appears in the hidden-trophy Easter egg.
 
 ## Tech
@@ -48,15 +57,15 @@ src/
   lib/textures.ts        procedural canvas textures
   state/store.ts         app state (phase, section, day/night, …)
   three/                 R3F scene, lazy-loaded (Director = camera + choreography)
-  ui/                    intro, HUD, minimap, panels, Coach, Quick View
+  ui/                    intro title card, HUD (top bar, rundown, menu), panels, Coach, Quick View
 ```
 
 ### Performance and accessibility
 
 - The 3D bundle (three.js, R3F, postprocessing, GSAP) is code-split and lazy-loaded. The first paint ships only React, the UI, and the CSS.
-- An adaptive quality mode drops bloom, sparkles and pixel ratio on low-end devices. The menu also has a "Battery saver" toggle.
+- An adaptive quality mode drops shadows, bloom, sparkles and pixel ratio on low-end devices. The menu also has a "Battery saver" toggle.
 - `prefers-reduced-motion` is respected. The menu has its own toggle as well.
-- Every 3D hotspot is a real, focusable button. A skip link, a menu and the minimap give non-3D navigation.
+- Every zone is a real, focusable button in "the rundown" strip, and focusing one highlights its marker on the pitch. A skip link and the menu give non-3D navigation.
 - If WebGL is unavailable or the context is lost, the site falls back to Quick View automatically.
 
 ## Development

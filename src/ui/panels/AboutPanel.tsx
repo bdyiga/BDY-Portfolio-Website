@@ -10,17 +10,17 @@ export function AboutPanel() {
           alt={`Portrait of ${profile.name}`}
           width={96}
           height={101}
-          className="h-24 w-24 shrink-0 rounded-2xl object-cover ring-1 ring-lime/40"
+          className="h-24 w-24 shrink-0 rounded-sm object-cover ring-1 ring-white/20"
         />
         <div>
           <p className="display text-xl leading-tight">{profile.name}</p>
           <p className="mt-1 text-sm text-silver">{profile.roles.join(' · ')}</p>
-          <p className="mt-1 text-sm text-lime">{profile.headline}</p>
+          <p className="mt-1 text-sm text-cream">{profile.headline}</p>
         </div>
       </Reveal>
 
       <Reveal delay={0.08}>
-        <blockquote className="mt-6 border-l-2 border-lime pl-4 text-lg leading-snug text-ink">
+        <blockquote className="mt-6 border-l-2 border-crimson pl-4 text-lg leading-snug text-ink">
           “{profile.rugbyIntro}”
         </blockquote>
       </Reveal>
@@ -31,7 +31,7 @@ export function AboutPanel() {
         ))}
       </Reveal>
 
-      <Reveal delay={0.2} className="mt-6 rounded-2xl border border-white/10 bg-forest/40 p-4">
+      <Reveal delay={0.2} className="mt-6 rounded-sm border border-white/10 bg-forest/40 p-4">
         <p className="kicker">Education</p>
         <p className="mt-2 font-semibold">{education.school}</p>
         <p className="text-sm text-silver">{education.college}</p>
@@ -73,7 +73,7 @@ export function AboutPanel() {
         <p className="kicker mb-2">Interests</p>
         <Tags items={profile.interests} delay={0.34} />
       </Reveal>
-      <Reveal delay={0.34} className="mt-5 rounded-2xl border border-lime/25 bg-lime/5 p-4 text-sm text-silver">
+      <Reveal delay={0.34} className="mt-5 rounded-sm border border-white/15 bg-white/[0.05] p-4 text-sm text-silver">
         <p className="font-semibold text-ink">What I'm looking for</p>
         <p className="mt-1">{profile.availability}</p>
       </Reveal>

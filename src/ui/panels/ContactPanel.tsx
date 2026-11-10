@@ -30,7 +30,7 @@ export function ContactPanel() {
     <Panel id="contact">
       <Reveal>
         <h3 className="display text-[2.1rem] leading-[0.95] md:text-[2.5rem]">
-          Let's build something <span className="text-lime">great</span> together.
+          Let's build something <span className="text-cream">great</span> together.
         </h3>
         <p className="mt-4 text-silver">{profile.availability}</p>
       </Reveal>
@@ -42,12 +42,12 @@ export function ContactPanel() {
               href={l.href}
               target={l.href.startsWith('http') ? '_blank' : undefined}
               rel="noreferrer"
-              className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-colors hover:border-lime/60"
+              className="group flex items-center gap-3 rounded-sm border border-white/10 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/40"
             >
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-forest text-lime">{l.icon}</span>
+              <span className="grid h-10 w-10 place-items-center rounded-sm bg-forest text-cream">{l.icon}</span>
               <span className="flex-1">
                 <span className="block text-xs uppercase tracking-widest text-silver-dim">{l.label}</span>
-                <span className="block font-medium group-hover:text-lime">{l.value}</span>
+                <span className="block font-medium group-hover:text-ink">{l.value}</span>
               </span>
             </a>
           </motion.li>
@@ -66,7 +66,7 @@ export function ContactPanel() {
         </button>
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-lime/25 bg-forest/40 p-4">
+      <div className="mt-6 flex items-center justify-between gap-3 rounded-sm border border-white/15 bg-forest/40 p-4">
         <div>
           <p className="kicker">Kicking practice</p>
           <p className="mt-1 text-sm text-silver">

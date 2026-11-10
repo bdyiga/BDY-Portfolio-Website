@@ -73,7 +73,8 @@ function useKeyboard() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
-      if (el.closest('input, textarea, [contenteditable="true"]') || e.metaKey || e.ctrlKey || e.altKey) return
+      // typing fields keep their keys; checkboxes (menu toggles) do not
+      if (el.closest('input:not([type="checkbox"]), textarea, [contenteditable="true"]') || e.metaKey || e.ctrlKey || e.altKey) return
       const st = useStore.getState()
       if (e.key === 'Escape') {
         if (st.menuOpen) return st.setMenuOpen(false)
@@ -87,7 +88,9 @@ function useKeyboard() {
       }
       if (st.phase === 'loading') return
       if (st.phase === 'intro') {
-        if (e.key === 'Enter' && el.tagName !== 'BUTTON') st.setPhase('entering')
+        const zone = SECTIONS.find((s) => s.key === e.key)
+        if (zone) return st.openSection(zone.id)
+        if (e.key === 'Enter' && !el.closest('button, a')) st.setPhase('entering')
         if (e.key.toLowerCase() === 'q') st.setQuickView(true)
         return
       }
@@ -98,8 +101,9 @@ function useKeyboard() {
       if (k === '0') return st.closeSection()
       if (k === 'n') return st.toggleNight()
       if (k === 'q') return st.setQuickView(true)
-      if (k === 'c') return st.setCoachOpen(true)
-      if (k === 'm') return st.setMenuOpen(true)
+      // preventDefault: the key must not land in the field that takes focus as the Coach opens
+      if (k === 'c') return e.preventDefault(), st.setCoachOpen(true)
+      if (k === 'm') return e.preventDefault(), st.setMenuOpen(true)
       if (k === 'k') return st.kick()
       if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && st.section && ITEM_IDS[st.section]) {
         const n = ITEM_IDS[st.section]!.length
@@ -189,13 +193,13 @@ export default function App() {
     <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
       <a
         href="#quick"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-full focus:bg-lime focus:px-4 focus:py-2 focus:text-charcoal"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:bg-lime focus:px-4 focus:py-2 focus:text-charcoal"
         onClick={(e) => {
           e.preventDefault()
           useStore.getState().setQuickView(true)
         }}
       >
-        Skip to the text-only Quick View
+        Skip to everything on one page
       </a>
 
       {!webglFailed && (

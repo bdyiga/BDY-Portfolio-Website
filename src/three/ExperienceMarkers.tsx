@@ -74,8 +74,8 @@ function Totem({ exp, index }: { exp: Experience; index: number }) {
         <mesh position-y={0.5 + TH + 0.08}>
           <boxGeometry args={[0.62, 0.16, TW]} />
           <meshStandardMaterial
-            color="#c6ff3d"
-            emissive="#c6ff3d"
+            color="#eeedeb"
+            emissive="#eeedeb"
             emissiveIntensity={active ? 3 : hover ? 2 : 0.8}
             toneMapped={false}
           />
@@ -111,7 +111,7 @@ function ProgressRail() {
       </mesh>
       <mesh ref={fill} position-y={0.01}>
         <boxGeometry args={[0.35, 0.05, len]} />
-        <meshBasicMaterial color="#c6ff3d" toneMapped={false} />
+        <meshBasicMaterial color="#eeedeb" toneMapped={false} />
       </mesh>
     </group>
   )

@@ -1,7 +1,6 @@
-import { AnimatePresence, motion } from 'motion/react'
 import { projects } from '../../data/portfolio'
 import { useStore } from '../../state/store'
-import { ExternalIcon, GithubIcon } from '../icons'
+import { CloseIcon, ExternalIcon, GithubIcon } from '../icons'
 import { Panel, Reveal, Tags } from '../Panel'
 import { PlayDiagram } from '../PlayDiagram'
 
@@ -12,67 +11,68 @@ export function ProjectsPanel() {
 
   return (
     <Panel id="projects">
-      <p className="text-sm text-silver">
-        Every project is a play I designed, drilled, and ran. Pick a play to fly over to its hologram.
-      </p>
-      <ol className="mt-4 grid grid-cols-1 gap-1.5" aria-label="Playbook">
+      {/* the picked project comes first, so its result is on screen without scrolling */}
+      {p && index !== null ? (
+        <Reveal key={p.id} className="mb-5">
+          <article aria-labelledby="project-detail-title" className="border-l-2 border-crimson pl-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="kicker">
+                  Play {String(index + 1).padStart(2, '0')}
+                  {p.period ? ` · ${p.period}` : ''}
+                  {p.badge ? ` · ${p.badge}` : ''}
+                </p>
+                <h3 id="project-detail-title" className="strap mt-1 text-2xl leading-tight text-ink">
+                  {p.title}
+                </h3>
+              </div>
+              <button className="icon-btn !h-8 !w-8 shrink-0" onClick={() => selectItem('projects', null)} aria-label="Close project">
+                <CloseIcon size={14} />
+              </button>
+            </div>
+            <p className="mt-2 text-[0.95rem] leading-relaxed text-silver">{p.description}</p>
+            <div className="mt-3">
+              <Tags items={p.tags} />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {p.link && (
+                <a className="btn btn-lime" href={p.link.url} target="_blank" rel="noreferrer">
+                  {p.link.label} <ExternalIcon size={15} />
+                </a>
+              )}
+              {p.github && (
+                <a className="btn btn-ghost" href={p.github} target="_blank" rel="noreferrer">
+                  <GithubIcon size={15} /> Source on GitHub
+                </a>
+              )}
+              {!p.link && !p.github && <span className="text-xs text-silver-dim">Case competition: no public repository.</span>}
+            </div>
+            <div className="mt-4 opacity-80">
+              <PlayDiagram seed={index + 3} label={p.title} />
+            </div>
+          </article>
+        </Reveal>
+      ) : (
+        <p className="mb-4 text-sm text-silver">Pick a project to see what it does, what it is built with, and where to try it.</p>
+      )}
+
+      <ol className="grid grid-cols-1 border-t border-white/10" aria-label="Playbook">
         {projects.map((proj, i) => (
-          <li key={proj.id}>
+          <li key={proj.id} className="border-b border-white/10">
             <button
               onClick={() => selectItem('projects', index === i ? null : i)}
               aria-expanded={index === i}
-              className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
-                index === i ? 'border-lime/60 bg-lime/10' : 'border-white/8 bg-white/[0.02] hover:border-lime/35'
+              className={`group flex w-full items-center gap-3 px-2 py-2.5 text-left transition-colors hover:bg-white/[0.04] ${
+                index === i ? 'bg-white/[0.06]' : ''
               }`}
             >
-              <span className="font-mono text-xs text-lime">{String(i + 1).padStart(2, '0')}</span>
+              <span className={`font-mono text-xs ${index === i ? 'text-cream' : 'text-silver-dim'}`}>{String(i + 1).padStart(2, '0')}</span>
               <span className="flex-1">
                 <span className="block text-sm font-semibold leading-tight">{proj.title}</span>
                 <span className="block text-xs text-silver-dim">{proj.short}</span>
               </span>
-              {proj.badge && <span className="rounded bg-gold px-1.5 py-0.5 text-[0.65rem] font-bold text-charcoal">{proj.badge}</span>}
+              {proj.badge && <span className="bg-gold px-1.5 py-0.5 text-[0.65rem] font-bold text-charcoal">{proj.badge}</span>}
             </button>
-            <AnimatePresence initial={false}>
-              {p && index === i && (
-                <motion.div
-                  key={p.id}
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-2 mb-3 rounded-2xl border border-white/10 bg-forest/35 p-4">
-                    <p className="kicker">
-                      Play {String(i + 1).padStart(2, '0')} · {p.play}
-                      {p.period ? ` · ${p.period}` : ''}
-                    </p>
-                    <Reveal className="mt-3">
-                      <PlayDiagram seed={i + 3} label={p.title} />
-                    </Reveal>
-                    <p className="mt-3 text-[0.95rem] leading-relaxed text-silver">{p.description}</p>
-                    <div className="mt-3">
-                      <Tags items={p.tags} delay={0.15} />
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {p.link && (
-                        <a className="btn btn-lime" href={p.link.url} target="_blank" rel="noreferrer">
-                          {p.link.label} <ExternalIcon size={15} />
-                        </a>
-                      )}
-                      {p.github && (
-                        <a className="btn btn-ghost" href={p.github} target="_blank" rel="noreferrer">
-                          <GithubIcon size={15} /> Source on GitHub
-                        </a>
-                      )}
-                      {!p.link && !p.github && (
-                        <span className="text-xs text-silver-dim">Case competition: no public repository.</span>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </li>
         ))}
       </ol>
