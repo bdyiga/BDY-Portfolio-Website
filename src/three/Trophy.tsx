@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Group, LatheGeometry, Vector2 } from 'three'
-import { rugbyFunFact, trophies } from '../data/portfolio'
+import { rugbyFunFacts, trophies } from '../data/portfolio'
 import { TROPHY_POS } from '../lib/sections'
 import { useStore } from '../state/store'
 
@@ -10,6 +10,7 @@ export function Trophy() {
   const [hover, setHover] = useState(false)
   const group = useRef<Group>(null)
   const showToast = useStore((s) => s.showToast)
+  const fact = useRef(Math.floor(Math.random() * rugbyFunFacts.length))
   const cup = useMemo(() => {
     const pts = [
       [0, 0], [0.42, 0], [0.42, 0.08], [0.16, 0.14], [0.1, 0.5], [0.12, 0.62],
@@ -31,7 +32,7 @@ export function Trophy() {
         showToast({
           tone: 'gold',
           title: 'You found the trophy cabinet',
-          body: [...trophies, ...(rugbyFunFact ? [rugbyFunFact] : [])].join('\n'),
+          body: [...trophies, `Did you know? ${rugbyFunFacts[fact.current++ % rugbyFunFacts.length]}`].join('\n'),
         })
       }}
       onPointerOver={(e) => {

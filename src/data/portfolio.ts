@@ -393,11 +393,12 @@ export const trophies = [
   'AWS Certified Cloud Practitioner',
 ]
 
-/**
- * PLACEHOLDER: add a personal rugby fact (position played, club, favourite match…).
- * It appears in the hidden-trophy Easter egg when set. Left null on purpose so nothing is invented.
- */
-export const rugbyFunFact: string | null = null
+/** Rugby facts for the hidden-trophy Easter egg; each click shows the next one. */
+export const rugbyFunFacts = [
+  'Rugby was born from a rule-breaker: legend says William Webb Ellis picked up the ball and ran with it at Rugby School in 1823.',
+  'Rugby and American football share a common ancestor: the American game grew out of rugby rules in the 1870s.',
+  'Rugby is played on every continent, from the ice of Antarctica to the fields of Fiji.',
+]
 
 /** Skill -> where it shows up (derived from tags above, so it can never drift). */
 export function whereUsed(skill: string): { kind: 'project' | 'experience'; id: string; title: string }[] {
