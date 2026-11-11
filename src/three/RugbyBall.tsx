@@ -8,8 +8,8 @@ import { useCanvasTexture } from './useCanvasTexture'
 import { useStore } from '../state/store'
 import { SECTION_BY_ID } from '../lib/sections'
 
-export const BALL_LENGTH = 1.15
-export const BALL_RADIUS = 0.36
+export const BALL_LENGTH = 0.75
+export const BALL_RADIUS = 0.235
 const UP = new Vector3(0, 1, 0)
 /** Rotates the ball's long axis (local Y) to point forward (+Z). */
 const CARRY_TILT = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
@@ -174,7 +174,7 @@ export function RugbyBall() {
       </mesh>
       {/* blob shadow */}
       <mesh ref={shadow} rotation-x={-Math.PI / 2}>
-        <circleGeometry args={[0.55, 24]} />
+        <circleGeometry args={[0.38, 24]} />
         <meshBasicMaterial color="#000" transparent opacity={0.45} depthWrite={false} />
       </mesh>
     </>

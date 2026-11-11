@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { CameraControls } from '@react-three/drei'
 import gsap from 'gsap'
-import { Box3, MathUtils, PerspectiveCamera, Vector3 } from 'three'
+import { Box3, MathUtils, PerspectiveCamera, Plane, Raycaster, Vector2, Vector3 } from 'three'
 import { experiences, leadership, projects, skillGroups } from '../data/portfolio'
 import {
   bagCamera,
@@ -25,8 +25,8 @@ import {
   type Vec3,
 } from '../lib/sections'
 import { ball, flyBall, lighting } from '../lib/sceneState'
-import { newSequence, player, playAction, runTo } from '../lib/player'
-import { deliver, kickAgain } from '../lib/choreo'
+import { clearOf, newSequence, player, playAction, runTo } from '../lib/player'
+import { deliver, kickAgain, setMark } from '../lib/choreo'
 import { useStore } from '../state/store'
 import { towerPower } from './Atmosphere'
 
@@ -82,6 +82,45 @@ function fitToAspect(view: View, aspect: number, isOverview: boolean): View {
   const t = v(view.target)
   const p = v(view.position).sub(t).multiplyScalar(isOverview ? k : Math.sqrt(k)).add(t)
   return { position: [p.x, p.y, p.z], target: view.target }
+}
+
+const GROUND = new Plane(new Vector3(0, 1, 0), 0)
+const _markCam = new PerspectiveCamera()
+const _ray = new Raycaster()
+const _ndc = new Vector2()
+
+/**
+ * Where #13 should stand to be in a shot: the patch of grass that will show in
+ * the clear part of the screen (left of the panel, or above the sheet) once the
+ * camera settles. `low` is how far down the screen his feet go (0 = top).
+ */
+function markFor(view: View, offset: Vec3, shift: number, aspect: number, low: number) {
+  const cam = _markCam
+  cam.fov = fovFor(aspect)
+  cam.aspect = aspect
+  cam.near = 0.5
+  cam.far = 1200
+  cam.updateProjectionMatrix()
+  cam.position.copy(v(view.position))
+  cam.lookAt(v(view.target))
+  // the focal offset trucks camera and target together, in the camera's own axes
+  const o = v(offset).applyQuaternion(cam.quaternion)
+  cam.position.add(o)
+  cam.updateMatrixWorld()
+  const target = v(view.target).add(o)
+  const hit = new Vector3()
+  // feet low in the clear area; if that misses the grass (a shot looking up), try higher
+  for (let y = low; y > low - 0.3; y -= 0.05) {
+    _ndc.set(0.3 * 2 - 1, 1 - (y + shift) * 2)
+    _ray.setFromCamera(_ndc, cam)
+    if (!_ray.ray.intersectPlane(GROUND, hit)) continue
+    const d = hit.distanceTo(cam.position)
+    if (d < 7 || d > 45) continue
+    hit.set(MathUtils.clamp(hit.x, -64, 64), 0, MathUtils.clamp(hit.z, -38, 45))
+    clearOf(hit)
+    return { pos: [hit.x, 0, hit.z] as Vec3, face: [target.x, 0, target.z] as Vec3 }
+  }
+  return null
 }
 
 /** The rundown strip at the bottom of the phone overview, as a fraction of the screen. */
@@ -364,6 +403,11 @@ export function Director() {
     const move = section === null ? OVERVIEW_MOVE : section !== lastSection.current ? SECTION_BY_ID[section].move : ITEM_MOVE
     lastSection.current = section
     moveTo(view, { move, offset, shift })
+    // #13 finds his mark in the new shot (the intro card, About and the kick at the posts have their own)
+    if (section && section !== 'about' && section !== 'contact') {
+      const clearTo = sheetLayout ? (panelOpen ? (sheetCollapsed ? 0.81 : 0.5) : 1 - RUNDOWN) : 1
+      setMark(markFor(view, offset, shift, aspect, clearTo - (sheetLayout ? 0.05 : 0.2)), useStore.getState().reducedMotion)
+    } else setMark(null, false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, section, item, aspect, tall, sheetLayout, panelOpen, sheetCollapsed])
 

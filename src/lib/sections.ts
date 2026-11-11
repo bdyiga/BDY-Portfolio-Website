@@ -45,6 +45,7 @@ export type SectionMeta = {
   ballSpot: Vec3
 }
 
+/** On its kicking tee. Anywhere else the ball stands on the grass, centre 0.4 m up. */
 export const BALL_HOME: Vec3 = [0, 0.62, 0]
 
 export const SECTIONS: SectionMeta[] = [
@@ -74,7 +75,7 @@ export const SECTIONS: SectionMeta[] = [
     tall: { position: [-13.5, 3.7, -8.5], target: [-42, 5.7, 4] },
     // jib: skims the grass, then tilts up to find the cards
     move: { pace: 1.1, look: 1.5, rise: -0.1, swing: 0, time: 1.1 },
-    ballSpot: [-31, 0.62, 2],
+    ballSpot: [-31, 0.4, 2],
   },
   {
     id: 'experience',
@@ -88,7 +89,7 @@ export const SECTIONS: SectionMeta[] = [
     tall: { position: [36, 2.6, 27], target: [45, 5, -2] },
     // truck: arrives travelling sideways along the try line
     move: { pace: 0.9, look: 0.8, rise: 0.04, swing: 0.3, time: 1.1 },
-    ballSpot: [30, 0.62, -5],
+    ballSpot: [30, 0.4, -5],
   },
   {
     id: 'leadership',
@@ -98,11 +99,11 @@ export const SECTIONS: SectionMeta[] = [
     blurb: 'The team sheet: no one scores alone',
     hotspot: [0, 13, -42],
     camera: { position: [0, 8.5, 4], target: [0, 7.5, -42] },
-    // along the facade and looking up: banners, crowd and roof stacked up the screen
-    tall: { position: [-9, 3, -17], target: [4, 9.5, -42] },
+    // along the facade, banners and crowd stacked up the screen, #13 on the grass below them
+    tall: { position: [-11, 6.5, -10], target: [3, 6, -40] },
     // pedestal: rises, and only tilts up to the banners at the end
     move: { pace: 0.85, look: 1.7, rise: 0.1, swing: 0, time: 1.15 },
-    ballSpot: [0, 0.62, -28],
+    ballSpot: [0, 0.4, -28],
   },
   {
     id: 'skills',
@@ -116,7 +117,7 @@ export const SECTIONS: SectionMeta[] = [
     tall: { position: [26, 5.5, 37], target: [-2, 1.8, 43] },
     // whip pan: the head turns first, the body follows
     move: { pace: 1.2, look: 0.58, rise: 0.02, swing: -0.15, time: 1 },
-    ballSpot: [6, 0.62, 33],
+    ballSpot: [6, 0.4, 33],
   },
   {
     id: 'contact',
@@ -131,7 +132,7 @@ export const SECTIONS: SectionMeta[] = [
     tall: { position: [20, 1.9, 13], target: [50, 7.5, 0] },
     // low arc round to the kicker's shoulder
     move: { pace: 0.8, look: 0.9, rise: -0.06, swing: -0.3, time: 1.2 },
-    ballSpot: [32, 0.62, 9],
+    ballSpot: [32, 0.4, 9],
   },
 ]
 
@@ -224,15 +225,42 @@ export const TROPHY_POS: Vec3 = [-63.5, 0, -31]
 
 // ---- #13 player positions ----
 
-/** Where the player stands for each section, and what he faces once there. */
-export const PLAYER_SPOTS: Record<SectionId | 'home', { pos: Vec3; face: Vec3 }> = {
+type Spot = { pos: Vec3; face: Vec3 }
+
+/**
+ * Where the player stands for each section, and what he faces once there.
+ * Each spot is in the section's shot, clear of the panel; `tall` is the spot
+ * for the portrait framing, which looks at a different patch of grass.
+ */
+export const PLAYER_SPOTS: Record<SectionId | 'home', Spot & { tall?: Spot }> = {
   home: { pos: [2.4, 0, 1.3], face: [0, 0, 60] },
   about: { pos: [1.9, 0, 0.9], face: [5.5, 0, 7.5] },
   projects: { pos: [-24, 0, -2], face: [-40, 0, 0] },
-  experience: { pos: [27, 0, -2.5], face: [44, 0, -6] },
-  leadership: { pos: [2.6, 0, -25.5], face: [0, 0, -42] },
-  skills: { pos: [3.4, 0, 30.8], face: [0, 0, 42] },
+  experience: {
+    pos: [37.5, 0, -5.5],
+    face: [44, 0, -6],
+    tall: { pos: [38.5, 0, 15], face: [44, 0, 12] },
+  },
+  leadership: {
+    pos: [-8, 0, -27],
+    face: [0, 0, -42],
+    tall: { pos: [-3.5, 0, -31.5], face: [0, 0, -42] },
+  },
+  skills: {
+    pos: [6, 0, 28],
+    face: [0, 0, 42],
+    tall: { pos: [13.5, 0, 37.5], face: [-2, 0, 43] },
+  },
   contact: { pos: [27.5, 0, 9.45], face: [32, 0, 9] },
+}
+
+/** Portrait phones get their own framings (and spots); same test as the camera rig. */
+export const isTallScreen = () =>
+  typeof window !== 'undefined' && window.innerWidth < 768 && window.innerWidth < window.innerHeight
+
+export function playerSpot(id: SectionId | 'home'): Spot {
+  const s = PLAYER_SPOTS[id]
+  return (isTallScreen() && s.tall) || s
 }
 
 /** Where the player waits during the intro: behind the ball on its tee, facing the far posts. */
@@ -240,7 +268,7 @@ export const PLAYER_INTRO: Vec3 = [-1.7, 0, -0.55]
 export const PLAYER_INTRO_FACE: Vec3 = [60, 0, -0.55]
 
 /** Conversion geometry: tee -> through the posts -> landing. */
-export const CONVERSION_LANDING: Vec3 = [60, 0.62, -5.5]
+export const CONVERSION_LANDING: Vec3 = [60, 0.4, -5.5]
 export const KICK = {
   /** Start of the run-up: behind the ball and to the kicker's left. */
   runUp: [27.5, 0, 9.45] as Vec3,
