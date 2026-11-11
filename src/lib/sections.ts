@@ -84,7 +84,8 @@ export const SECTIONS: SectionMeta[] = [
     zone: 'Right Try Zone',
     blurb: 'Match progression, 2023 to now',
     hotspot: [44, 4.5, 16.5],
-    camera: { position: [18, 10, 0], target: [44, 4, 0] },
+    // from up the field: the four totems read left to right, 2023 to now, clear of the panel
+    camera: { position: [0, 18, 16], target: [44, 3, 0] },
     // down the line of markers, oldest to newest
     tall: { position: [36, 2.6, 27], target: [45, 5, -2] },
     // truck: arrives travelling sideways along the try line

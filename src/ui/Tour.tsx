@@ -45,9 +45,7 @@ function Summary({ id }: { id: SectionId }) {
           <p className="mt-1 text-sm text-silver">
             {education.degree}, {education.specialization} · {education.school}
           </p>
-          <p className="mt-1 text-sm text-silver">
-            GPA {education.gpa} · Graduating {education.graduation}
-          </p>
+          <p className="mt-1 text-sm text-silver">GPA {education.gpa}</p>
           <p className="mt-3 text-sm text-silver">{profile.availability}</p>
         </>
       )

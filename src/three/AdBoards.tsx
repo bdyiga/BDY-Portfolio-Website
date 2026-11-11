@@ -5,12 +5,12 @@ import { drawLedBoard } from '../lib/textures'
 import { useStore } from '../state/store'
 import { useCanvasTexture } from './useCanvasTexture'
 
-const MESSAGE =
-  "BDY'S WORLD · ENGINEERING BEYOND THE TRY LINE · INDIANA UNIVERSITY BLOOMINGTON · AWS CERTIFIED · AI · DATA · SOFTWARE · CLASS OF 2027"
+const MESSAGE = "BDY'S WORLD · INDIANA UNIVERSITY · CLASS OF 2027"
 
 /** Scrolling LED perimeter boards around the pitch. */
 export function AdBoards() {
-  const reducedMotion = useStore((s) => s.reducedMotion)
+  // still while the tour is on: one thing moving on screen at a time
+  const still = useStore((s) => s.reducedMotion || s.touring)
   const draw = (ctx: CanvasRenderingContext2D, w: number, h: number) => drawLedBoard(ctx, w, h, MESSAGE)
   const sideTex = useCanvasTexture(4096, 128, draw)
   const endTex = useCanvasTexture(4096, 128, draw)
@@ -21,7 +21,7 @@ export function AdBoards() {
   }, [sideTex, endTex])
 
   useFrame((_, dt) => {
-    if (reducedMotion) return
+    if (still) return
     sideTex.offset.x = (sideTex.offset.x + dt * 0.02) % 1
     endTex.offset.x = (endTex.offset.x + dt * 0.02) % 1
   })
@@ -43,7 +43,7 @@ export function AdBoards() {
           </mesh>
           <mesh position-z={0.001}>
             <planeGeometry args={[b.len, 0.9]} />
-            <meshBasicMaterial map={b.tex} toneMapped={false} color="#d6d6d6" />
+            <meshBasicMaterial map={b.tex} toneMapped={false} color="#a8a8a8" />
           </mesh>
         </group>
       ))}

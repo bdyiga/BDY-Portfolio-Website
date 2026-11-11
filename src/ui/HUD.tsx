@@ -165,6 +165,8 @@ export function TopBar() {
   const setMenuOpen = useStore((s) => s.setMenuOpen)
   const setQuickView = useStore((s) => s.setQuickView)
   const setCoachOpen = useStore((s) => s.setCoachOpen)
+  // on the tour the bar keeps to what a recruiter needs: resume, contact, one page, menu
+  const touring = useStore((s) => s.touring)
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-start justify-between gap-2 p-3 md:p-4">
@@ -190,10 +192,10 @@ export function TopBar() {
         <button className="bar-btn" onClick={() => setQuickView(true)} title="Everything on one page (Q)">
           <ListIcon size={14} className="hidden sm:block" /> One page
         </button>
-        <button className="bar-btn !px-0 hidden w-10 justify-center md:inline-flex" onClick={() => setCoachOpen(true)} aria-label="Ask the Coach, the portfolio assistant (C)" title="Ask the Coach (C)">
+        <button className={`bar-btn !px-0 hidden w-10 justify-center ${touring ? '' : 'md:inline-flex'}`} onClick={() => setCoachOpen(true)} aria-label="Ask the Coach, the portfolio assistant (C)" title="Ask the Coach (C)">
           <WhistleIcon size={16} />
         </button>
-        <LightsToggle className="hidden md:inline-flex" />
+        <LightsToggle className={touring ? 'hidden' : 'hidden md:inline-flex'} />
         <button className="bar-btn !px-0 w-10 justify-center" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu (M)">
           <MenuIcon size={18} />
         </button>

@@ -112,7 +112,7 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
 
   // in-goal branding, painted on the grass
   ctx.save()
-  ctx.globalAlpha = 0.16
+  ctx.globalAlpha = 0.08
   ctx.fillStyle = PALETTE.accent
   setFont(ctx, 900, 7 * S)
   ctx.textAlign = 'center'
@@ -122,7 +122,7 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.fillText('PLAYBOOK', 0, 0)
   ctx.restore()
   ctx.save()
-  ctx.globalAlpha = 0.16
+  ctx.globalAlpha = 0.08
   ctx.fillStyle = PALETTE.accent
   setFont(ctx, 900, 7 * S)
   ctx.textAlign = 'center'
@@ -134,7 +134,7 @@ export function drawPitch(ctx: CanvasRenderingContext2D, W: number, H: number) {
 
   // halfway line wordmark
   ctx.save()
-  ctx.globalAlpha = 0.12
+  ctx.globalAlpha = 0.07
   ctx.fillStyle = PALETTE.white
   setFont(ctx, 900, 3.2 * S)
   ctx.textAlign = 'center'
@@ -327,21 +327,20 @@ export function drawCard(
 export function drawLedBoard(ctx: CanvasRenderingContext2D, W: number, H: number, text: string) {
   ctx.fillStyle = '#050806'
   ctx.fillRect(0, 0, W, H)
-  setFont(ctx, 900, H * 0.56)
+  setFont(ctx, 900, H * 0.5)
   ctx.textBaseline = 'middle'
-  let x = 20
+  ctx.textAlign = 'center'
+  // each phrase gets an equal cell, so the texture repeats without cutting a word in half
   const parts = text.split('·').map((s) => s.trim())
-  let i = 0
-  while (x < W) {
-    const t = parts[i % parts.length]
+  const widest = Math.max(...parts.map((t) => ctx.measureText(t).width)) + 140
+  const cells = Math.max(parts.length, Math.floor(W / widest / parts.length) * parts.length)
+  const cw = W / cells
+  for (let i = 0; i < cells; i++) {
+    ctx.globalAlpha = i % 2 ? 0.55 : 0.8
     ctx.fillStyle = i % 2 ? PALETTE.accent : PALETTE.white
-    ctx.fillText(t, x, H / 2 + 2)
-    x += ctx.measureText(t).width + 40
-    ctx.fillStyle = PALETTE.accent
-    ctx.fillText('/', x, H / 2 + 2)
-    x += 60
-    i++
+    ctx.fillText(parts[i % parts.length], cw * (i + 0.5), H / 2 + 2)
   }
+  ctx.globalAlpha = 1
   // LED pixel grid
   ctx.fillStyle = 'rgba(0,0,0,0.35)'
   for (let gx = 0; gx < W; gx += 4) ctx.fillRect(gx, 0, 1, H)
