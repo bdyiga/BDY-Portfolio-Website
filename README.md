@@ -23,7 +23,7 @@ The intro title card is usable from its first frame: degree and graduation date,
 
 ### The guided tour
 
-"Take the guided tour" walks a visitor through the six zones in order (About, Projects, Experience, Leadership, Skills, Contact). Each stop is one short card: a plain headline, a few lines summarising what `portfolio.ts` says, and rows that open the detail. Nothing moves on until the visitor clicks **Next**. **Know more** opens the full panel, which keeps **Summary** and **Next** at the bottom. The close button (or `Esc`) leaves the tour for free exploration, and the menu can restart it. While the tour runs, the screen keeps to one graphic: no rundown strip and no score flashes. #13 still carries the ball to each stop and stands in the shot.
+"Take the guided tour" walks a visitor through the six zones in order (About, Projects, Experience, Leadership, Skills, Contact). Each stop is one short card: a plain headline and rows that open the detail, all from `portfolio.ts`. Nothing is said twice: the title card already gives the degree, GPA, availability and featured projects, so the stops carry what it does not (photo, minors and honors at About; all nine projects; Email, LinkedIn and GitHub at Contact). Nothing moves on until the visitor clicks **Next**. **Know more** opens the full panel, which keeps **Summary** and **Next** at the bottom. The close button (or `Esc`) leaves the tour for free exploration, and the menu can restart it. While the tour runs, the screen keeps to one graphic: no rundown strip and no score flashes. #13 still carries the ball to each stop and stands in the shot.
 
 ### Quick View
 

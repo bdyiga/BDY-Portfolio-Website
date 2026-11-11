@@ -1,14 +1,16 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { motion } from 'motion/react'
-import { education, experiences, featuredProjectIds, leadership, profile, projects, skillGroups } from '../data/portfolio'
-import { SECTIONS, SECTION_BY_ID, type SectionId } from '../lib/sections'
+import { education, experiences, leadership, profile, projects, skillGroups } from '../data/portfolio'
+import { SECTIONS, type SectionId } from '../lib/sections'
 import { useStore } from '../state/store'
-import { ArrowLeft, ArrowRight, CloseIcon, DownloadIcon, LinkedinIcon, ListIcon, MailIcon } from './icons'
+import { ArrowLeft, ArrowRight, CloseIcon, GithubIcon, LinkedinIcon, ListIcon, MailIcon } from './icons'
 
 /**
  * The guided tour: one stop per zone, in order. Each stop is a short card that
  * waits for the camera to settle; "Know more" (or any row) opens the full panel.
- * Everything here is a summary of what portfolio.ts already says.
+ * Everything here comes from portfolio.ts, and nothing is said twice: the title
+ * card already gave the degree, GPA, availability and the three featured
+ * projects, so the stops carry what it did not.
  */
 
 /** A row in a stop's summary that opens its detail. */
@@ -41,33 +43,29 @@ function Summary({ id }: { id: SectionId }) {
     case 'about':
       return (
         <>
-          <p className="text-lg font-semibold text-ink">{profile.name}</p>
-          <p className="mt-1 text-sm text-silver">
-            {education.degree}, {education.specialization} · {education.school}
-          </p>
-          <p className="mt-1 text-sm text-silver">GPA {education.gpa}</p>
-          <p className="mt-3 text-sm text-silver">{profile.availability}</p>
+          <div className="flex items-start gap-4">
+            <img src={profile.photo} alt={`Portrait of ${profile.name}`} className="h-20 w-20 shrink-0 object-cover" width={80} height={80} />
+            <p className="text-sm text-ink">“{profile.rugbyIntro}”</p>
+          </div>
+          <ul className="mt-4 space-y-1 text-sm text-silver">
+            <li>Minors in {education.minors.join(' and ')}</li>
+            <li>{education.honors.join(' · ')}</li>
+          </ul>
         </>
       )
     case 'projects':
       return (
         <>
-          <p className="text-sm text-silver">
-            {projects.length} projects. Three to start with:
-          </p>
           <Rows>
-            {featuredProjectIds.map((pid) => {
-              const i = projects.findIndex((p) => p.id === pid)
-              const p = projects[i]
-              return p ? <Row key={pid} title={p.title} sub={p.short} onOpen={() => openItem('projects', i)} /> : null
-            })}
+            {projects.map((p, i) => (
+              <Row key={p.id} title={p.title} sub={p.short} onOpen={() => openItem('projects', i)} />
+            ))}
           </Rows>
         </>
       )
     case 'experience':
       return (
         <>
-          <p className="text-sm text-silver">{experiences.length} roles, most recent first.</p>
           <Rows>
             {experiences
               .map((e, i) => ({ e, i }))
@@ -105,16 +103,15 @@ function Summary({ id }: { id: SectionId }) {
     case 'contact':
       return (
         <>
-          <p className="text-sm text-silver">{profile.availability}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
             <a className="btn btn-cream max-w-full" href={`mailto:${profile.email}`}>
               <MailIcon size={15} /> <span className="truncate">{profile.email}</span>
             </a>
             <a className="btn btn-ghost" href={profile.linkedin} target="_blank" rel="noreferrer">
               <LinkedinIcon size={15} /> LinkedIn
             </a>
-            <a className="btn btn-ghost" href={profile.resumeUrl} download>
-              <DownloadIcon size={15} /> Resume
+            <a className="btn btn-ghost" href={profile.github} target="_blank" rel="noreferrer">
+              <GithubIcon size={15} /> GitHub
             </a>
           </div>
         </>
@@ -144,7 +141,6 @@ export function TourCard({ id: section }: { id: SectionId }) {
     heading.current?.focus({ preventScroll: true })
   }, [section])
 
-  const meta = SECTION_BY_ID[section]
   const at = SECTIONS.findIndex((s) => s.id === section)
   const last = at === SECTIONS.length - 1
   const next = SECTIONS[at + 1]
@@ -164,19 +160,13 @@ export function TourCard({ id: section }: { id: SectionId }) {
     >
       <header className="slab-band flex items-center justify-between gap-3 py-2 pl-5 pr-2">
         <p className="strap text-sm">
-          Stop {at + 1} of {SECTIONS.length} <span className="text-cream/60">·</span> {meta.title}
+          Guided tour <span className="text-cream/60">·</span> {at + 1} of {SECTIONS.length}
         </p>
         <button className="icon-btn !border-transparent !bg-transparent" onClick={endTour} aria-label="Leave the tour and explore freely" title="Explore freely">
           <CloseIcon />
         </button>
       </header>
-      {/* progress: one segment per stop */}
-      <div className="flex gap-1 px-5 pt-3" aria-hidden>
-        {SECTIONS.map((s, i) => (
-          <span key={s.id} className={`h-0.5 flex-1 ${i <= at ? 'bg-cream' : 'bg-white/12'}`} />
-        ))}
-      </div>
-      <div className="scroll-area flex-1 overflow-y-auto px-5 pt-3 pb-4">
+      <div className="scroll-area flex-1 overflow-y-auto px-5 pt-4 pb-4">
         <h2 id="tour-title" ref={heading} tabIndex={-1} className="text-2xl font-semibold tracking-tight text-ink outline-none">
           {HEADLINE[section]}
         </h2>

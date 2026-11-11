@@ -5,7 +5,8 @@ import { drawLedBoard } from '../lib/textures'
 import { useStore } from '../state/store'
 import { useCanvasTexture } from './useCanvasTexture'
 
-const MESSAGE = "BDY'S WORLD · INDIANA UNIVERSITY · CLASS OF 2027"
+// the class year lives in the top bar; the boards just brand the ground
+const MESSAGE = "BDY'S WORLD · ENGINEERING BEYOND THE TRY LINE · INDIANA UNIVERSITY"
 
 /** Scrolling LED perimeter boards around the pitch. */
 export function AdBoards() {
