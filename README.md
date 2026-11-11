@@ -21,6 +21,14 @@ Also included: a career-highlights scoreboard (click it), a day/night toggle, an
 
 The intro title card is usable from its first frame: degree and graduation date, three featured projects (one click to a project's detail), and Resume, Email and LinkedIn. Once inside, a fixed top bar keeps **Resume**, **Contact** and **One page** in the same place on every screen.
 
+### The guided tour
+
+"Take the guided tour" walks a visitor through the six zones in order (About, Projects, Experience, Leadership, Skills, Contact). Each stop is one short card: a plain headline, a few lines summarising what `portfolio.ts` says, and rows that open the detail. Nothing moves on until the visitor clicks **Next**. **Know more** opens the full panel, which keeps **Summary** and **Next** at the bottom. The close button (or `Esc`) leaves the tour for free exploration, and the menu can restart it. While the tour runs, the screen keeps to one graphic: no rundown strip and no score flashes. #13 still carries the ball to each stop and stands in the shot.
+
+### Quick View
+
+A calm, conventional page for reading: a soft dark slate with off-white text and one warm coral-red accent, plain sentence-case headings and no grid texture. It is also the fallback when WebGL is unavailable.
+
 ### Look
 
 Broadcast graphics, not glass: opaque slabs, square corners, condensed caption type, IU crimson and cream. One graphic on screen at a time, each in a fixed place. Lime is kept for the single primary action and the focus ring.

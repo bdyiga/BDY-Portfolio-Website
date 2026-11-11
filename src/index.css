@@ -218,23 +218,40 @@ body {
   animation: loader-slide 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-/* Field-line texture for quick view */
-.pitch-lines {
-  background-image:
-    linear-gradient(90deg, rgba(238, 237, 235, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(238, 237, 235, 0.03) 1px, transparent 1px);
-  background-size: 80px 80px;
+/* Quick View's soft-dark reading palette: slate instead of near-black, off-white
+   text, one muted crimson accent, no lime. Redefines the theme colours in scope,
+   so the shared utilities and components follow without being rewritten. */
+.calm {
+  --color-charcoal: #222a35;
+  --color-charcoal-2: #2b3542;
+  --color-charcoal-3: #354150;
+  --color-ink: #f3f1ec;
+  --color-silver: #c9ced6;
+  --color-silver-dim: #9aa3ae;
+  --color-cream: #f08f80;
+  --color-gold: #e2c27a;
+  --hairline: rgba(243, 241, 236, 0.18);
+  background:
+    radial-gradient(1200px 520px at 15% -10%, rgba(240, 143, 128, 0.12), transparent 60%),
+    radial-gradient(900px 480px at 100% 0%, rgba(120, 160, 220, 0.1), transparent 60%),
+    var(--color-charcoal);
+  color: var(--color-ink);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+.calm .kicker {
+  letter-spacing: 0.12em;
+  color: var(--color-cream);
+}
+.calm .tag {
+  color: var(--color-ink);
+  background: rgba(240, 143, 128, 0.1);
+  border-color: rgba(240, 143, 128, 0.28);
+}
+.btn-calm {
+  background: #d4574b;
+  color: #fff;
+}
+.btn-calm:hover {
+  background: #e2665a;
 }
 
 /* programmatic focus targets (panel headings) don't need a ring */

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { education, profile } from '../data/portfolio'
 import { SECTIONS } from '../lib/sections'
 import { useStore } from '../state/store'
-import { CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SunIcon, WhistleIcon } from './icons'
+import { ArrowRight, CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SunIcon, WhistleIcon } from './icons'
 
 function LightsToggle({ className = '' }: { className?: string }) {
   const night = useStore((s) => s.night)
@@ -36,6 +36,7 @@ function Menu() {
   const setQuality = useStore((s) => s.setQuality)
   const night = useStore((s) => s.night)
   const toggleNight = useStore((s) => s.toggleNight)
+  const startTour = useStore((s) => s.startTour)
 
   return (
     <AnimatePresence>
@@ -90,7 +91,16 @@ function Menu() {
               </ul>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
-                <button className="btn btn-cream col-span-2 justify-center" onClick={() => setQuickView(true)}>
+                <button
+                  className="btn btn-cream col-span-2 justify-center"
+                  onClick={() => {
+                    setOpen(false)
+                    startTour()
+                  }}
+                >
+                  <ArrowRight size={16} /> Take the guided tour
+                </button>
+                <button className="btn btn-ghost col-span-2 justify-center" onClick={() => setQuickView(true)}>
                   <ListIcon size={16} /> See everything on one page
                 </button>
                 <a className="btn btn-ghost justify-center" href={profile.resumeUrl} download>
@@ -240,7 +250,8 @@ export function HUD() {
 
 /** "Score flash": a small slab under the score bug, never over the panel. */
 export function Toast() {
-  const toast = useStore((s) => s.toast)
+  // the tour keeps the screen to one graphic: no score flashes on top of its card
+  const toast = useStore((s) => (s.touring && !s.tourDetail ? null : s.toast))
   const clear = useStore((s) => s.clearToast)
   useEffect(() => {
     if (!toast) return

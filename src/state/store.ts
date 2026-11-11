@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { SectionId } from '../lib/sections'
+import { SECTIONS, type SectionId } from '../lib/sections'
 
 export type Phase = 'loading' | 'intro' | 'entering' | 'world'
 export type Quality = 'high' | 'low'
@@ -19,6 +19,10 @@ type State = {
   quality: Quality
   coachOpen: boolean
   menuOpen: boolean
+  /** The guided tour: one stop per zone, in order, moved on by the visitor. */
+  touring: boolean
+  /** Inside the tour, the full panel for the current stop ("Know more") instead of its summary card. */
+  tourDetail: boolean
   /** Phone bottom sheet shrunk to its header so the field is visible. */
   sheetCollapsed: boolean
   interacted: boolean
@@ -29,6 +33,10 @@ type State = {
   waveNonce: number
 
   setPhase: (p: Phase) => void
+  startTour: () => void
+  tourStep: (dir: 1 | -1) => void
+  setTourDetail: (v: boolean) => void
+  endTour: () => void
   openSection: (s: SectionId, item?: number | null) => void
   selectItem: (s: SectionId, item: number | null) => void
   closeSection: () => void
@@ -78,6 +86,8 @@ export const useStore = create<State>((set, get) => ({
   quality: lowEnd ? 'low' : 'high',
   coachOpen: false,
   menuOpen: false,
+  touring: false,
+  tourDetail: false,
   sheetCollapsed: false,
   interacted: false,
   toast: null,
@@ -86,9 +96,25 @@ export const useStore = create<State>((set, get) => ({
   waveNonce: 0,
 
   setPhase: (phase) => set({ phase }),
+  startTour: () => {
+    set({ touring: true })
+    get().openSection(SECTIONS[0].id)
+  },
+  tourStep: (dir) => {
+    const at = SECTIONS.findIndex((x) => x.id === get().section)
+    const next = SECTIONS[at + dir]
+    if (next) get().openSection(next.id)
+    // past the last stop: the tour is over, the stadium is theirs
+    else if (dir > 0) set({ touring: false, tourDetail: false, section: null, item: { ...emptyItems } })
+  },
+  // back to the summary: drop the item so the camera returns to the zone's own shot
+  setTourDetail: (tourDetail) =>
+    set((s) => ({ tourDetail, sheetCollapsed: false, item: tourDetail || !s.section ? s.item : { ...s.item, [s.section]: null } })),
+  endTour: () => set({ touring: false, tourDetail: false }),
   openSection: (section, item = null) =>
     set((s) => ({
       section,
+      tourDetail: false,
       sheetCollapsed: false,
       item: { ...s.item, [section]: item },
       menuOpen: false,
@@ -96,7 +122,7 @@ export const useStore = create<State>((set, get) => ({
       phase: s.phase === 'world' ? s.phase : 'world',
     })),
   selectItem: (section, item) => set((s) => ({ item: { ...s.item, [section]: item } })),
-  closeSection: () => set({ section: null, item: { ...emptyItems }, sheetCollapsed: false }),
+  closeSection: () => set({ section: null, item: { ...emptyItems }, sheetCollapsed: false, touring: false, tourDetail: false }),
   setHovered: (hovered) => {
     if (get().hovered !== hovered) set({ hovered })
   },
@@ -116,3 +142,5 @@ export const useStore = create<State>((set, get) => ({
   kick: () => set((s) => ({ kickNonce: s.kickNonce + 1 })),
   scoreConversion: () => set((s) => ({ conversions: s.conversions + 1, waveNonce: s.waveNonce + 1 })),
 }))
+
+

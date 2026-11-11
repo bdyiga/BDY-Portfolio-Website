@@ -7,6 +7,7 @@ import { Coach } from './ui/Coach'
 import { HUD, Toast } from './ui/HUD'
 import { Intro, Loader } from './ui/Intro'
 import { QuickView } from './ui/QuickView'
+import { TourCard } from './ui/Tour'
 import { AboutPanel } from './ui/panels/AboutPanel'
 import { ContactPanel } from './ui/panels/ContactPanel'
 import { ExperiencePanel } from './ui/panels/ExperiencePanel'
@@ -57,15 +58,21 @@ class SceneBoundary extends Component<{ children: ReactNode; onError: () => void
 
 function Panels() {
   const section = useStore((s) => s.section)
+  // on the guided tour each stop is a short card until the visitor asks to know more
+  const summary = useStore((s) => s.touring && !s.tourDetail)
+  const panel = summary ? null : section
   return (
-    <AnimatePresence mode="wait">
-      {section === 'about' && <AboutPanel key="about" />}
-      {section === 'projects' && <ProjectsPanel key="projects" />}
-      {section === 'experience' && <ExperiencePanel key="experience" />}
-      {section === 'leadership' && <LeadershipPanel key="leadership" />}
-      {section === 'skills' && <SkillsPanel key="skills" />}
-      {section === 'contact' && <ContactPanel key="contact" />}
-    </AnimatePresence>
+    <>
+      <AnimatePresence>{summary && section && <TourCard key={`tour-${section}`} id={section} />}</AnimatePresence>
+      <AnimatePresence mode="wait">
+        {panel === 'about' && <AboutPanel key="about" />}
+        {panel === 'projects' && <ProjectsPanel key="projects" />}
+        {panel === 'experience' && <ExperiencePanel key="experience" />}
+        {panel === 'leadership' && <LeadershipPanel key="leadership" />}
+        {panel === 'skills' && <SkillsPanel key="skills" />}
+        {panel === 'contact' && <ContactPanel key="contact" />}
+      </AnimatePresence>
+    </>
   )
 }
 
@@ -186,6 +193,14 @@ export default function App() {
       st.openSection(r.section, r.item)
     } else st.setPhase('intro')
   }, [])
+
+  // "Take the guided tour" (or skipping the intro) lands on the tour's first stop
+  const prevPhase = useRef(phase)
+  useEffect(() => {
+    const was = prevPhase.current
+    prevPhase.current = phase
+    if (phase === 'world' && (was === 'intro' || was === 'entering') && !useStore.getState().section) useStore.getState().startTour()
+  }, [phase])
 
   const onSceneError = useCallback(() => useStore.getState().setWebglFailed(), [])
 

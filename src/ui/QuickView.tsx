@@ -17,7 +17,7 @@ function Section({ id, title, kicker, children }: { id: string; title: string; k
   return (
     <section id={`qv-${id}`} aria-labelledby={`qv-${id}-h`} className="scroll-mt-24 border-t border-white/10 py-14">
       <p className="kicker">{kicker}</p>
-      <h2 id={`qv-${id}-h`} className="display mt-2 text-3xl md:text-4xl">
+      <h2 id={`qv-${id}-h`} className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
         {title}
       </h2>
       <div className="mt-8">{children}</div>
@@ -42,7 +42,7 @@ export function QuickView() {
   return (
     <motion.div
       ref={root}
-      className="pitch-lines fixed inset-0 z-40 overflow-y-auto bg-charcoal"
+      className="calm fixed inset-0 z-40 overflow-y-auto"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -51,7 +51,7 @@ export function QuickView() {
     >
       <header className="sticky top-0 z-10 border-b border-white/10 bg-charcoal/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 md:px-5">
-          <button className="display text-lg" onClick={() => root.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <button className="text-lg font-semibold tracking-tight" onClick={() => root.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
             BDY<span className="text-cream">.</span>
           </button>
           <nav aria-label="Quick View sections" className="hidden gap-5 text-sm text-silver md:flex">
@@ -66,7 +66,7 @@ export function QuickView() {
               <DownloadIcon size={15} /> Resume
             </a>
             {!webglFailed && (
-              <button className="btn btn-lime !py-2" onClick={() => setQuickView(false)}>
+              <button className="btn btn-calm !py-2" onClick={() => setQuickView(false)}>
                 <StadiumIcon size={16} /> <span className="sm:hidden">Stadium</span><span className="hidden sm:inline">Enter the stadium</span>
               </button>
             )}
@@ -84,16 +84,16 @@ export function QuickView() {
         <section className="grid items-center gap-10 py-14 md:grid-cols-[1fr_auto]" aria-labelledby="qv-name">
           <div>
             <p className="kicker">Quick View · BDY's World</p>
-            <h1 id="qv-name" ref={heading} tabIndex={-1} className="display mt-3 text-[clamp(2.1rem,9.6vw,4.5rem)] outline-none [overflow-wrap:anywhere]">
+            <h1 id="qv-name" ref={heading} tabIndex={-1} className="mt-3 text-[clamp(2rem,6.5vw,3.25rem)] font-semibold leading-tight tracking-tight outline-none [overflow-wrap:anywhere]">
               {profile.name}
             </h1>
-            <p className="mt-5 font-display text-xl font-extrabold italic [font-stretch:110%] md:text-2xl">“{profile.tagline}”</p>
-            <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-silver">{profile.roles.join('  |  ')}</p>
+            <p className="mt-4 text-lg italic text-silver md:text-xl">“{profile.tagline}”</p>
+            <p className="mt-2 text-sm text-silver-dim">{profile.roles.join(' · ')}</p>
             <p className="mt-5 max-w-xl text-silver">
               {education.degree} ({education.specialization}) with minors in {education.minors.join(' and ')} at {education.school}. {profile.availability}
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
-              <a className="btn btn-lime max-w-full" href={`mailto:${profile.email}`}>
+              <a className="btn btn-calm max-w-full" href={`mailto:${profile.email}`}>
                 <MailIcon size={16} /> <span className="truncate">{profile.email}</span>
               </a>
               <a className="btn btn-ghost" href={profile.linkedin} target="_blank" rel="noreferrer">
@@ -110,7 +110,7 @@ export function QuickView() {
           <img
             src={profile.photo}
             alt={`Portrait of ${profile.name}`}
-            className="mx-auto w-56 rounded-sm object-cover ring-1 ring-white/20 md:w-72"
+            className="mx-auto w-56 rounded-sm object-cover ring-1 ring-white/10 md:w-72"
             width={288}
             height={304}
           />
@@ -119,12 +119,12 @@ export function QuickView() {
         <Section id="about" kicker="Center Field" title="About & Education">
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-4 text-silver">
-              <p className="border-l-2 border-crimson pl-4 text-lg text-ink">“{profile.rugbyIntro}”</p>
+              <p className="border-l-2 border-cream/60 pl-4 text-lg text-ink">“{profile.rugbyIntro}”</p>
               {profile.bio.map((p) => (
                 <p key={p.slice(0, 16)}>{p}</p>
               ))}
             </div>
-            <div className="rounded-sm border border-white/10 bg-forest/30 p-5 text-sm">
+            <div className="rounded-md border border-white/10 bg-charcoal-2 p-5 text-sm">
               <p className="font-semibold text-ink">{education.school}</p>
               <p className="text-silver-dim">{education.college}</p>
               <ul className="mt-4 space-y-1.5 text-silver">
@@ -147,7 +147,7 @@ export function QuickView() {
               .slice()
               .reverse()
               .map((e) => (
-                <li key={e.id} className="rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
+                <li key={e.id} className="rounded-md border border-white/8 bg-charcoal-2 p-5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h3 className="text-lg font-bold">
                       {e.role} · <span className="text-cream">{e.company}</span>
@@ -179,13 +179,13 @@ export function QuickView() {
         <Section id="projects" kicker="Left Try Zone · The Playbook" title="Projects">
           <ul className="grid gap-4 md:grid-cols-2">
             {projects.map((p, i) => (
-              <li key={p.id} className="flex flex-col rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
+              <li key={p.id} className="flex flex-col rounded-md border border-white/8 bg-charcoal-2 p-5">
                 <p className="font-mono text-xs text-cream">
                   Play {String(i + 1).padStart(2, '0')}
                   {p.period ? ` · ${p.period}` : ''}
                 </p>
                 <h3 className="mt-1 text-lg font-bold">
-                  {p.title} {p.badge && <span className="ml-1 rounded bg-gold px-1.5 py-0.5 align-middle text-[0.65rem] font-bold text-charcoal">{p.badge}</span>}
+                  {p.title} {p.badge && <span className="ml-1 rounded border border-gold/50 px-1.5 py-0.5 align-middle text-[0.65rem] font-semibold text-gold">{p.badge}</span>}
                 </h3>
                 {p.result && <p className="mt-2 border-l-2 border-cream pl-2.5 text-sm font-semibold text-ink">{p.result}</p>}
                 <p className="mt-2 flex-1 text-sm text-silver">{p.description}</p>
@@ -228,7 +228,7 @@ export function QuickView() {
         <Section id="skills" kicker="Training Ground" title="Technical Skills">
           <dl className="grid gap-4 md:grid-cols-2">
             {skillGroups.map((g) => (
-              <div key={g.id} className="rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
+              <div key={g.id} className="rounded-md border border-white/8 bg-charcoal-2 p-5">
                 <dt className="font-semibold">{g.name}</dt>
                 <dd className="mt-3 flex flex-wrap gap-1.5">
                   {g.skills.map((s) => (
@@ -246,7 +246,7 @@ export function QuickView() {
         <Section id="leadership" kicker="North Stand · The Team Sheet" title="Leadership & Involvement">
           <ul className="grid gap-4 md:grid-cols-2">
             {leadership.map((l) => (
-              <li key={l.id} className="rounded-sm border border-white/10 bg-charcoal-2/70 p-5">
+              <li key={l.id} className="rounded-md border border-white/8 bg-charcoal-2 p-5">
                 <p className="font-semibold">{l.role}</p>
                 <p className="text-sm text-cream">{l.org}</p>
                 {l.period && <p className="mt-1 font-mono text-xs text-silver-dim">{l.period}</p>}
@@ -259,7 +259,7 @@ export function QuickView() {
         <Section id="contact" kicker="Goalposts" title="Let's build something great together.">
           <p className="max-w-2xl text-silver">{profile.availability}</p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <a className="btn btn-lime" href={`mailto:${profile.email}`}>
+            <a className="btn btn-calm" href={`mailto:${profile.email}`}>
               <MailIcon size={16} /> {profile.email}
             </a>
             <a className="btn btn-ghost" href={profile.linkedin} target="_blank" rel="noreferrer">

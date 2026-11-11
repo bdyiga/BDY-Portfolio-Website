@@ -3,6 +3,7 @@ import { motion } from 'motion/react'
 import { SECTIONS, SECTION_BY_ID, type SectionId } from '../lib/sections'
 import { useStore } from '../state/store'
 import { ArrowLeft, ArrowRight, CloseIcon } from './icons'
+import { TourBar } from './Tour'
 
 /** Shared shell for all section panels: right drawer on desktop, bottom sheet on mobile. */
 export function Panel({ id, children }: { id: SectionId; children: ReactNode }) {
@@ -14,6 +15,7 @@ export function Panel({ id, children }: { id: SectionId; children: ReactNode }) 
   const item = useStore((s) => s.item[id])
   const collapsed = useStore((s) => s.sheetCollapsed)
   const setCollapsed = useStore((s) => s.setSheetCollapsed)
+  const touring = useStore((s) => s.touring)
   const idx = SECTIONS.findIndex((s) => s.id === id)
   const prev = SECTIONS[(idx - 1 + SECTIONS.length) % SECTIONS.length]
   const next = SECTIONS[(idx + 1) % SECTIONS.length]
@@ -66,14 +68,18 @@ export function Panel({ id, children }: { id: SectionId; children: ReactNode }) 
         </div>
       </header>
       <div ref={body} className="scroll-area flex-1 overflow-y-auto px-5 pt-4 pb-6">{children}</div>
-      <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-3 py-2 text-sm">
-        <button className="btn btn-ghost !px-3" onClick={() => openSection(prev.id)} aria-label={`Previous: ${prev.title}`}>
-          <ArrowLeft size={16} /> <span className="hidden sm:inline">{prev.title}</span>
-        </button>
-        <button className="btn btn-ghost !px-3" onClick={() => openSection(next.id)} aria-label={`Next: ${next.title}`}>
-          <span className="hidden sm:inline">{next.title}</span> <ArrowRight size={16} />
-        </button>
-      </footer>
+      {touring ? (
+        <TourBar id={id} />
+      ) : (
+        <footer className="flex items-center justify-between gap-2 border-t border-white/10 px-3 py-2 text-sm">
+          <button className="btn btn-ghost !px-3" onClick={() => openSection(prev.id)} aria-label={`Previous: ${prev.title}`}>
+            <ArrowLeft size={16} /> <span className="hidden sm:inline">{prev.title}</span>
+          </button>
+          <button className="btn btn-ghost !px-3" onClick={() => openSection(next.id)} aria-label={`Next: ${next.title}`}>
+            <span className="hidden sm:inline">{next.title}</span> <ArrowRight size={16} />
+          </button>
+        </footer>
+      )}
     </motion.aside>
   )
 }
