@@ -94,6 +94,20 @@ const OBSTACLES: Obstacle[] = [
 
 const inside = (p: Vector3, o: Obstacle) => Math.hypot(p.x - o.x, p.z - o.z) < o.r
 
+/** Nudge a standing spot out of any obstacle (goalposts, screens, totems, bags). */
+export function clearOf(p: Vector3) {
+  for (const o of OBSTACLES) {
+    const dx = p.x - o.x
+    const dz = p.z - o.z
+    const d = Math.hypot(dx, dz)
+    if (d >= o.r) continue
+    const k = (o.r + 0.4) / Math.max(d, 1e-3)
+    if (d < 1e-3) p.set(o.x + o.r + 0.4, p.y, o.z)
+    else p.set(o.x + dx * k, p.y, o.z + dz * k)
+  }
+  return p
+}
+
 /** Straight line, bent around any obstacle it would clip. */
 function planPath(from: Vector3, to: Vector3): Vector3[] {
   const pts = [from.clone(), to.clone()]

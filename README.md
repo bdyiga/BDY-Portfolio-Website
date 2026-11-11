@@ -21,6 +21,25 @@ Also included: a career-highlights scoreboard (click it), a day/night toggle, an
 
 The intro title card is usable from its first frame: degree and graduation date, three featured projects (one click to a project's detail), and Resume, Email and LinkedIn. Once inside, a fixed top bar keeps **Resume**, **Contact** and **One page** in the same place on every screen.
 
+### The guided tour
+
+"Take the guided tour" walks a visitor through the six zones in order (About, Projects, Experience, Leadership, Skills, Contact). Each stop is one short card: a plain headline and rows that open the detail, all from `portfolio.ts`. Nothing is said twice: the title card already gives the degree, GPA, availability and featured projects, so the stops carry what it does not (photo, minors and honors at About; all nine projects; Email, LinkedIn and GitHub at Contact). Nothing moves on until the visitor clicks **Next**. **Know more** opens the full panel, which keeps **Summary** and **Next** at the bottom. The close button (or `Esc`) leaves the tour for free exploration, and the menu can restart it. While the tour runs, the screen keeps to one graphic: no rundown strip and no score flashes. #13 still carries the ball to each stop and stands in the shot.
+
+### Quick View
+
+A calm, conventional page for reading, laid out like a match programme: Kick-off (about), Match log (experience), Playbook (projects), Training ground (skills), Team sheet (leadership) and Full time (contact). Light warm-paper background, white cards, near-black text and IU crimson as the only accent.
+
+Things to touch, none of them in the way:
+
+- **Match clock.** Scrolling plays the 80 minutes: a clock and "1st half / 2nd half / Full time" sit beside a pitch strip that carries a rugby ball from try line to try line. The nav marks the section you are reading.
+- **Contact bar.** Once the hero has scrolled away, a slim bar with Email, Copy email and Resume slides up from the bottom; it steps aside at Full time.
+- **Skills light up the work.** Tap a skill (or hover it, on a desktop) and every project and role that used it lights up across the page while the rest dims. A note under the header says what is lit and clears it.
+- **Project cards open in place.** Each card shows the play, title and one line; clicking opens the description, stack and links at full width. The playbook also filters by shared technologies.
+- **Match log.** A touchline timeline whose numbers count up as they appear; the latest role is open, the others expand on click.
+- **A kick at goal at Full time.** Drag the ball back and let go (or press "Kick for me"); over the bar is a conversion.
+
+It loads as its own chunk (prefetched once the page is idle) and is also the fallback when WebGL is unavailable.
+
 ### Look
 
 Broadcast graphics, not glass: opaque slabs, square corners, condensed caption type, IU crimson and cream. One graphic on screen at a time, each in a fixed place. Lime is kept for the single primary action and the focus ring.
@@ -34,6 +53,10 @@ Mown turf whose stripes swap light and dark as the camera goes round, the way re
 #13 is a rigged athlete in the red #13 YIGA kit. He jogs, sprints, carries the ball in two hands or tucked under one arm at speed, passes, kicks and celebrates. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. The kit is painted onto the body in a shader, so there are no extra textures for it.
 
 The model loads after the stadium is up (867 KB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
+
+### Sound
+
+Off until the visitor turns it on, with the speaker button always in the top bar (and a switch in the menu); the choice is remembered. Everything is synthesised in the browser with the Web Audio API, so there are no audio files: a low crowd murmur while the stadium is on screen, the referee's whistle when a new zone or tour stop opens, a thud when the ball is kicked and the crowd rising for a conversion. On the one-page view the match clock blows for half time and full time, and the kick at goal has its thud and cheer. With sound off, no audio context is created at all.
 
 ### Camera
 
@@ -75,6 +98,7 @@ src/
   lib/coach.ts           retrieval-only portfolio assistant
   lib/textures.ts        procedural canvas textures
   lib/poses.ts           hand-keyed moves for #13 (kick, pass, wave, celebrate, …)
+  lib/sound.ts           synthesised match-night sound (crowd, whistle, thud, cheer)
   state/store.ts         app state (phase, section, day/night, …)
   three/                 R3F scene, lazy-loaded (Director = camera + choreography)
   ui/                    intro title card, HUD (top bar, rundown, menu), panels, Coach, Quick View

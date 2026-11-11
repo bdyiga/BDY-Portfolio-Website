@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { education, profile } from '../data/portfolio'
 import { SECTIONS } from '../lib/sections'
 import { useStore } from '../state/store'
-import { CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SunIcon, WhistleIcon } from './icons'
+import { ArrowRight, CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SoundOffIcon, SoundOnIcon, SunIcon, WhistleIcon } from './icons'
 
 function LightsToggle({ className = '' }: { className?: string }) {
   const night = useStore((s) => s.night)
@@ -22,6 +22,24 @@ function LightsToggle({ className = '' }: { className?: string }) {
   )
 }
 
+/** Sound on or off: always in the bar, so it can never surprise anyone. */
+export function SoundToggle({ className = '' }: { className?: string }) {
+  const sound = useStore((s) => s.sound)
+  const toggle = useStore((s) => s.toggleSound)
+  return (
+    <button
+      onClick={toggle}
+      role="switch"
+      aria-checked={sound}
+      aria-label={sound ? 'Turn sound off' : 'Turn sound on'}
+      title={sound ? 'Sound on' : 'Sound off'}
+      className={`bar-btn !px-0 w-10 justify-center ${className}`}
+    >
+      {sound ? <SoundOnIcon size={17} /> : <SoundOffIcon size={17} />}
+    </button>
+  )
+}
+
 function Menu() {
   const open = useStore((s) => s.menuOpen)
   const setOpen = useStore((s) => s.setMenuOpen)
@@ -36,6 +54,9 @@ function Menu() {
   const setQuality = useStore((s) => s.setQuality)
   const night = useStore((s) => s.night)
   const toggleNight = useStore((s) => s.toggleNight)
+  const sound = useStore((s) => s.sound)
+  const toggleSound = useStore((s) => s.toggleSound)
+  const startTour = useStore((s) => s.startTour)
 
   return (
     <AnimatePresence>
@@ -90,7 +111,16 @@ function Menu() {
               </ul>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
-                <button className="btn btn-cream col-span-2 justify-center" onClick={() => setQuickView(true)}>
+                <button
+                  className="btn btn-cream col-span-2 justify-center"
+                  onClick={() => {
+                    setOpen(false)
+                    startTour()
+                  }}
+                >
+                  <ArrowRight size={16} /> Take the guided tour
+                </button>
+                <button className="btn btn-ghost col-span-2 justify-center" onClick={() => setQuickView(true)}>
                   <ListIcon size={16} /> See everything on one page
                 </button>
                 <a className="btn btn-ghost justify-center" href={profile.resumeUrl} download>
@@ -105,6 +135,10 @@ function Menu() {
                 <label className="flex items-center justify-between gap-3">
                   <span>Night match</span>
                   <input type="checkbox" className="h-4 w-4 accent-lime" checked={night} onChange={toggleNight} />
+                </label>
+                <label className="flex items-center justify-between gap-3">
+                  <span>Sound</span>
+                  <input type="checkbox" className="h-4 w-4 accent-lime" checked={sound} onChange={toggleSound} />
                 </label>
                 <label className="flex items-center justify-between gap-3">
                   <span>Reduce motion</span>
@@ -155,6 +189,8 @@ export function TopBar() {
   const setMenuOpen = useStore((s) => s.setMenuOpen)
   const setQuickView = useStore((s) => s.setQuickView)
   const setCoachOpen = useStore((s) => s.setCoachOpen)
+  // on the tour the bar keeps to what a recruiter needs: resume, contact, one page, menu
+  const touring = useStore((s) => s.touring)
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-start justify-between gap-2 p-3 md:p-4">
@@ -180,10 +216,11 @@ export function TopBar() {
         <button className="bar-btn" onClick={() => setQuickView(true)} title="Everything on one page (Q)">
           <ListIcon size={14} className="hidden sm:block" /> One page
         </button>
-        <button className="bar-btn !px-0 hidden w-10 justify-center md:inline-flex" onClick={() => setCoachOpen(true)} aria-label="Ask the Coach, the portfolio assistant (C)" title="Ask the Coach (C)">
+        <button className={`bar-btn !px-0 hidden w-10 justify-center ${touring ? '' : 'md:inline-flex'}`} onClick={() => setCoachOpen(true)} aria-label="Ask the Coach, the portfolio assistant (C)" title="Ask the Coach (C)">
           <WhistleIcon size={16} />
         </button>
-        <LightsToggle className="hidden md:inline-flex" />
+        <LightsToggle className={touring ? 'hidden' : 'hidden md:inline-flex'} />
+        <SoundToggle />
         <button className="bar-btn !px-0 w-10 justify-center" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu (M)">
           <MenuIcon size={18} />
         </button>
@@ -240,7 +277,8 @@ export function HUD() {
 
 /** "Score flash": a small slab under the score bug, never over the panel. */
 export function Toast() {
-  const toast = useStore((s) => s.toast)
+  // the tour keeps the screen to one graphic: no score flashes on top of its card
+  const toast = useStore((s) => (s.touring && !s.tourDetail ? null : s.toast))
   const clear = useStore((s) => s.clearToast)
   useEffect(() => {
     if (!toast) return

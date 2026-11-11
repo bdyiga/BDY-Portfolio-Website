@@ -218,23 +218,51 @@ body {
   animation: loader-slide 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-/* Field-line texture for quick view */
-.pitch-lines {
-  background-image:
-    linear-gradient(90deg, rgba(238, 237, 235, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(238, 237, 235, 0.03) 1px, transparent 1px);
-  background-size: 80px 80px;
+/* Quick View's light reading palette: warm paper, white cards, near-black text and
+   IU crimson as the one accent. Redefines the theme colours in scope, so the shared
+   utilities and components follow without being rewritten; the stadium stays dark. */
+.calm {
+  color-scheme: light;
+  --color-charcoal: #f7f4ef;
+  --color-charcoal-2: #ffffff;
+  --color-charcoal-3: #efebe4;
+  --color-ink: #1d2127;
+  --color-silver: #454c56;
+  --color-silver-dim: #6b727c;
+  --color-cream: #a01c1c;
+  --color-gold: #8a6a1f;
+  --hairline: rgba(29, 33, 39, 0.16);
+  background:
+    radial-gradient(1100px 480px at 10% -8%, rgba(160, 28, 28, 0.07), transparent 60%),
+    var(--color-charcoal);
+  color: var(--color-ink);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+.calm .kicker {
+  letter-spacing: 0.12em;
+  color: var(--color-cream);
+}
+.calm .tag {
+  color: var(--color-silver);
+  background: #f3efe9;
+  border-color: rgba(29, 33, 39, 0.1);
+}
+.calm .btn-ghost {
+  background: #ffffff;
+  border-color: rgba(29, 33, 39, 0.16);
+}
+.calm .btn-ghost:hover {
+  border-color: rgba(29, 33, 39, 0.4);
+  background: #ffffff;
+}
+.calm .card {
+  box-shadow: 0 1px 2px rgba(29, 33, 39, 0.05), 0 6px 20px rgba(29, 33, 39, 0.04);
+}
+.btn-calm {
+  background: #990000;
+  color: #ffffff;
+}
+.btn-calm:hover {
+  background: #b01414;
 }
 
 /* programmatic focus targets (panel headings) don't need a ring */

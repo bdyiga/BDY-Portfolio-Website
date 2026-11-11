@@ -20,7 +20,7 @@ export function Hotspot({ meta }: { meta: SectionMeta }) {
     if (ring.current) {
       const pulse = reducedMotion ? 1 : 1 + ((t * 0.6) % 1) * 0.8
       ring.current.scale.setScalar(pulse * (hovered ? 1.3 : 1))
-      ;(ring.current.material as MeshBasicMaterial).opacity = reducedMotion ? 0.6 : 0.85 * (1 - ((t * 0.6) % 1))
+      ;(ring.current.material as MeshBasicMaterial).opacity = reducedMotion ? 0.35 : 0.5 * (1 - ((t * 0.6) % 1))
     }
     if (group.current) {
       const target = visible ? 1 : 0
@@ -39,13 +39,13 @@ export function Hotspot({ meta }: { meta: SectionMeta }) {
         {ground && (
           <mesh ref={ring} position={ground as [number, number, number]} rotation-x={-Math.PI / 2}>
             <ringGeometry args={[1.2, 1.45, 48]} />
-            <meshBasicMaterial color="#c6ff3d" transparent depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial color="#eeedeb" transparent depthWrite={false} toneMapped={false} />
           </mesh>
         )}
         {ground && (
           <mesh ref={pillar} position={[hx, hy / 2, hz]}>
             <cylinderGeometry args={[0.05, 0.05, hy, 6, 1, true]} />
-            <meshBasicMaterial color="#c6ff3d" transparent opacity={0} blending={AdditiveBlending} depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial color="#eeedeb" transparent opacity={0} blending={AdditiveBlending} depthWrite={false} toneMapped={false} />
           </mesh>
         )}
       </group>

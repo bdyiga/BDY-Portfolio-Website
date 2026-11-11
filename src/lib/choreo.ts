@@ -1,7 +1,27 @@
 import { Vector3 } from 'three'
 import { ball, flyBall } from './sceneState'
 import { newSequence, player, playAction, runTo, waitUntil } from './player'
-import { BALL_HOME, CONVERSION_LANDING, KICK, PLAYER_SPOTS, SECTION_BY_ID, type SectionId, type Vec3 } from './sections'
+import { BALL_HOME, CONVERSION_LANDING, KICK, playerSpot, SECTION_BY_ID, type SectionId, type Vec3 } from './sections'
+
+type Spot = { pos: Vec3; face: Vec3 }
+
+/**
+ * #13's mark: where he stands to be in the current shot, worked out by the
+ * camera rig from where the camera will settle. Moving between items moves
+ * the shot, so he jogs to the new mark once his play is done.
+ */
+let mark: Spot | null = null
+let delivering: () => boolean = () => false
+
+const far = (a: { x: number; z: number }, b: Vec3) => Math.hypot(a.x - b[0], a.z - b[2]) > 1.5
+
+export function setMark(spot: Spot | null, instant: boolean) {
+  mark = spot
+  if (!spot || delivering() || !far(player.pos, spot.pos)) return
+  if (player.mode === 'action' || ball.mode === 'carried') return
+  newSequence()
+  runTo(spot.pos, { face: spot.face, instant })
+}
 
 /**
  * Multi-step plays for #13 and the ball. Every step checks `alive()` so a
@@ -65,10 +85,22 @@ async function conversion(alive: () => boolean, instant: boolean, onContact: () 
 /** The play that runs whenever a section opens (or the visitor returns to the overview). */
 export async function deliver(section: SectionId | null, instant: boolean, onConversionContact: () => void) {
   const alive = newSequence()
+  let running = true
+  delivering = () => running && alive()
+  try {
+    await play(section, alive, instant, onConversionContact)
+  } finally {
+    running = false
+  }
+}
+
+async function play(section: SectionId | null, alive: () => boolean, instant: boolean, onConversionContact: () => void) {
   if (section === 'contact') return conversion(alive, instant, onConversionContact)
 
   if (!(await fetchBall(alive, instant)) || !alive()) return
-  const spot = PLAYER_SPOTS[section ?? 'home']
+  const fixed = playerSpot(section ?? 'home')
+  // read the mark only now: the camera has usually settled by the time he has the ball
+  const spot = section && section !== 'about' && mark ? mark : fixed
 
   if (section === null || section === 'about') {
     // the ball goes back on its kicking tee at center field
@@ -84,6 +116,8 @@ export async function deliver(section: SectionId | null, instant: boolean, onCon
   if (!(await playAction('pass', { at: 0.55, instant, face: target, onAt: () => flyBall(target, { style: 'spiral', instant }) })) || !alive()) return
   if (!instant) await playAction('point', { face: spot.face })
   else player.targetYaw = Math.atan2(spot.face[0] - spot.pos[0], spot.face[2] - spot.pos[2])
+  // the visitor may have moved on to another item while he played; follow the shot
+  if (alive() && mark && far(player.pos, mark.pos)) await runTo(mark.pos, { face: mark.face, instant })
 }
 
 /** "Kick again" / the K key. */

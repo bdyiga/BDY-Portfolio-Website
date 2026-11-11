@@ -6,7 +6,8 @@ import { useStore } from './state/store'
 import { Coach } from './ui/Coach'
 import { HUD, Toast } from './ui/HUD'
 import { Intro, Loader } from './ui/Intro'
-import { QuickView } from './ui/QuickView'
+import { TourCard } from './ui/Tour'
+import { cheer, crowd, setSoundEnabled, whistle } from './lib/sound'
 import { AboutPanel } from './ui/panels/AboutPanel'
 import { ContactPanel } from './ui/panels/ContactPanel'
 import { ExperiencePanel } from './ui/panels/ExperiencePanel'
@@ -16,6 +17,11 @@ import { SkillsPanel } from './ui/panels/SkillsPanel'
 
 // The whole 3D stack (three.js, R3F, drei, postprocessing) is code-split and loaded lazily.
 const Experience = lazy(() => import('./three/Experience'))
+// the one-page view is its own chunk: fetched at once for a #quick link, otherwise once the page is idle
+const loadQuickView = () => import('./ui/QuickView')
+const QuickView = lazy(() => loadQuickView().then((m) => ({ default: m.QuickView })))
+if (window.location.hash.startsWith('#quick')) loadQuickView()
+else (window.requestIdleCallback ?? ((f: () => void) => window.setTimeout(f, 2500)))(() => void loadQuickView())
 
 const ITEM_IDS: Partial<Record<SectionId, string[]>> = {
   projects: projects.map((p) => p.id),
@@ -57,15 +63,52 @@ class SceneBoundary extends Component<{ children: ReactNode; onError: () => void
 
 function Panels() {
   const section = useStore((s) => s.section)
+  // on the guided tour each stop is a short card until the visitor asks to know more
+  const summary = useStore((s) => s.touring && !s.tourDetail)
+  const panel = summary ? null : section
   return (
-    <AnimatePresence mode="wait">
-      {section === 'about' && <AboutPanel key="about" />}
-      {section === 'projects' && <ProjectsPanel key="projects" />}
-      {section === 'experience' && <ExperiencePanel key="experience" />}
-      {section === 'leadership' && <LeadershipPanel key="leadership" />}
-      {section === 'skills' && <SkillsPanel key="skills" />}
-      {section === 'contact' && <ContactPanel key="contact" />}
-    </AnimatePresence>
+    <>
+      <AnimatePresence>{summary && section && <TourCard key={`tour-${section}`} id={section} />}</AnimatePresence>
+      <AnimatePresence mode="wait">
+        {panel === 'about' && <AboutPanel key="about" />}
+        {panel === 'projects' && <ProjectsPanel key="projects" />}
+        {panel === 'experience' && <ExperiencePanel key="experience" />}
+        {panel === 'leadership' && <LeadershipPanel key="leadership" />}
+        {panel === 'skills' && <SkillsPanel key="skills" />}
+        {panel === 'contact' && <ContactPanel key="contact" />}
+      </AnimatePresence>
+    </>
+  )
+}
+
+/** Sound follows the toggle; the crowd murmurs while the stadium is on screen; the referee marks each new zone. */
+function useMatchSound() {
+  const sound = useStore((s) => s.sound)
+  const phase = useStore((s) => s.phase)
+  const quickView = useStore((s) => s.quickView)
+  useEffect(() => {
+    setSoundEnabled(sound)
+  }, [sound])
+  // a sound left on from a previous visit can only start after the first touch
+  useEffect(() => {
+    const wake = () => setSoundEnabled(useStore.getState().sound)
+    window.addEventListener('pointerdown', wake, { once: true })
+    window.addEventListener('keydown', wake, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', wake)
+      window.removeEventListener('keydown', wake)
+    }
+  }, [])
+  useEffect(() => {
+    crowd(sound && phase !== 'loading' && !quickView)
+  }, [sound, phase, quickView])
+  useEffect(
+    () =>
+      useStore.subscribe((s, prev) => {
+        if (s.section && s.section !== prev.section) whistle()
+        if (s.conversions > prev.conversions) cheer()
+      }),
+    [],
   )
 }
 
@@ -163,6 +206,7 @@ export default function App() {
 
   useKeyboard()
   useHashSync()
+  useMatchSound()
 
   useEffect(() => {
     if (!hasWebGL()) useStore.getState().setWebglFailed()
@@ -186,6 +230,14 @@ export default function App() {
       st.openSection(r.section, r.item)
     } else st.setPhase('intro')
   }, [])
+
+  // "Take the guided tour" (or skipping the intro) lands on the tour's first stop
+  const prevPhase = useRef(phase)
+  useEffect(() => {
+    const was = prevPhase.current
+    prevPhase.current = phase
+    if (phase === 'world' && (was === 'intro' || was === 'entering') && !useStore.getState().section) useStore.getState().startTour()
+  }, [phase])
 
   const onSceneError = useCallback(() => useStore.getState().setWebglFailed(), [])
 
@@ -225,7 +277,9 @@ export default function App() {
         </>
       )}
 
-      <AnimatePresence>{quickView && <QuickView key="quick" />}</AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>{quickView && <QuickView key="quick" />}</AnimatePresence>
+      </Suspense>
       <Coach />
       <Toast />
     </MotionConfig>

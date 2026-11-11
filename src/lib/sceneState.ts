@@ -34,8 +34,8 @@ export const ball = {
   hold: null as Quaternion | null,
 }
 
-/** The ball is drawn smaller in his hands, so the hero ball doesn't swamp the player. */
-export const BALL_CARRY_SCALE = 0.52
+/** In his hands the ball is drawn at about real size for a player his height; on the grass it is a little larger, so it reads as the thing to click. */
+export const BALL_CARRY_SCALE = 0.66
 
 type FlightOpts = {
   height?: number

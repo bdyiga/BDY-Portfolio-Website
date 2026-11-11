@@ -103,7 +103,7 @@ export function Intro() {
                 disabled={leaving}
                 className="btn btn-lime group justify-center !whitespace-normal !px-4 !py-3.5 text-[0.95rem] font-bold leading-tight sm:!px-6"
               >
-                Enter my world
+                Take the guided tour
                 <ArrowRight className="shrink-0 transition-transform group-hover:translate-x-1" />
               </button>
               <button
