@@ -74,16 +74,12 @@ export function Intro() {
             transition={{ duration: 0.7, ease: EASE }}
           >
             <div className="flex items-stretch gap-3">
-              <span className="slab-band display grid w-[3.2rem] shrink-0 place-items-center text-[2rem] md:w-[4.6rem] md:text-[3rem]" aria-hidden>
+              <span className="slab-band display grid w-[3rem] shrink-0 place-items-center text-[1.8rem] md:w-[4.2rem] md:text-[2.6rem]" aria-hidden>
                 13
               </span>
-              <h1 className="min-w-0" aria-label={profile.name}>
-                <span className="strap block text-[0.95rem] text-cream/80 md:text-lg" aria-hidden>
-                  {first} {middle}
-                </span>
-                <span className="display block text-[clamp(3rem,15vw,7rem)] text-ink" aria-hidden>
-                  {last}
-                </span>
+              {/* all three names at one size, big enough to lead, small enough to sit together */}
+              <h1 className="display min-w-0 self-center text-[clamp(1.9rem,6.4vw,3.6rem)] leading-[0.95] text-ink">
+                {first} {middle} <span className="text-cream">{last}</span>
               </h1>
             </div>
 
