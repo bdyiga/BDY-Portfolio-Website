@@ -218,22 +218,22 @@ body {
   animation: loader-slide 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-/* Quick View's soft-dark reading palette: slate instead of near-black, off-white
-   text, one muted crimson accent, no lime. Redefines the theme colours in scope,
-   so the shared utilities and components follow without being rewritten. */
+/* Quick View's light reading palette: warm paper, white cards, near-black text and
+   IU crimson as the one accent. Redefines the theme colours in scope, so the shared
+   utilities and components follow without being rewritten; the stadium stays dark. */
 .calm {
-  --color-charcoal: #222a35;
-  --color-charcoal-2: #2b3542;
-  --color-charcoal-3: #354150;
-  --color-ink: #f3f1ec;
-  --color-silver: #c9ced6;
-  --color-silver-dim: #9aa3ae;
-  --color-cream: #f08f80;
-  --color-gold: #e2c27a;
-  --hairline: rgba(243, 241, 236, 0.18);
+  color-scheme: light;
+  --color-charcoal: #f7f4ef;
+  --color-charcoal-2: #ffffff;
+  --color-charcoal-3: #efebe4;
+  --color-ink: #1d2127;
+  --color-silver: #454c56;
+  --color-silver-dim: #6b727c;
+  --color-cream: #a01c1c;
+  --color-gold: #8a6a1f;
+  --hairline: rgba(29, 33, 39, 0.16);
   background:
-    radial-gradient(1200px 520px at 15% -10%, rgba(240, 143, 128, 0.12), transparent 60%),
-    radial-gradient(900px 480px at 100% 0%, rgba(120, 160, 220, 0.1), transparent 60%),
+    radial-gradient(1100px 480px at 10% -8%, rgba(160, 28, 28, 0.07), transparent 60%),
     var(--color-charcoal);
   color: var(--color-ink);
 }
@@ -242,16 +242,27 @@ body {
   color: var(--color-cream);
 }
 .calm .tag {
-  color: var(--color-ink);
-  background: rgba(240, 143, 128, 0.1);
-  border-color: rgba(240, 143, 128, 0.28);
+  color: var(--color-silver);
+  background: #f3efe9;
+  border-color: rgba(29, 33, 39, 0.1);
+}
+.calm .btn-ghost {
+  background: #ffffff;
+  border-color: rgba(29, 33, 39, 0.16);
+}
+.calm .btn-ghost:hover {
+  border-color: rgba(29, 33, 39, 0.4);
+  background: #ffffff;
+}
+.calm .card {
+  box-shadow: 0 1px 2px rgba(29, 33, 39, 0.05), 0 6px 20px rgba(29, 33, 39, 0.04);
 }
 .btn-calm {
-  background: #d4574b;
-  color: #fff;
+  background: #990000;
+  color: #ffffff;
 }
 .btn-calm:hover {
-  background: #e2665a;
+  background: #b01414;
 }
 
 /* programmatic focus targets (panel headings) don't need a ring */

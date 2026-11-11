@@ -27,7 +27,7 @@ The intro title card is usable from its first frame: degree and graduation date,
 
 ### Quick View
 
-A calm, conventional page for reading: a soft dark slate with off-white text and one warm coral-red accent, plain sentence-case headings and no grid texture. It is also the fallback when WebGL is unavailable.
+A calm, conventional page for reading: a light warm-paper background, white cards, near-black text and IU crimson as the only accent, with plain sentence-case headings. It is also the fallback when WebGL is unavailable.
 
 ### Look
 

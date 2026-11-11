@@ -15,7 +15,7 @@ const NAV = [
 
 function Section({ id, title, kicker, children }: { id: string; title: string; kicker: string; children: React.ReactNode }) {
   return (
-    <section id={`qv-${id}`} aria-labelledby={`qv-${id}-h`} className="scroll-mt-24 border-t border-white/10 py-14">
+    <section id={`qv-${id}`} aria-labelledby={`qv-${id}-h`} className="scroll-mt-24 border-t border-black/10 py-14">
       <p className="kicker">{kicker}</p>
       <h2 id={`qv-${id}-h`} className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
         {title}
@@ -49,7 +49,7 @@ export function QuickView() {
       transition={{ duration: 0.35 }}
       role="document"
     >
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-charcoal/85 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-black/10 bg-charcoal/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 md:px-5">
           <button className="text-lg font-semibold tracking-tight" onClick={() => root.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
             BDY<span className="text-cream">.</span>
@@ -110,7 +110,7 @@ export function QuickView() {
           <img
             src={profile.photo}
             alt={`Portrait of ${profile.name}`}
-            className="mx-auto w-56 rounded-sm object-cover ring-1 ring-white/10 md:w-72"
+            className="mx-auto w-56 rounded-sm object-cover ring-1 ring-black/10 md:w-72"
             width={288}
             height={304}
           />
@@ -124,7 +124,7 @@ export function QuickView() {
                 <p key={p.slice(0, 16)}>{p}</p>
               ))}
             </div>
-            <div className="rounded-md border border-white/10 bg-charcoal-2 p-5 text-sm">
+            <div className="card rounded-md border border-black/10 bg-charcoal-2 p-5 text-sm">
               <p className="font-semibold text-ink">{education.school}</p>
               <p className="text-silver-dim">{education.college}</p>
               <ul className="mt-4 space-y-1.5 text-silver">
@@ -147,7 +147,7 @@ export function QuickView() {
               .slice()
               .reverse()
               .map((e) => (
-                <li key={e.id} className="rounded-md border border-white/8 bg-charcoal-2 p-5">
+                <li key={e.id} className="card rounded-md border border-black/8 bg-charcoal-2 p-5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h3 className="text-lg font-bold">
                       {e.role} · <span className="text-cream">{e.company}</span>
@@ -156,7 +156,7 @@ export function QuickView() {
                       {e.start} – {e.end} · {e.location}
                     </p>
                   </div>
-                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-silver marker:text-cream">
+                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-silver marker:text-cream/70">
                     {e.responsibilities.map((r) => (
                       <li key={r}>{r}</li>
                     ))}
@@ -179,7 +179,7 @@ export function QuickView() {
         <Section id="projects" kicker="Left Try Zone · The Playbook" title="Projects">
           <ul className="grid gap-4 md:grid-cols-2">
             {projects.map((p, i) => (
-              <li key={p.id} className="flex flex-col rounded-md border border-white/8 bg-charcoal-2 p-5">
+              <li key={p.id} className="flex flex-col card rounded-md border border-black/8 bg-charcoal-2 p-5">
                 <p className="font-mono text-xs text-cream">
                   Play {String(i + 1).padStart(2, '0')}
                   {p.period ? ` · ${p.period}` : ''}
@@ -228,7 +228,7 @@ export function QuickView() {
         <Section id="skills" kicker="Training Ground" title="Technical Skills">
           <dl className="grid gap-4 md:grid-cols-2">
             {skillGroups.map((g) => (
-              <div key={g.id} className="rounded-md border border-white/8 bg-charcoal-2 p-5">
+              <div key={g.id} className="card rounded-md border border-black/8 bg-charcoal-2 p-5">
                 <dt className="font-semibold">{g.name}</dt>
                 <dd className="mt-3 flex flex-wrap gap-1.5">
                   {g.skills.map((s) => (
@@ -246,7 +246,7 @@ export function QuickView() {
         <Section id="leadership" kicker="North Stand · The Team Sheet" title="Leadership & Involvement">
           <ul className="grid gap-4 md:grid-cols-2">
             {leadership.map((l) => (
-              <li key={l.id} className="rounded-md border border-white/8 bg-charcoal-2 p-5">
+              <li key={l.id} className="card rounded-md border border-black/8 bg-charcoal-2 p-5">
                 <p className="font-semibold">{l.role}</p>
                 <p className="text-sm text-cream">{l.org}</p>
                 {l.period && <p className="mt-1 font-mono text-xs text-silver-dim">{l.period}</p>}
@@ -274,7 +274,7 @@ export function QuickView() {
           </div>
         </Section>
       </main>
-      <footer className="border-t border-white/10 py-8 text-center text-xs text-silver-dim">
+      <footer className="border-t border-black/10 py-8 text-center text-xs text-silver-dim">
         © {new Date().getFullYear()} {profile.name} · Indiana University Bloomington · Class of 2027
       </footer>
     </motion.div>
