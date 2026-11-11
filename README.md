@@ -50,7 +50,7 @@ Mown turf whose stripes swap light and dark as the camera goes round, the way re
 
 ### #13
 
-#13 is a rigged athlete in the red #13 YIGA kit. He jogs, sprints, carries the ball in two hands or tucked under one arm at speed, passes, kicks and celebrates. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. The kit is painted onto the body in a shader, so there are no extra textures for it.
+#13 is a rigged athlete in the red #13 YIGA kit, worn as a real polo-collared rugby jersey (a loose shirt over the body, untucked at the hem, with a cream collar and buttoned placket). He jogs, sprints, carries the ball in two hands or tucked under the arm away from the turn, passes from the hips with a follow-through at the receiver, and kicks with his arms out for balance. His head follows the ball, the receiver, or you when he waves. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. The kit is painted onto the body in a shader, so there are no extra textures for it.
 
 The model loads after the stadium is up (867 KB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
 
