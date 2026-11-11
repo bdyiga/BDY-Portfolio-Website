@@ -130,9 +130,16 @@ const HEADLINE: Record<SectionId, string> = {
 }
 
 /** One stop's card. It holds on to its own stop, so it can animate out while the next one comes in. */
+/** Know more: straight to one item's detail (the card already listed them), newest role first. */
+function knowMore(section: SectionId) {
+  const st = useStore.getState()
+  const first: Partial<Record<SectionId, number>> = { projects: 0, experience: experiences.length - 1, leadership: 0, skills: 0 }
+  if (first[section] !== undefined && st.item[section] === null) st.selectItem(section, first[section]!)
+  st.setTourDetail(true)
+}
+
 export function TourCard({ id: section }: { id: SectionId }) {
   const tourStep = useStore((s) => s.tourStep)
-  const setTourDetail = useStore((s) => s.setTourDetail)
   const endTour = useStore((s) => s.endTour)
   const setQuickView = useStore((s) => s.setQuickView)
   const heading = useRef<HTMLHeadingElement>(null)
@@ -179,7 +186,7 @@ export function TourCard({ id: section }: { id: SectionId }) {
           <ArrowLeft size={16} />
         </button>
         {section !== 'contact' && (
-          <button className="btn btn-ghost" onClick={() => setTourDetail(true)}>
+          <button className="btn btn-ghost" onClick={() => knowMore(section)}>
             Know more
           </button>
         )}

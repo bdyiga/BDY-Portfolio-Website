@@ -6,7 +6,6 @@ import { useStore } from './state/store'
 import { Coach } from './ui/Coach'
 import { HUD, Toast } from './ui/HUD'
 import { Intro, Loader } from './ui/Intro'
-import { QuickView } from './ui/QuickView'
 import { TourCard } from './ui/Tour'
 import { AboutPanel } from './ui/panels/AboutPanel'
 import { ContactPanel } from './ui/panels/ContactPanel'
@@ -17,6 +16,11 @@ import { SkillsPanel } from './ui/panels/SkillsPanel'
 
 // The whole 3D stack (three.js, R3F, drei, postprocessing) is code-split and loaded lazily.
 const Experience = lazy(() => import('./three/Experience'))
+// the one-page view is its own chunk: fetched at once for a #quick link, otherwise once the page is idle
+const loadQuickView = () => import('./ui/QuickView')
+const QuickView = lazy(() => loadQuickView().then((m) => ({ default: m.QuickView })))
+if (window.location.hash.startsWith('#quick')) loadQuickView()
+else (window.requestIdleCallback ?? ((f: () => void) => window.setTimeout(f, 2500)))(() => void loadQuickView())
 
 const ITEM_IDS: Partial<Record<SectionId, string[]>> = {
   projects: projects.map((p) => p.id),
@@ -240,7 +244,9 @@ export default function App() {
         </>
       )}
 
-      <AnimatePresence>{quickView && <QuickView key="quick" />}</AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>{quickView && <QuickView key="quick" />}</AnimatePresence>
+      </Suspense>
       <Coach />
       <Toast />
     </MotionConfig>

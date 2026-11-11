@@ -7,6 +7,8 @@ import { Panel, Reveal, Tags } from '../Panel'
 export function ExperiencePanel() {
   const stored = useStore((s) => s.item.experience)
   const selectItem = useStore((s) => s.selectItem)
+  // on the tour the card is the list of roles; this is just the one picked
+  const tour = useStore((s) => s.touring)
   const index = stored ?? experiences.length - 1
   // open on the latest role so the 3D totem, camera and panel agree
   useEffect(() => {
@@ -17,44 +19,52 @@ export function ExperiencePanel() {
 
   return (
     <Panel id="experience">
-      <p className="text-sm text-silver">
-        The match so far, from kick-off in 2023 to the latest whistle. Each period is a role. Select one to see the play-by-play.
-      </p>
+      {!tour && (
+        <>
+          <p className="text-sm text-silver">
+            The match so far, from kick-off in 2023 to the latest whistle. Each period is a role. Select one to see the play-by-play.
+          </p>
 
-      {/* match progression bar */}
-      <div className="mt-6 px-2">
-        <div className="flex justify-between font-mono text-[0.65rem] uppercase tracking-widest text-silver-dim">
-          <span>Kick-off</span>
-          <span>Now</span>
-        </div>
-        <div className="relative mt-3 h-1.5 rounded-full bg-white/10">
-          <motion.div className="absolute inset-y-0 left-0 rounded-full bg-crimson" animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
-          <div className="absolute inset-0 flex items-center justify-between" role="tablist" aria-label="Career timeline">
-            {experiences.map((x, i) => (
-              <button
-                key={x.id}
-                role="tab"
-                aria-selected={i === index}
-                aria-controls="exp-detail"
-                onClick={() => selectItem('experience', i)}
-                className={`relative grid h-5 w-5 -translate-x-0 place-items-center rounded-full border-2 transition-all ${
-                  i <= index ? 'border-crimson bg-charcoal' : 'border-white/30 bg-charcoal'
-                } ${i === index ? 'scale-125 shadow-[0_0_16px_rgba(198,255,61,0.6)]' : ''}`}
-                title={`${x.shortName} (${x.year})`}
-              >
-                <span className={`h-2 w-2 rounded-full ${i === index ? 'bg-crimson' : 'bg-transparent'}`} />
-                <span className="absolute top-6 whitespace-nowrap font-mono text-[0.65rem] text-silver">{x.year}</span>
-              </button>
-            ))}
+          {/* match progression bar */}
+          <div className="mt-6 px-2">
+            <div className="flex justify-between font-mono text-[0.65rem] uppercase tracking-widest text-silver-dim">
+              <span>Kick-off</span>
+              <span>Now</span>
+            </div>
+            <div className="relative mt-3 h-1.5 rounded-full bg-white/10">
+              <motion.div
+                className="absolute inset-y-0 left-0 rounded-full bg-crimson"
+                animate={{ width: `${pct}%` }}
+                transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+              />
+              <div className="absolute inset-0 flex items-center justify-between" role="tablist" aria-label="Career timeline">
+                {experiences.map((x, i) => (
+                  <button
+                    key={x.id}
+                    role="tab"
+                    aria-selected={i === index}
+                    aria-controls="exp-detail"
+                    onClick={() => selectItem('experience', i)}
+                    className={`relative grid h-5 w-5 -translate-x-0 place-items-center rounded-full border-2 transition-all ${
+                      i <= index ? 'border-crimson bg-charcoal' : 'border-white/30 bg-charcoal'
+                    } ${i === index ? 'scale-125 shadow-[0_0_16px_rgba(198,255,61,0.6)]' : ''}`}
+                    title={`${x.shortName} (${x.year})`}
+                  >
+                    <span className={`h-2 w-2 rounded-full ${i === index ? 'bg-crimson' : 'bg-transparent'}`} />
+                    <span className="absolute top-6 whitespace-nowrap font-mono text-[0.65rem] text-silver">{x.year}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
 
       <motion.article
         key={e.id}
         id="exp-detail"
         role="tabpanel"
-        className="mt-10"
+        className={tour ? '' : 'mt-10'}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}

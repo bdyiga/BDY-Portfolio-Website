@@ -8,6 +8,8 @@ export function SkillsPanel() {
   const stored = useStore((s) => s.item.skills)
   const selectItem = useStore((s) => s.selectItem)
   const openSection = useStore((s) => s.openSection)
+  // on the tour the card lists the groups and the certification; this is the one group picked
+  const tour = useStore((s) => s.touring)
   const index = stored ?? 0
   const group = skillGroups[index]
   const [skill, setSkill] = useState<string | null>(null)
@@ -18,30 +20,32 @@ export function SkillsPanel() {
 
   return (
     <Panel id="skills">
-      <p className="text-sm text-silver">
-        No made-up percentages. Pick a drill, then tap a skill to see where I've actually used it on the field.
-      </p>
+      {!tour && (
+        <>
+          <p className="text-sm text-silver">No made-up percentages. Pick a drill, then tap a skill to see where I've actually used it on the field.</p>
 
-      <div className="mt-4 flex flex-wrap gap-1.5" role="tablist" aria-label="Skill categories">
-        {skillGroups.map((g, i) => (
-          <button
-            key={g.id}
-            role="tab"
-            aria-selected={i === index}
-            onClick={() => {
-              selectItem('skills', i)
-              setSkill(null)
-            }}
-            className={`rounded-sm border px-3 py-1.5 text-xs font-semibold transition-colors ${
-              i === index ? 'border-crimson bg-cream text-charcoal' : 'border-white/15 text-silver hover:border-white/40'
-            }`}
-          >
-            {g.name}
-          </button>
-        ))}
-      </div>
+          <div className="mt-4 flex flex-wrap gap-1.5" role="tablist" aria-label="Skill categories">
+            {skillGroups.map((g, i) => (
+              <button
+                key={g.id}
+                role="tab"
+                aria-selected={i === index}
+                onClick={() => {
+                  selectItem('skills', i)
+                  setSkill(null)
+                }}
+                className={`rounded-sm border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  i === index ? 'border-crimson bg-cream text-charcoal' : 'border-white/15 text-silver hover:border-white/40'
+                }`}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
-      <motion.section key={group.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-5" role="tabpanel">
+      <motion.section key={group.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={tour ? '' : 'mt-5'} role="tabpanel">
         <p className="kicker">Drill: {group.drill}</p>
         <h3 className="display mt-2 text-2xl">{group.name}</h3>
         <ul className="mt-4 grid grid-cols-2 gap-2">
@@ -93,12 +97,20 @@ export function SkillsPanel() {
                       className="flex w-full items-center justify-between rounded-sm border border-white/10 px-3 py-2 text-left text-sm hover:border-white/40"
                       onClick={() =>
                         u.kind === 'project'
-                          ? openSection('projects', projects.findIndex((p) => p.id === u.id))
-                          : openSection('experience', experiences.findIndex((e) => e.id === u.id))
+                          ? openSection(
+                              'projects',
+                              projects.findIndex((p) => p.id === u.id),
+                            )
+                          : openSection(
+                              'experience',
+                              experiences.findIndex((e) => e.id === u.id),
+                            )
                       }
                     >
                       <span>{u.title}</span>
-                      <span className="font-mono text-[0.65rem] uppercase tracking-widest text-silver-dim">{u.kind === 'project' ? 'Project' : 'Experience'}</span>
+                      <span className="font-mono text-[0.65rem] uppercase tracking-widest text-silver-dim">
+                        {u.kind === 'project' ? 'Project' : 'Experience'}
+                      </span>
                     </button>
                   </li>
                 ))}
@@ -110,10 +122,12 @@ export function SkillsPanel() {
         )}
       </AnimatePresence>
 
-      <div className="mt-6 flex items-center gap-3 rounded-sm border border-gold/30 bg-gold/5 p-4">
-        <span className="display text-2xl text-gold">AWS</span>
-        <span className="text-sm text-silver">{education.certifications[0]}</span>
-      </div>
+      {!tour && (
+        <div className="mt-6 flex items-center gap-3 rounded-sm border border-gold/30 bg-gold/5 p-4">
+          <span className="display text-2xl text-gold">AWS</span>
+          <span className="text-sm text-silver">{education.certifications[0]}</span>
+        </div>
+      )}
     </Panel>
   )
 }
