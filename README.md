@@ -29,7 +29,16 @@ The intro title card is usable from its first frame: degree and graduation date,
 
 A calm, conventional page for reading, laid out like a match programme: Kick-off (about), Match log (experience), Playbook (projects), Training ground (skills), Team sheet (leadership) and Full time (contact). Light warm-paper background, white cards, near-black text and IU crimson as the only accent.
 
-A few things to touch, none of them in the way: a pitch strip under the header carries a rugby ball from try line to try line as you scroll, and the nav marks the section you are reading. The match log is a touchline timeline whose numbers count up as they appear; the latest role is open and the others expand on click. The playbook filters by the technologies projects share, and tapping a skill shows where it was used, with a jump to that project or role. It loads as its own chunk (prefetched once the page is idle) and is also the fallback when WebGL is unavailable.
+Things to touch, none of them in the way:
+
+- **Match clock.** Scrolling plays the 80 minutes: a clock and "1st half / 2nd half / Full time" sit beside a pitch strip that carries a rugby ball from try line to try line. The nav marks the section you are reading.
+- **Contact bar.** Once the hero has scrolled away, a slim bar with Email, Copy email and Resume slides up from the bottom; it steps aside at Full time.
+- **Skills light up the work.** Tap a skill (or hover it, on a desktop) and every project and role that used it lights up across the page while the rest dims. A note under the header says what is lit and clears it.
+- **Project cards open in place.** Each card shows the play, title and one line; clicking opens the description, stack and links at full width. The playbook also filters by shared technologies.
+- **Match log.** A touchline timeline whose numbers count up as they appear; the latest role is open, the others expand on click.
+- **A kick at goal at Full time.** Drag the ball back and let go (or press "Kick for me"); over the bar is a conversion.
+
+It loads as its own chunk (prefetched once the page is idle) and is also the fallback when WebGL is unavailable.
 
 ### Look
 
