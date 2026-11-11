@@ -107,3 +107,15 @@ export const BallIcon = (p: P) => (
     <path d="M8.5 15.5l7-7M10 11.5l2 2M12 9.5l2 2" />
   </svg>
 )
+export const SoundOnIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" />
+    <path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.8a7.5 7.5 0 0 1 0 10.4" />
+  </svg>
+)
+export const SoundOffIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" />
+    <path d="M16 10l5 5M21 10l-5 5" />
+  </svg>
+)

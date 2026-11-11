@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, animate, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react'
 import { education, experiences, leadership, profile, projects, skillGroups, whereUsed } from '../data/portfolio'
+import { cheer, thud, whistle } from '../lib/sound'
 import { useStore } from '../state/store'
+import { SoundToggle } from './HUD'
 import { CloseIcon, CopyIcon, DownloadIcon, ExternalIcon, GithubIcon, LinkedinIcon, MailIcon, StadiumIcon, WhistleIcon } from './icons'
 
 /**
@@ -99,7 +101,12 @@ function MatchClock({ container, active }: { container: React.RefObject<HTMLDivE
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const min = Math.min(80, Math.round(v * 80))
     const half = v > 0.985 ? 'Full time' : min >= 40 ? '2nd half' : '1st half'
-    setClock((c) => (c.min === min && c.half === half ? c : { min, half }))
+    setClock((c) => {
+      if (c.min === min && c.half === half) return c
+      // the referee marks half time and full time (only if sound is on)
+      if (half !== c.half && half !== '1st half') whistle(half === 'Full time' ? 3 : 2)
+      return { min, half }
+    })
   })
   const section = SECTIONS.find((s) => s.id === active)
   return (
@@ -593,6 +600,7 @@ function KickAtGoal({ onScore }: { onScore: () => void }) {
   const finish = (scored: boolean) => {
     setState(scored ? 'scored' : 'missed')
     if (scored) {
+      cheer()
       setPoints((n) => n + 2)
       onScore()
     }
@@ -605,6 +613,7 @@ function KickAtGoal({ onScore }: { onScore: () => void }) {
   const kick = (vx: number, vy: number) => {
     if (vx < 40) return setState('ready')
     const scored = isGoal(vx, vy)
+    thud()
     if (reduced) return finish(scored)
     setState('flying')
     let f: Flight = { x: TEE.x, y: TEE.y, vx, vy, spin: 0 }
@@ -829,6 +838,7 @@ export function QuickView() {
             ))}
           </nav>
           <div className="flex gap-2">
+            <SoundToggle className="!h-auto rounded border border-black/15 !bg-white !text-ink" />
             <a className="btn btn-ghost !py-2" href={profile.resumeUrl} download>
               <DownloadIcon size={15} /> Resume
             </a>

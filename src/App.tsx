@@ -7,6 +7,7 @@ import { Coach } from './ui/Coach'
 import { HUD, Toast } from './ui/HUD'
 import { Intro, Loader } from './ui/Intro'
 import { TourCard } from './ui/Tour'
+import { cheer, crowd, setSoundEnabled, whistle } from './lib/sound'
 import { AboutPanel } from './ui/panels/AboutPanel'
 import { ContactPanel } from './ui/panels/ContactPanel'
 import { ExperiencePanel } from './ui/panels/ExperiencePanel'
@@ -77,6 +78,37 @@ function Panels() {
         {panel === 'contact' && <ContactPanel key="contact" />}
       </AnimatePresence>
     </>
+  )
+}
+
+/** Sound follows the toggle; the crowd murmurs while the stadium is on screen; the referee marks each new zone. */
+function useMatchSound() {
+  const sound = useStore((s) => s.sound)
+  const phase = useStore((s) => s.phase)
+  const quickView = useStore((s) => s.quickView)
+  useEffect(() => {
+    setSoundEnabled(sound)
+  }, [sound])
+  // a sound left on from a previous visit can only start after the first touch
+  useEffect(() => {
+    const wake = () => setSoundEnabled(useStore.getState().sound)
+    window.addEventListener('pointerdown', wake, { once: true })
+    window.addEventListener('keydown', wake, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', wake)
+      window.removeEventListener('keydown', wake)
+    }
+  }, [])
+  useEffect(() => {
+    crowd(sound && phase !== 'loading' && !quickView)
+  }, [sound, phase, quickView])
+  useEffect(
+    () =>
+      useStore.subscribe((s, prev) => {
+        if (s.section && s.section !== prev.section) whistle()
+        if (s.conversions > prev.conversions) cheer()
+      }),
+    [],
   )
 }
 
@@ -174,6 +206,7 @@ export default function App() {
 
   useKeyboard()
   useHashSync()
+  useMatchSound()
 
   useEffect(() => {
     if (!hasWebGL()) useStore.getState().setWebglFailed()

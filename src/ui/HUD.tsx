@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { education, profile } from '../data/portfolio'
 import { SECTIONS } from '../lib/sections'
 import { useStore } from '../state/store'
-import { ArrowRight, CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SunIcon, WhistleIcon } from './icons'
+import { ArrowRight, CloseIcon, DownloadIcon, ListIcon, MenuIcon, MoonIcon, SoundOffIcon, SoundOnIcon, SunIcon, WhistleIcon } from './icons'
 
 function LightsToggle({ className = '' }: { className?: string }) {
   const night = useStore((s) => s.night)
@@ -22,6 +22,24 @@ function LightsToggle({ className = '' }: { className?: string }) {
   )
 }
 
+/** Sound on or off: always in the bar, so it can never surprise anyone. */
+export function SoundToggle({ className = '' }: { className?: string }) {
+  const sound = useStore((s) => s.sound)
+  const toggle = useStore((s) => s.toggleSound)
+  return (
+    <button
+      onClick={toggle}
+      role="switch"
+      aria-checked={sound}
+      aria-label={sound ? 'Turn sound off' : 'Turn sound on'}
+      title={sound ? 'Sound on' : 'Sound off'}
+      className={`bar-btn !px-0 w-10 justify-center ${className}`}
+    >
+      {sound ? <SoundOnIcon size={17} /> : <SoundOffIcon size={17} />}
+    </button>
+  )
+}
+
 function Menu() {
   const open = useStore((s) => s.menuOpen)
   const setOpen = useStore((s) => s.setMenuOpen)
@@ -36,6 +54,8 @@ function Menu() {
   const setQuality = useStore((s) => s.setQuality)
   const night = useStore((s) => s.night)
   const toggleNight = useStore((s) => s.toggleNight)
+  const sound = useStore((s) => s.sound)
+  const toggleSound = useStore((s) => s.toggleSound)
   const startTour = useStore((s) => s.startTour)
 
   return (
@@ -117,6 +137,10 @@ function Menu() {
                   <input type="checkbox" className="h-4 w-4 accent-lime" checked={night} onChange={toggleNight} />
                 </label>
                 <label className="flex items-center justify-between gap-3">
+                  <span>Sound</span>
+                  <input type="checkbox" className="h-4 w-4 accent-lime" checked={sound} onChange={toggleSound} />
+                </label>
+                <label className="flex items-center justify-between gap-3">
                   <span>Reduce motion</span>
                   <input type="checkbox" className="h-4 w-4 accent-lime" checked={reduced} onChange={(e) => setReduced(e.target.checked)} />
                 </label>
@@ -196,6 +220,7 @@ export function TopBar() {
           <WhistleIcon size={16} />
         </button>
         <LightsToggle className={touring ? 'hidden' : 'hidden md:inline-flex'} />
+        <SoundToggle />
         <button className="bar-btn !px-0 w-10 justify-center" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu (M)">
           <MenuIcon size={18} />
         </button>

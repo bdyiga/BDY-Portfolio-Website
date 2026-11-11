@@ -27,6 +27,7 @@ import {
 import { ball, flyBall, lighting } from '../lib/sceneState'
 import { clearOf, newSequence, player, playAction, runTo } from '../lib/player'
 import { deliver, kickAgain, setMark } from '../lib/choreo'
+import { thud } from '../lib/sound'
 import { useStore } from '../state/store'
 import { towerPower } from './Atmosphere'
 
@@ -335,7 +336,10 @@ export function Director() {
       const alive = newSequence()
       playAction('kick', {
         at: 0.45,
-        onAt: () => flyBall(ball.home, { height: 15, duration: 2.4, style: 'tumble' }),
+        onAt: () => {
+          thud()
+          flyBall(ball.home, { height: 15, duration: 2.4, style: 'tumble' })
+        },
       }).then((ok) => {
         if (ok && alive()) runTo(PLAYER_SPOTS.home.pos, { face: PLAYER_SPOTS.home.face })
       })
@@ -413,6 +417,7 @@ export function Director() {
 
   // ---- Ball choreography: pass to the section, kick for contact ----
   const kickConversion = () => {
+    thud()
     const st = useStore.getState()
     flyBall(CONVERSION_LANDING, {
       height: 9,

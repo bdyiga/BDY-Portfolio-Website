@@ -54,6 +54,10 @@ Mown turf whose stripes swap light and dark as the camera goes round, the way re
 
 The model loads after the stadium is up (867 KB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
 
+### Sound
+
+Off until the visitor turns it on, with the speaker button always in the top bar (and a switch in the menu); the choice is remembered. Everything is synthesised in the browser with the Web Audio API, so there are no audio files: a low crowd murmur while the stadium is on screen, the referee's whistle when a new zone or tour stop opens, a thud when the ball is kicked and the crowd rising for a conversion. On the one-page view the match clock blows for half time and full time, and the kick at goal has its thud and cheer. With sound off, no audio context is created at all.
+
 ### Camera
 
 Each zone has its own move into it: a push-in to #13, a jib up to the playbook, a truck along the try line, a pedestal up to the banners, a whip pan to the training ground and a low arc round to the kicker. On a phone, every zone has its own portrait framing, which shoots down a row of objects instead of across it. The framing stays put whether the bottom sheet is open or collapsed with "Show field".
@@ -94,6 +98,7 @@ src/
   lib/coach.ts           retrieval-only portfolio assistant
   lib/textures.ts        procedural canvas textures
   lib/poses.ts           hand-keyed moves for #13 (kick, pass, wave, celebrate, …)
+  lib/sound.ts           synthesised match-night sound (crowd, whistle, thud, cheer)
   state/store.ts         app state (phase, section, day/night, …)
   three/                 R3F scene, lazy-loaded (Director = camera + choreography)
   ui/                    intro title card, HUD (top bar, rundown, menu), panels, Coach, Quick View

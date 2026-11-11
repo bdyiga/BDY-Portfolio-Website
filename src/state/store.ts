@@ -15,6 +15,8 @@ type State = {
   item: Record<SectionId, number | null>
   hovered: SectionId | null
   night: boolean
+  /** Match-night sound. Off until the visitor turns it on; remembered between visits. */
+  sound: boolean
   reducedMotion: boolean
   quality: Quality
   coachOpen: boolean
@@ -42,6 +44,7 @@ type State = {
   closeSection: () => void
   setHovered: (s: SectionId | null) => void
   toggleNight: () => void
+  toggleSound: () => void
   setReducedMotion: (v: boolean) => void
   setQuality: (q: Quality) => void
   setQuickView: (v: boolean) => void
@@ -65,6 +68,14 @@ const lowEnd =
     Math.min(window.innerWidth, window.innerHeight) < 600 ||
     (navigator.hardwareConcurrency ?? 8) <= 4)
 
+const savedSound = (() => {
+  try {
+    return window.localStorage.getItem('bdy-sound') === 'on'
+  } catch {
+    return false
+  }
+})()
+
 const emptyItems: Record<SectionId, number | null> = {
   about: null,
   projects: null,
@@ -82,6 +93,7 @@ export const useStore = create<State>((set, get) => ({
   item: { ...emptyItems },
   hovered: null,
   night: true,
+  sound: savedSound,
   reducedMotion: !!prefersReduced,
   quality: lowEnd ? 'low' : 'high',
   coachOpen: false,
@@ -127,6 +139,15 @@ export const useStore = create<State>((set, get) => ({
     if (get().hovered !== hovered) set({ hovered })
   },
   toggleNight: () => set((s) => ({ night: !s.night })),
+  toggleSound: () =>
+    set((s) => {
+      try {
+        window.localStorage.setItem('bdy-sound', s.sound ? 'off' : 'on')
+      } catch {
+        /* private mode: it just won't be remembered */
+      }
+      return { sound: !s.sound }
+    }),
   setReducedMotion: (reducedMotion) => set({ reducedMotion }),
   setQuality: (quality) => set({ quality }),
   setQuickView: (quickView) => set({ quickView, menuOpen: false }),
