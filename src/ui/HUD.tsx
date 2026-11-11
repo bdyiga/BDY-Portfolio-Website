@@ -220,7 +220,8 @@ export function TopBar() {
           <WhistleIcon size={16} />
         </button>
         <LightsToggle className={touring ? 'hidden' : 'hidden md:inline-flex'} />
-        <SoundToggle />
+        {/* phones: sound lives in the menu, so the bar fits */}
+        <SoundToggle className="hidden sm:inline-flex" />
         <button className="bar-btn !px-0 w-10 justify-center" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu (M)">
           <MenuIcon size={18} />
         </button>

@@ -99,7 +99,8 @@ export const SECTIONS: SectionMeta[] = [
     zone: 'North Stand',
     blurb: 'The team sheet: no one scores alone',
     hotspot: [0, 13, -42],
-    camera: { position: [0, 8.5, 4], target: [0, 7.5, -42] },
+    // low from midfield: every banner across the frame, #13 big on the grass in front of them
+    camera: { position: [0, 3.2, 2], target: [0, 7, -42] },
     // along the facade, banners and crowd stacked up the screen, #13 on the grass below them
     tall: { position: [-11, 6.5, -10], target: [3, 6, -40] },
     // pedestal: rises, and only tilts up to the banners at the end
@@ -206,7 +207,8 @@ export function bannerPosition(i: number, count: number): Vec3 {
 
 export function bannerCamera(i: number, count: number) {
   const p = bannerPosition(i, count)
-  return { position: [p[0] * 0.8, 7, -21] as Vec3, target: [p[0], 7, p[2]] as Vec3 }
+  // low and looking up, so there is grass in front of the wall for #13 to stand on
+  return { position: [p[0] * 0.8, 3, -16] as Vec3, target: [p[0], 7, p[2]] as Vec3 }
 }
 
 /** Tackle bags in the training ground (south touchline). */

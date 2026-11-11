@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Billboard } from '@react-three/drei'
-import { CanvasTexture, Group, SRGBColorSpace } from 'three'
+import { CanvasTexture, Group, MathUtils, SRGBColorSpace } from 'three'
 import { skillGroups, type SkillGroup } from '../data/portfolio'
 import { bagPosition } from '../lib/sections'
 import { drawChip } from '../lib/textures'
@@ -19,9 +19,17 @@ function chipTexture(text: string) {
   return t
 }
 
-/** Skill chips orbiting the active tackle bag. */
-function SkillOrbit({ group }: { group: SkillGroup }) {
-  const ring = useRef<Group>(null)
+const CHIP_W = 2.4
+const CHIP_H = 0.45
+const PER_ROW = 3
+
+/**
+ * Skill chips stacked in rows above the active bag's label, facing the camera.
+ * Flat rows rather than a ring, so no chip ever passes in front of another or a label.
+ */
+function SkillRows({ group }: { group: SkillGroup }) {
+  const chips = useRef<(Group | null)[]>([])
+  const age = useRef(0)
   const textures = useMemo(() => group.skills.map(chipTexture), [group])
   useEffect(() => () => textures.forEach((t) => t.dispose()), [textures])
   const [ready, setReady] = useState(0)
@@ -35,24 +43,35 @@ function SkillOrbit({ group }: { group: SkillGroup }) {
     })
   }, [textures, group])
 
-  useFrame((_, dt) => {
-    if (ring.current && !useStore.getState().reducedMotion) ring.current.rotation.y += dt * 0.35
+  // pop in one after another, then bob gently
+  useFrame((state, dt) => {
+    age.current += dt
+    const rm = useStore.getState().reducedMotion
+    chips.current.forEach((c, i) => {
+      if (!c) return
+      const k = rm ? 1 : MathUtils.clamp((age.current - i * 0.06) / 0.25, 0, 1)
+      c.scale.setScalar(k * k * (3 - 2 * k))
+      c.position.y = c.userData.y + (rm ? 0 : Math.sin(state.clock.elapsedTime * 1.6 + i) * 0.04)
+    })
   })
-  const r = 3.4
+  const rows = Math.ceil(textures.length / PER_ROW)
   return (
-    <group ref={ring} key={ready}>
+    <Billboard position-y={4.15} key={ready}>
       {textures.map((t, i) => {
-        const a = (i / textures.length) * Math.PI * 2
+        const row = Math.floor(i / PER_ROW)
+        const inRow = Math.min(PER_ROW, textures.length - row * PER_ROW)
+        const x = (i % PER_ROW - (inRow - 1) / 2) * (CHIP_W + 0.12)
+        const y = (rows - 1 - row) * (CHIP_H + 0.1)
         return (
-          <Billboard key={i} position={[Math.cos(a) * r, 1.7 + (i % 3) * 0.75, Math.sin(a) * r]}>
+          <group key={i} ref={(g) => { chips.current[i] = g }} position={[x, y, 0]} userData={{ y }} scale={0}>
             <mesh>
-              <planeGeometry args={[1.9, 0.36]} />
+              <planeGeometry args={[CHIP_W, CHIP_H]} />
               <meshBasicMaterial map={t} transparent toneMapped={false} depthWrite={false} />
             </mesh>
-          </Billboard>
+          </group>
         )
       })}
-    </group>
+    </Billboard>
   )
 }
 
@@ -123,7 +142,7 @@ function TackleBag({ group, index }: { group: SkillGroup; index: number }) {
           <meshBasicMaterial map={label} transparent toneMapped={false} depthWrite={false} />
         </mesh>
       </Billboard>
-      {active && <SkillOrbit group={group} />}
+      {active && <SkillRows group={group} />}
     </group>
   )
 }

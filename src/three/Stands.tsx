@@ -4,14 +4,17 @@ import {
   BoxGeometry,
   BufferAttribute,
   BufferGeometry,
+  CanvasTexture,
   Color,
   DoubleSide,
   IcosahedronGeometry,
   InstancedBufferAttribute,
   InstancedMesh,
+  MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D,
   SphereGeometry,
+  SRGBColorSpace,
 } from 'three'
 import { useStore } from '../state/store'
 import type { Vec3 } from '../lib/sections'
@@ -435,25 +438,114 @@ function Structure() {
   )
 }
 
+/** Office windows: a grid of panes, some lit warm, some cool, most dark, floors in bands. */
+function windowTexture() {
+  const c = document.createElement('canvas')
+  c.width = 128
+  c.height = 256
+  const ctx = c.getContext('2d')!
+  ctx.fillStyle = '#000'
+  ctx.fillRect(0, 0, c.width, c.height)
+  const rnd = lcg(5)
+  for (let y = 4; y < c.height; y += 8) {
+    // whole floors go dark or stay lit together, so it reads as offices, not noise
+    const floor = rnd()
+    for (let x = 3; x < c.width; x += 6) {
+      const r = rnd()
+      if (r > (floor < 0.5 ? 0.02 : floor < 0.88 ? 0.14 : 0.38)) continue
+      ctx.fillStyle = r < 0.03 ? '#6f93b3' : r < 0.12 ? '#c9a774' : '#8a7550'
+      ctx.fillRect(x, y, 3, 4)
+    }
+  }
+  const t = new CanvasTexture(c)
+  t.colorSpace = SRGBColorSpace
+  return t
+}
+
+type Tower = { p: Vec3; s: Vec3; ry: number }
+
+/** City towers beyond the stands: setbacks, masts with aviation lights, windows lit at night. */
 function Skyline() {
-  const blocks = useMemo(() => {
-    const out: { x: number; z: number; w: number; h: number; d: number }[] = []
+  const night = useStore((s) => s.night)
+  const { towers, masts, beacons } = useMemo(() => {
+    const towers: Tower[] = []
+    const masts: Tower[] = []
+    const beacons: Vec3[] = []
     const rnd = lcg(99)
     for (let i = 0; i < 70; i++) {
       const a = (i / 70) * Math.PI * 2 + rnd() * 0.05
       const r = 175 + rnd() * 50
-      out.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, w: 8 + rnd() * 14, h: 8 + rnd() * 24, d: 8 + rnd() * 12 })
+      const x = Math.cos(a) * r
+      const z = Math.sin(a) * r
+      const ry = Math.atan2(x, z)
+      // a few landmark towers, most mid-rise, some low blocks filling the gaps
+      const tall = rnd() < 0.15
+      const w = 8 + rnd() * 14
+      const d = 8 + rnd() * 12
+      const h = tall ? 28 + rnd() * 12 : 8 + rnd() * 22
+      towers.push({ p: [x, h / 2, z], s: [w, h, d], ry })
+      let top = h
+      if (tall || rnd() < 0.35) {
+        // a setback: a narrower block on the roof
+        const h2 = 3 + rnd() * (tall ? 8 : 5)
+        towers.push({ p: [x, h + h2 / 2, z], s: [w * (0.5 + rnd() * 0.25), h2, d * (0.5 + rnd() * 0.25)], ry })
+        top += h2
+      }
+      if (tall) {
+        const m = 5 + rnd() * 7
+        masts.push({ p: [x, top + m / 2, z], s: [0.35, m, 0.35], ry })
+        beacons.push([x, top + m, z])
+      }
     }
-    return out
+    return { towers, masts, beacons }
   }, [])
+  const windows = useMemo(windowTexture, [])
+  useEffect(() => () => windows.dispose(), [windows])
+  const towerRef = useRef<InstancedMesh>(null)
+  const mastRef = useRef<InstancedMesh>(null)
+  const beaconRef = useRef<InstancedMesh>(null)
+  useLayoutEffect(() => {
+    const o = new Object3D()
+    const fill = (mesh: InstancedMesh | null, items: Tower[]) => {
+      if (!mesh) return
+      items.forEach((b, i) => {
+        o.position.set(...b.p)
+        o.rotation.set(0, b.ry, 0)
+        o.scale.set(...b.s)
+        o.updateMatrix()
+        mesh.setMatrixAt(i, o.matrix)
+      })
+      mesh.instanceMatrix.needsUpdate = true
+    }
+    fill(towerRef.current, towers)
+    fill(mastRef.current, masts)
+    fill(beaconRef.current, beacons.map((p) => ({ p, s: [0.9, 0.9, 0.9], ry: 0 })))
+  }, [towers, masts, beacons])
+  const beaconMat = useRef<MeshBasicMaterial>(null)
+  useFrame((state) => {
+    // aviation lights: a slow blink, all together
+    if (beaconMat.current) beaconMat.current.opacity = Math.sin(state.clock.elapsedTime * 2.2) > 0.2 ? 1 : 0.15
+  })
   return (
     <group>
-      {blocks.map((b, i) => (
-        <mesh key={i} position={[b.x, b.h / 2, b.z]} rotation-y={Math.atan2(b.x, b.z)}>
-          <boxGeometry args={[b.w, b.h, b.d]} />
-          <meshStandardMaterial color="#26332e" roughness={1} />
-        </mesh>
-      ))}
+      <instancedMesh ref={towerRef} args={[undefined, undefined, towers.length]} frustumCulled={false}>
+        <boxGeometry />
+        <meshStandardMaterial
+          color={night ? '#1d2724' : '#33403c'}
+          roughness={0.9}
+          emissive="#ffffff"
+          emissiveMap={windows}
+          emissiveIntensity={night ? 0.7 : 0.05}
+        />
+      </instancedMesh>
+      <instancedMesh ref={mastRef} args={[undefined, undefined, masts.length]} frustumCulled={false}>
+        <boxGeometry />
+        <meshStandardMaterial color="#59625f" metalness={0.6} roughness={0.5} />
+      </instancedMesh>
+      <instancedMesh ref={beaconRef} args={[undefined, undefined, beacons.length]} frustumCulled={false}>
+        <sphereGeometry args={[0.5, 8, 6]} />
+        <meshBasicMaterial ref={beaconMat} color="#ff2a1a" transparent toneMapped={false} />
+      </instancedMesh>
     </group>
   )
 }
