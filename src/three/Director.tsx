@@ -110,14 +110,18 @@ function markFor(view: View, offset: Vec3, shift: number, aspect: number, low: n
   cam.updateMatrixWorld()
   const target = v(view.target).add(o)
   const hit = new Vector3()
-  // feet low in the clear area; if that misses the grass (a shot looking up), try higher
-  for (let y = low; y > low - 0.3; y -= 0.05) {
+  // feet low in the clear area; if that lands past the grass (a wall in the way), come down the
+  // screen towards the camera; if it misses the grass entirely (a shot looking up), go higher
+  const ys = [low]
+  for (let y = low + 0.03; y <= Math.min(0.97, low + 0.15); y += 0.03) ys.push(y)
+  for (let y = low - 0.05; y > low - 0.3; y -= 0.05) ys.push(y)
+  for (const y of ys) {
     _ndc.set(0.3 * 2 - 1, 1 - (y + shift) * 2)
     _ray.setFromCamera(_ndc, cam)
     if (!_ray.ray.intersectPlane(GROUND, hit)) continue
     const d = hit.distanceTo(cam.position)
     if (d < 7 || d > 45) continue
-    hit.set(MathUtils.clamp(hit.x, -64, 64), 0, MathUtils.clamp(hit.z, -38, 45))
+    if (Math.abs(hit.x) > 64 || hit.z < -38 || hit.z > 45) continue
     clearOf(hit)
     return { pos: [hit.x, 0, hit.z] as Vec3, face: [target.x, 0, target.z] as Vec3 }
   }
