@@ -88,9 +88,19 @@ function drawPrint(ctx: CanvasRenderingContext2D, W: number, H: number) {
  * placket, a short dark crop, and the skin toned to match. With `shell`, it
  * colours the loose jersey that sits over the body instead (all shirt).
  */
-function dressBody(base: MeshStandardMaterial, print: Texture, shell = false) {
+type Garment = 'shirt' | 'shorts' | 'boots'
+
+function dressBody(base: MeshStandardMaterial, print: Texture, shell?: Garment) {
   const m = base.clone()
-  if (shell) m.defines = { ...m.defines, SHELL: '' }
+  if (shell) {
+    m.defines = { ...m.defines, SHELL: '', [`SHELL_${shell.toUpperCase()}`]: '' }
+    // fabric and leather: no muscle detail from the body's normal map
+    m.normalMap = null
+    // where the garment and the skin nearly touch, the garment wins
+    m.polygonOffset = true
+    m.polygonOffsetFactor = -2
+    m.polygonOffsetUnits = -4
+  }
   m.roughness = 0.62
   m.metalness = 0
   const uniforms = {
@@ -125,6 +135,10 @@ float ax = abs(kp.x);
 float neckR = length(vec2(kp.x, kp.z + 0.02));
 float lum = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114));
 float shade = clamp(lum / 0.32, 0.6, 1.25);
+#ifdef SHELL
+// fabric takes its shading from the light, not from the skin texture underneath
+shade = 1.0;
+#endif
 
 float boot = 1.0 - above(kp.y, 0.135);
 float sock = (1.0 - boot) * (1.0 - above(kp.y, 0.5));
@@ -135,9 +149,15 @@ float stripe = shorts * step(0.04, ax) * step(0.55, sign(kp.x) * kn.x) * (1.0 - 
 float torso = above(kp.y, 0.97) * (1.0 - above(ax, 0.37));
 float neckOpen = (1.0 - above(neckR, 0.09)) * above(kp.y, 1.47);
 float jersey = torso * (1.0 - neckOpen) * (1.0 - above(kp.y, mix(1.53, 1.62, above(ax, 0.1))));
-#ifdef SHELL
-// the loose shirt: all of it is jersey, nothing of the body shows through
+// a garment surface over the body: all of it is that garment
+#ifdef SHELL_SHIRT
 jersey = 1.0; boot = 0.0; sock = 0.0; hoop = 0.0; shorts = 0.0; shortsHem = 0.0; stripe = 0.0;
+#endif
+#ifdef SHELL_SHORTS
+jersey = 0.0; boot = 0.0; sock = 0.0; hoop = 0.0; shorts = 1.0;
+#endif
+#ifdef SHELL_BOOTS
+jersey = 0.0; sock = 0.0; hoop = 0.0; shorts = 0.0; shortsHem = 0.0; stripe = 0.0; boot = 1.0;
 #endif
 float cuff = jersey * above(ax, 0.35);
 float piping = jersey * step(0.85, abs(kn.x)) * step(ax, 0.26) * (1.0 - above(abs(kp.z + 0.01), 0.007)) * (1.0 - above(kp.y, 1.38));
@@ -180,7 +200,7 @@ float cloth = max(kit, hair);`,
         ShaderChunk.normal_fragment_maps.replace('mapN.xy *= normalScale;', 'mapN.xy *= normalScale * mix(1.0, 0.3, cloth);'),
       )
   }
-  m.customProgramCacheKey = () => (shell ? 'athlete-shell' : 'athlete-kit')
+  m.customProgramCacheKey = () => `athlete-${shell ?? 'kit'}`
   return m
 }
 
@@ -193,29 +213,53 @@ const smooth01 = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t)
 }
 
-/** Bind-pose points the shirt covers: the torso and short sleeves, down over the hips, open at the neck. */
-function inShirt(x: number, y: number, z: number) {
-  const ax = Math.abs(x)
-  if (y < 0.955 || ax > 0.372) return false
-  if (Math.hypot(x, z + 0.02) < 0.092 && y > 1.47) return false
-  return y <= (ax > 0.1 ? 1.62 : 1.53)
+/**
+ * Each garment: which bind-pose points it covers (a T-pose in metres, facing +Z),
+ * how far it stands off the skin, and how much the body's shape is smoothed out
+ * of it (fabric skims over muscle; a boot hides the toes).
+ */
+const GARMENTS: Record<Garment, { covers: (x: number, y: number, z: number) => boolean; off: (x: number, y: number) => number; smooth: number }> = {
+  // torso and short sleeves, open at the neck, hanging untucked over the hips
+  shirt: {
+    covers: (x, y, z) => {
+      const ax = Math.abs(x)
+      if (y < 0.955 || ax > 0.372) return false
+      if (Math.hypot(x, z + 0.02) < 0.092 && y > 1.47) return false
+      return y <= (ax > 0.1 ? 1.62 : 1.53)
+    },
+    off: (x, y) => 0.012 + 0.02 * smooth01(1.06, 0.955, y) + 0.008 * smooth01(0.26, 0.37, Math.abs(x)),
+    smooth: 10,
+  },
+  // from the waist to mid-thigh, cut loose at the legs
+  shorts: {
+    covers: (x, y) => y >= 0.69 && y <= 1.0 && Math.abs(x) < 0.3,
+    // a touch fuller between the legs, where the body would otherwise show through
+    off: (x, y) => 0.016 + 0.02 * smooth01(0.85, 0.69, y) + 0.02 * smooth01(0.08, 0.0, Math.abs(x)) * smooth01(0.95, 0.82, y),
+    smooth: 16,
+  },
+  // over the foot and ankle; the toes disappear into the toe box
+  boots: {
+    covers: (_x, y) => y <= 0.16,
+    off: (_x, y) => 0.008 + 0.006 * smooth01(0.06, 0.0, y),
+    smooth: 16,
+  },
 }
 
 /**
- * The jersey as its own surface, so he wears a shirt instead of body paint:
- * the body's own triangles under the shirt, pushed out along their normals.
- * It sits close at the chest, looser at the cuffs, and hangs untucked over the
- * shorts at the hem. Same skeleton and weights, so it moves with him.
+ * A garment as its own surface, so he wears kit instead of body paint: the
+ * body's triangles under it, smoothed (seams welded so it stays closed) and
+ * pushed out along the smoothed normals. Same skeleton and weights, so it moves
+ * with him.
  */
-function buildShell(body: SkinnedMesh, material: MeshStandardMaterial) {
+function buildShell(body: SkinnedMesh, material: MeshStandardMaterial, garment: Garment) {
+  const spec = GARMENTS[garment]
   const g = body.geometry
   const pos = g.attributes.position
-  const nor = g.attributes.normal
   const uv = g.attributes.uv
   const si = g.attributes.skinIndex
   const sw = g.attributes.skinWeight
   const index = g.index!
-  const ok = (i: number) => inShirt(pos.getX(i), pos.getY(i), pos.getZ(i))
+  const ok = (i: number) => spec.covers(pos.getX(i), pos.getY(i), pos.getZ(i))
   const tris: number[] = []
   for (let t = 0; t < index.count; t += 3) {
     const a = index.getX(t)
@@ -226,21 +270,85 @@ function buildShell(body: SkinnedMesh, material: MeshStandardMaterial) {
   const keep = new Int32Array(pos.count).fill(-1)
   let n = 0
   for (const i of tris) if (keep[i] < 0) keep[i] = n++
+
+  // weld UV seams: vertices at the same spot share one position while smoothing
+  const weld = new Int32Array(n)
+  const spot = new Map<string, number>()
+  const src = new Int32Array(n)
+  for (let i = 0; i < pos.count; i++) if (keep[i] >= 0) src[keep[i]] = i
+  let w = 0
+  for (let j = 0; j < n; j++) {
+    const i = src[j]
+    const key = `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`
+    let id = spot.get(key)
+    if (id === undefined) spot.set(key, (id = w++))
+    weld[j] = id
+  }
+  const nbrs: Set<number>[] = Array.from({ length: w }, () => new Set())
+  for (let t = 0; t < tris.length; t += 3) {
+    const a = weld[keep[tris[t]]]
+    const b = weld[keep[tris[t + 1]]]
+    const c = weld[keep[tris[t + 2]]]
+    nbrs[a].add(b).add(c)
+    nbrs[b].add(a).add(c)
+    nbrs[c].add(a).add(b)
+  }
+  let cur = new Float32Array(w * 3)
+  for (let j = 0; j < n; j++) cur.set([pos.getX(src[j]), pos.getY(src[j]), pos.getZ(src[j])], weld[j] * 3)
+  // Taubin smoothing: each relaxing step is followed by a slightly larger inflating one, so the
+  // surface loses its muscle detail without shrinking back inside the body
+  for (let it = 0; it < spec.smooth * 2; it++) {
+    const k = it % 2 === 0 ? 0.5 : -0.53
+    const next = new Float32Array(cur)
+    for (let v = 0; v < w; v++) {
+      const ns = nbrs[v]
+      if (!ns.size) continue
+      let x = 0
+      let y = 0
+      let z = 0
+      for (const u of ns) {
+        x += cur[u * 3]
+        y += cur[u * 3 + 1]
+        z += cur[u * 3 + 2]
+      }
+      next[v * 3] = cur[v * 3] + (x / ns.size - cur[v * 3]) * k
+      next[v * 3 + 1] = cur[v * 3 + 1] + (y / ns.size - cur[v * 3 + 1]) * k
+      next[v * 3 + 2] = cur[v * 3 + 2] + (z / ns.size - cur[v * 3 + 2]) * k
+    }
+    cur = next
+  }
+  // normals of the smoothed surface, shared across the welded seams
+  const wn = new Float32Array(w * 3)
+  const _a = new Vector3()
+  const _b = new Vector3()
+  const _c = new Vector3()
+  for (let t = 0; t < tris.length; t += 3) {
+    const ia = weld[keep[tris[t]]]
+    const ib = weld[keep[tris[t + 1]]]
+    const ic = weld[keep[tris[t + 2]]]
+    _a.fromArray(cur, ia * 3)
+    _b.fromArray(cur, ib * 3).sub(_a)
+    _c.fromArray(cur, ic * 3).sub(_a)
+    _b.cross(_c)
+    for (const v of [ia, ib, ic]) {
+      wn[v * 3] += _b.x
+      wn[v * 3 + 1] += _b.y
+      wn[v * 3 + 2] += _b.z
+    }
+  }
   const P = new Float32Array(n * 3)
   const N = new Float32Array(n * 3)
   const U = new Float32Array(n * 2)
   const SI = new Uint16Array(n * 4)
   const SW = new Float32Array(n * 4)
   const nv = new Vector3()
-  for (let i = 0; i < pos.count; i++) {
-    const j = keep[i]
-    if (j < 0) continue
-    const x = pos.getX(i)
-    const y = pos.getY(i)
-    nv.set(nor.getX(i), nor.getY(i), nor.getZ(i)).normalize()
-    // close at the chest, a little looser in the sleeves, hanging off the hips at the hem
-    const off = 0.009 + 0.018 * smooth01(1.04, 0.955, y) + 0.007 * smooth01(0.26, 0.37, Math.abs(x))
-    P.set([x + nv.x * off, y + nv.y * off, pos.getZ(i) + nv.z * off], j * 3)
+  for (let j = 0; j < n; j++) {
+    const i = src[j]
+    const v = weld[j]
+    nv.fromArray(wn, v * 3).normalize()
+    // the offset is judged from where the point sat on the body, so the hem and cuffs stay where they were drawn
+    const off = spec.off(pos.getX(i), pos.getY(i))
+    P.set([cur[v * 3] + nv.x * off, cur[v * 3 + 1] + nv.y * off, cur[v * 3 + 2] + nv.z * off], j * 3)
     N.set([nv.x, nv.y, nv.z], j * 3)
     if (uv) U.set([uv.getX(i), uv.getY(i)], j * 2)
     SI.set([si.getX(i), si.getY(i), si.getZ(i), si.getW(i)], j * 4)
@@ -254,7 +362,7 @@ function buildShell(body: SkinnedMesh, material: MeshStandardMaterial) {
   geo.setAttribute('skinWeight', new BufferAttribute(SW, 4))
   geo.setIndex(tris.map((i) => keep[i]))
   const mesh = new SkinnedMesh(geo, material)
-  mesh.name = 'Jersey'
+  mesh.name = `Kit-${garment}`
   mesh.bind(body.skeleton, body.bindMatrix)
   mesh.castShadow = true
   mesh.frustumCulled = false
@@ -537,7 +645,7 @@ export default function Athlete() {
     let body: SkinnedMesh | null = null
     scene.traverse((o) => {
       const m = o as SkinnedMesh
-      if (!m.isSkinnedMesh || m.name === 'Jersey' || m.name === 'Collar') return
+      if (!m.isSkinnedMesh || m.name.startsWith('Kit-') || m.name === 'Collar') return
       m.frustumCulled = false
       m.castShadow = true
       const mat = m.material as MeshStandardMaterial
@@ -549,8 +657,10 @@ export default function Athlete() {
     })
     // the shirt and its collar, built once (the memo can run twice in development)
     const dressed = body as SkinnedMesh | null
-    if (dressed && !dressed.parent?.getObjectByName('Jersey')) {
-      dressed.parent!.add(buildShell(dressed, dressBody(dressed.userData.base as MeshStandardMaterial, print, true)), buildCollar(dressed))
+    if (dressed && !dressed.parent?.getObjectByName('Kit-shirt')) {
+      const base = dressed.userData.base as MeshStandardMaterial
+      for (const garment of ['shirt', 'shorts', 'boots'] as const) dressed.parent!.add(buildShell(dressed, dressBody(base, print, garment), garment))
+      dressed.parent!.add(buildCollar(dressed))
     }
     const rig = buildRig(scene)
     const mixer = new AnimationMixer(scene)
@@ -875,6 +985,13 @@ export default function Athlete() {
     // an open hand for the wave (the clips hold loose fists)
     const open = act === 'wave' ? smoothstep(0, 0.15, player.actionT) * (1 - smoothstep(0.85, 1, player.actionT)) : 0
     if (open > 0) for (const f of rig.r.fingers) hinge(f.b, f.axis, rig.r.sign * 0.7 * open)
+    // the clips hold tight fists; with nothing in his hands they relax into a loose curl
+    const relax = 1 - Math.max(s.carry, act === 'pickup' ? 1 : 0)
+    if (relax > 0.01)
+      for (const sd of [rig.l, rig.r]) {
+        const o = relax * (sd === rig.r ? 1 - open : 1)
+        sd.fingers.forEach((f, n) => hinge(f.b, f.axis, sd.sign * (n % 3 === 0 ? 0.45 : 0.35) * o))
+      }
 
     if (shadow.current) shadow.current.position.set(player.pos.x, 0.025, player.pos.z)
     s.prev.copy(player.pos)
