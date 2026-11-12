@@ -1,7 +1,7 @@
 /**
  * Single source of truth for every word of portfolio content.
  * Sourced from the previous site (bdyiga.github.io/BDY-Portfolio-Website) and
- * "Yiga Benedict, Resume 2026.pdf". Do not add facts that are not in those sources.
+ * "Yiga Benedict, Resume 2026.pdf" (the November 2026 revision). Do not add facts that are not in those sources.
  */
 
 const BASE = import.meta.env.BASE_URL
@@ -27,7 +27,18 @@ export const profile = {
     'A Computer Science student at Indiana University Bloomington with a strong passion for technology and innovation. I am particularly interested in Artificial Intelligence and Machine Learning and enjoy building intelligent systems that address real-world challenges.',
     "I'm fascinated by the potential of AI to transform how people live and work, and I strive to be part of that transformation. My goal is to reach my full potential while using technology, creativity, and continuous learning to make a meaningful impact on my community and society.",
   ],
-  interests: ['Artificial Intelligence', 'Machine Learning', 'Data Science', 'Software Engineering', 'Rugby'],
+  interests: [
+    'Artificial Intelligence',
+    'Machine Learning',
+    'Data Science',
+    'Software Engineering',
+    'Rugby',
+    'Gym',
+    'Running',
+    'Golf',
+    'Philosophy',
+    'Afrobeats',
+  ],
 }
 
 export const education = {
@@ -87,11 +98,22 @@ export const projects: Project[] = [
     title: 'Plyntiq',
     short: 'Full-stack athletic performance platform.',
     description:
-      'A full-stack athletic performance platform on Cloudflare Workers with session auth, CSRF protection, and integration-tested cross-account data isolation.',
-    tags: ['TypeScript', 'React', 'Cloudflare Workers', 'D1', 'Drizzle', 'Better Auth', 'Vitest'],
+      'A full-stack athletic performance platform on Cloudflare Workers with session auth, CSRF protection, and integration-tested cross-account data isolation. Athletes log strength, conditioning, and sprint/jump tests to see whether their off-field training is improving their performance.',
+    tags: ['TypeScript', 'React', 'Hono', 'Cloudflare Workers', 'D1', 'Drizzle', 'Better Auth', 'Vitest'],
     period: 'Oct 2026 – Present',
     github: 'https://github.com/bdyiga/plyntiq_fitness',
     play: 'Rolling Maul',
+    result: 'Cross-account data isolation verified by 70+ CI integration tests.',
+    problem:
+      'Athletes put hours into strength, conditioning, and speed work off the field, with no simple way to tell whether it is making them better on it.',
+    built:
+      'A full-stack React and Hono app on Cloudflare Workers and D1, scoped through a PRD, 4 architecture decision records, and a STRIDE threat model. Accounts are protected by per-IP rate limits and CSRF checks, and failures are monitored with Cloudflare observability, with logs that leave athlete data out.',
+    steps: [
+      'An athlete logs a strength, conditioning, or sprint/jump session',
+      'The Hono API on Workers checks the session, CSRF token, and rate limit',
+      "Drizzle writes it to D1, scoped to that athlete's account only",
+      'The athlete sees whether off-field training is moving their numbers',
+    ],
   },
   {
     id: 'sec-mcp',
@@ -99,10 +121,19 @@ export const projects: Project[] = [
     short: 'Open-source MCP server for SEC financial data.',
     description:
       'Building an open-source MCP server and agentic RAG pipeline that gives AI agents exact SEC XBRL financial data, benchmarked on FinanceBench.',
-    tags: ['Python', 'MCP', 'Google Gemini', 'pytest'],
+    tags: ['Python', 'MCP', 'RAG', 'Google Gemini', 'pytest'],
     period: 'Aug 2026 – Present',
     github: 'https://github.com/bdyiga/finmcp-eval',
     play: 'Up & Under',
+    problem: 'LLMs misstate financial figures when they answer from memory.',
+    built:
+      'An open-source MCP server and agentic RAG pipeline that hands AI agents exact SEC XBRL figures and does the math in code, plus a FinanceBench benchmark comparing tool-assisted answers against closed-book ones.',
+    steps: [
+      "An AI agent gets a question about a company's financials",
+      'It calls the MCP server instead of answering from memory',
+      'The server returns the exact XBRL figures from SEC filings',
+      'The math runs in code, so the agent answers with exact numbers',
+    ],
   },
   {
     id: 'avemenu',
@@ -120,10 +151,12 @@ export const projects: Project[] = [
     short: 'AI-powered Lincoln-Douglas tournament manager.',
     description:
       'A full-stack, AI-powered app for managing Lincoln-Douglas debate brackets, scoring, and results, delivering AI judge feedback, structured prep briefs, and role-based access via Supabase Auth.',
-    tags: ['React', 'Express', 'PostgreSQL', 'Google Gemini', 'Supabase'],
-    period: 'Feb 2026 – Present',
+    tags: ['React', 'Express', 'PostgreSQL', 'Google Gemini', 'Supabase', 'Tool Calling', 'Structured Outputs'],
+    period: 'Feb 2026 – Jul 2026',
     link: { label: 'Live app', url: 'https://lincoln-douglas-debate-app.vercel.app/' },
     play: 'Loop Play',
+    built:
+      'A debate tournament manager that generates judge feedback and prep briefs through Gemini tool calling with JSON-schema outputs, with role-based Supabase Auth and Gemini error tracking in Google AI Studio.',
   },
   {
     id: 'eazyflow',
@@ -173,6 +206,7 @@ export const projects: Project[] = [
     period: 'Jan 2024 – May 2024',
     badge: 'Winner',
     play: 'Lineout Drive',
+    result: 'First place, with AI-driven changes projected to raise sales 4–8%, presented at ALDI HQ.',
   },
 ]
 
@@ -224,11 +258,15 @@ export const experiences: Experience[] = [
       'Leverage ServiceNow workflows and reporting dashboards to oversee campus technology infrastructure, enabling data-driven, proactive issue resolution.',
       'Coach and assess 25+ technical support consultants through structured weekly feedback.',
       'Optimize team deployment through capacity analysis.',
+      'Track 12,000+ monthly tickets in ServiceNow dashboards to pinpoint recurring IT issues and prioritize fixes, shrinking the backlog and cutting response times 5%.',
+      'Raised customer satisfaction 10% in 5 months through weekly feedback and capacity-based scheduling.',
     ],
     achievements: [
       { value: '12,000+', label: 'tickets processed per month' },
       { value: '25+', label: 'consultants coached' },
       { value: '+8%', label: 'service delivery in 5 months' },
+      { value: '+10%', label: 'customer satisfaction in 5 months' },
+      { value: '−5%', label: 'response times' },
     ],
     tech: ['ServiceNow', 'Leadership', 'Data Analytics'],
   },
@@ -242,7 +280,7 @@ export const experiences: Experience[] = [
     end: 'Aug 2025',
     year: 2025,
     responsibilities: [
-      'Led a development team using Agile workflows to engineer custom AI-supported reporting software in Python, deployed via AWS Lambda with Docker containerization and 3 REST APIs.',
+      'Led a 4-person development team using Agile workflows to engineer custom AI-supported reporting software in Python, deployed via AWS Lambda with Docker containerization and 3 REST APIs, with CloudWatch error monitoring.',
       'Integrated GitLab, Clockify, and Slack into the reporting workflow.',
       'Evaluated emerging AI tooling like Cursor and Windsurf for code generation, review, and unit testing, and authored AI-assisted coding guidelines adopted team-wide.',
     ],
@@ -250,8 +288,9 @@ export const experiences: Experience[] = [
       { value: '3–4h → 30m', label: 'weekly reporting work' },
       { value: '−15%', label: 'merge request review time' },
       { value: '3', label: 'REST APIs deployed on AWS Lambda' },
+      { value: '4', label: 'engineers on the team I led' },
     ],
-    tech: ['Python', 'AWS Lambda', 'Docker', 'REST APIs', 'Prompt Engineering', 'Agile', 'GitLab'],
+    tech: ['Python', 'AWS Lambda', 'Docker', 'REST APIs', 'Prompt Engineering', 'Agile', 'GitLab', 'CloudWatch', 'Agentic Coding'],
   },
   {
     id: 'elanco',
@@ -268,7 +307,7 @@ export const experiences: Experience[] = [
       'Prototyped an SAP Build Process Automation POC for accrual journal entries, orchestrating Document Information Extraction (DOX), Power Query transformation, and approval routing to post directly into S/4HANA.',
     ],
     achievements: [
-      { value: '4h → 20m', label: 'monthly reporting effort (−90%)' },
+      { value: '4h → 12m', label: 'monthly reporting effort (−95%)' },
       { value: '30m → 3m', label: 'accrual workflow in the POC' },
       { value: '300 hrs', label: 'projected savings per year' },
     ],
@@ -304,7 +343,7 @@ export const leadership: Leadership[] = [
     role: 'Teaching Assistant, Vibe & AI Programming',
     period: 'Jan 2026 – Present',
     description:
-      'Support 30 students in an AI-assisted software development course, running weekly office hours and reviewing prototypes at each milestone to keep semester-long builds in scope.',
+      'Support 30 students in an AI-assisted software development course (agentic coding, testing, RAG, MCP), running weekly office hours and reviewing prototypes at each milestone to keep semester-long builds in scope. Teams shipped 10 literacy games, tested by 15 first graders at Childs Elementary, and the course was recognized in IU Luddy news.',
     position: 'Scrum-half',
     number: 9,
   },
@@ -345,19 +384,31 @@ export const skillGroups: SkillGroup[] = [
     id: 'languages',
     name: 'Programming Languages',
     drill: 'Passing drills',
-    skills: ['Python', 'Java', 'JavaScript', 'C / C++', 'Swift', 'SQL', 'Ruby', 'HTML / CSS'],
+    skills: ['Python', 'TypeScript', 'Java', 'JavaScript', 'C / C++', 'Swift', 'SQL', 'Ruby', 'HTML / CSS'],
   },
   {
     id: 'ai',
     name: 'AI & Machine Learning',
     drill: 'Game-sense drills',
-    skills: ['TensorFlow', 'PyTorch', 'scikit-learn', 'Prompt Engineering', 'MLflow', 'Google Gemini'],
+    skills: [
+      'TensorFlow',
+      'PyTorch',
+      'scikit-learn',
+      'Prompt Engineering',
+      'MLflow',
+      'Google Gemini',
+      'RAG',
+      'MCP',
+      'Agentic Coding',
+      'Tool Calling',
+      'Structured Outputs',
+    ],
   },
   {
     id: 'cloud',
     name: 'Cloud & DevOps',
     drill: 'Conditioning',
-    skills: ['AWS', 'Docker', 'Linux / Unix', 'MongoDB', 'Azure Databricks', 'Supabase', 'PostgreSQL'],
+    skills: ['AWS', 'Docker', 'Linux / Unix', 'MongoDB', 'Azure Databricks', 'Supabase', 'PostgreSQL', 'Cloudflare Workers'],
   },
   {
     id: 'frameworks',
@@ -383,6 +434,8 @@ export const highlights: { value: string; label: string }[] = [
   { value: 'VP', label: 'NSBE Vice President' },
   { value: '25+', label: 'Consultants coached' },
   { value: 'WIN', label: 'ALDI AI Case Competition' },
+  { value: '95%', label: 'Faster FX reporting' },
+  { value: '10', label: 'Literacy games shipped' },
 ]
 
 /** Trophy cabinet for the hidden-trophy Easter egg. */
