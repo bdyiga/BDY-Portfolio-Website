@@ -8,18 +8,18 @@ The interactive portfolio of **Benedict Deogratius Yiga**: a floodlit rugby stad
 
 | Zone | Section | What's there |
 | --- | --- | --- |
-| Center field | About | The hero rugby ball on its kicking tee. Click it to meet Benedict. |
-| Left try zone | Projects | Nine holographic "plays" from the playbook. A project page leads with its result, then the problem, what was built and how it works, drawn as a play. |
+| Center field | About | #13 beside the rugby ball on its kicking tee. Click the ball to meet Benedict. |
+| Left try zone | Projects | Nine holographic "plays" from the playbook. A project page leads with its result, then the problem, what was built and how it works, drawn as a play (Plyntiq and the SEC Filings MCP Server have the full case study). |
 | Right try zone | Experience | Four LED totems forming a match timeline from kick-off (2023) to now. |
 | North stand | Leadership | Team banners on the stand facade, plus a team-sheet formation. |
-| Training ground | Skills | Tackle bags for each skill group. Skills orbit the active bag and link to where they were used. |
+| Training ground | Skills | Tackle bags for each skill group. The active group's skills stand in tidy rows above its bag and link to where they were used. |
 | Goalposts | Contact | Opening it kicks a conversion through the posts and the crowd does a wave. |
 
-Also included: a career-highlights scoreboard (click it), a day/night toggle, and **The Coach** (a portfolio assistant, opened from the whistle button, the menu or `C`). Easter eggs include a ball that bounces unpredictably, a hidden trophy cabinet, and the `K` key for a shot at goal.
+Also included: a career-highlights scoreboard (click it), a day/night toggle, and **The Coach** (a portfolio assistant, opened from the whistle button, the menu or `C`). Easter eggs include a ball that bounces unpredictably, a hidden trophy cabinet (with a different rugby fact each time it opens), and the `K` key for a shot at goal.
 
 ### For a recruiter in a hurry
 
-The intro title card is usable from its first frame: degree and graduation date, three featured projects (one click to a project's detail), and Resume, Email and LinkedIn. Once inside, a fixed top bar keeps **Resume**, **Contact** and **One page** in the same place on every screen.
+The intro title card is usable from its first frame: the full name (all three names at one size), degree and graduation date, three featured projects (one click to a project's detail), and Resume, Email and LinkedIn. Once inside, a fixed top bar keeps **Resume**, **Contact** and **One page** in the same place on every screen.
 
 ### The guided tour
 
@@ -46,17 +46,19 @@ Broadcast graphics, not glass: opaque slabs, square corners, condensed caption t
 
 ### The ground
 
-Mown turf whose stripes swap light and dark as the camera goes round, the way real grass does. Stands built in bays, with stairways, tunnel mouths, a players' tunnel and a steel roof frame. The crowd is seated people, not blocks, and it still does the wave. All of it is procedural: no models or images to download.
+Mown turf whose stripes swap light and dark as the camera goes round, the way real grass does. Stands built in bays, with stairways, tunnel mouths, a players' tunnel and a steel roof frame. The crowd is seated people, not blocks, and it still does the wave. Beyond the stands, a city skyline of towers with setbacks, masts with blinking aviation lights and office windows lit at night (three instanced draw calls). All of it is procedural: no models or images to download.
 
 ### #13
 
-#13 is a rigged athlete in the red #13 YIGA kit, worn as a real polo-collared rugby jersey (a loose shirt over the body, untucked at the hem, with a cream collar and buttoned placket). He jogs, sprints, carries the ball in two hands or tucked under the arm away from the turn, passes from the hips with a follow-through at the receiver, and kicks with his arms out for balance. His head follows the ball, the receiver, or you when he waves. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. The kit is painted onto the body in a shader, so there are no extra textures for it.
+#13 is a rigged athlete in the red #13 YIGA kit. He wears it as real kit, not body paint: the shirt, shorts and boots are each their own surface, built from the body when the model loads and smoothed so the muscles don't show through. The shirt is a polo-collared rugby jersey (cream collar, buttoned placket, untucked at the hem), the shorts are cut loose, and the boots hide the toes.
+
+He jogs, sprints, carries the ball in two hands or tucked under the arm away from the turn, passes from the hips with a follow-through at the receiver, and kicks with his arms out for balance. His head follows the ball, the receiver, or you when he waves, and his hands relax when they aren't holding anything. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. In every zone the camera works out where it will settle and sends him to a patch of grass in the shot, clear of the panel.
 
 The model loads after the stadium is up (867 KB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
 
 ### Sound
 
-Off until the visitor turns it on, with the speaker button always in the top bar (and a switch in the menu); the choice is remembered. Everything is synthesised in the browser with the Web Audio API, so there are no audio files: a low crowd murmur while the stadium is on screen, the referee's whistle when a new zone or tour stop opens, a thud when the ball is kicked and the crowd rising for a conversion. On the one-page view the match clock blows for half time and full time, and the kick at goal has its thud and cheer. With sound off, no audio context is created at all.
+Off until the visitor turns it on, with a speaker button in the top bar (on phones narrower than 640 px it moves into the menu so the bar fits) and a switch in the menu; the choice is remembered. Everything is synthesised in the browser with the Web Audio API, so there are no audio files: a low crowd murmur while the stadium is on screen, the referee's whistle when a new zone or tour stop opens, a thud when the ball is kicked and the crowd rising for a conversion. On the one-page view the match clock blows for half time and full time, and the kick at goal has its thud and cheer. With sound off, no audio context is created at all.
 
 ### Camera
 
@@ -72,13 +74,14 @@ Every view has a shareable URL, for example `#projects/pixelscout`, `#experience
 
 ## Editing content
 
-All content lives in [`src/data/portfolio.ts`](src/data/portfolio.ts). It was taken from the previous site and the 2026 resume. The 3D scene, the panels, Quick View and the Coach all read from this file, so a change there shows up everywhere.
+All content lives in [`src/data/portfolio.ts`](src/data/portfolio.ts). It was taken from the previous site and the November 2026 resume. The 3D scene, the panels, Quick View and the Coach all read from this file, so a change there shows up everywhere.
 
 - To swap the resume, replace `public/Yiga Benedict, Resume 2026.pdf` and update `resumeUrl` if the name changes.
 - To swap the photo, replace `public/bdy-portrait.webp`. It is about 720px wide.
 - `featuredProjectIds` picks the three projects on the intro title card. Reorder or swap the ids freely.
-- Each project can also have `result`, `problem`, `built`, `stack`, `screenshot` and `steps` (two to five short steps, drawn as the play diagram). They are optional, and a project page shows only the ones that are filled in. Screenshots go in `public/projects/`.
-- `rugbyFunFact` is an intentional **placeholder**. Set it to a real rugby fact and it appears in the hidden-trophy Easter egg.
+- Each project can also have `result`, `problem`, `built`, `stack`, `screenshot` and `steps` (two to five short steps, drawn as the play diagram). They are optional, and a project page shows only the ones that are filled in. Screenshots go in `public/projects/`. Plyntiq and the SEC Filings MCP Server have them; the other projects show their description until they are added.
+- `rugbyFunFacts` feeds the hidden trophy cabinet, one fact per opening. Add or edit facts freely.
+- `highlights` are the career stats the stadium scoreboard cycles through.
 
 ## Tech
 
@@ -100,8 +103,10 @@ src/
   lib/poses.ts           hand-keyed moves for #13 (kick, pass, wave, celebrate, …)
   lib/sound.ts           synthesised match-night sound (crowd, whistle, thud, cheer)
   state/store.ts         app state (phase, section, day/night, …)
-  three/                 R3F scene, lazy-loaded (Director = camera + choreography)
-  ui/                    intro title card, HUD (top bar, rundown, menu), panels, Coach, Quick View
+  lib/choreo.ts          #13's plays: fetch the ball, carry, pass, place, kick
+  lib/player.ts          #13's movement (runs around obstacles) and one-shot actions
+  three/                 R3F scene, lazy-loaded (Director = camera + choreography, Athlete = #13)
+  ui/                    intro title card, guided tour, HUD (top bar, rundown, menu), panels, Coach, Quick View
 ```
 
 ### Performance and accessibility
@@ -109,6 +114,7 @@ src/
 - The 3D bundle (three.js, R3F, postprocessing, GSAP) is code-split and lazy-loaded. The first paint ships only React, the UI, and the CSS.
 - An adaptive quality mode drops shadows, bloom, sparkles and pixel ratio on low-end devices. The menu also has a "Battery saver" toggle.
 - `prefers-reduced-motion` is respected. The menu has its own toggle as well.
+- The one-page view and #13's model each load as their own chunk, after the first paint.
 - Every zone is a real, focusable button in "the rundown" strip, and focusing one highlights its marker on the pitch. A skip link and the menu give non-3D navigation.
 - If WebGL is unavailable or the context is lost, the site falls back to Quick View automatically.
 
