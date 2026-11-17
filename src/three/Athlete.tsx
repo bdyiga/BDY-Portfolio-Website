@@ -23,8 +23,8 @@ import {
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import athleteUrl from '../assets/athlete.glb?url'
-import { player, playAction, yawTo, type Action } from '../lib/player'
-import { ACTIONS, IDLE, KEYS, sample, wrapAngle, type Pose } from '../lib/poses'
+import { ACTION_DURATION, player, playAction, yawTo, type Action } from '../lib/player'
+import { wrapAngle } from '../lib/poses'
 import { ball, BALL_CARRY_SCALE } from '../lib/sceneState'
 import { SECTION_BY_ID } from '../lib/sections'
 import { IU, setFont, HEAD } from '../lib/textures'
@@ -33,10 +33,10 @@ import { BALL_LENGTH, BALL_RADIUS } from './RugbyBall'
 import { useCanvasTexture } from './useCanvasTexture'
 
 /**
- * The rigged #13: a CC0 base character (Quaternius) driven by motion-capture
- * clips, with the kit painted on in the shader and the hand-keyed moves from
- * poses.ts layered on top. Two-bone IK keeps his hands on the ball wherever
- * the clips and the moves put it.
+ * The rigged #13: a CC0 base character (Quaternius) with motion-capture
+ * running and moves keyed in Blender (scripts/athlete/moves.py), wearing kit
+ * built here from the body. Two-bone IK keeps his hands on the ball wherever
+ * the clips put it.
  */
 
 /** Model is 1.81 m; the stadium's #13 has always been drawn at hero scale (hips at 1.61 m). */
@@ -452,43 +452,13 @@ const _s2 = new Vector3()
 const _s3 = new Vector3()
 const _h = Array.from({ length: 6 }, () => new Vector3())
 const _lk = { q: new Quaternion(), inv: new Quaternion(), a: new Vector3(), want: new Vector3(), cur: new Vector3() }
-const _pose = { ...IDLE } as Pose
 
-/**
- * Hand-keyed targets for the kick (right foot), as wrist positions in his own
- * frame (metres: x to his left, y up, z ahead). The left arm flies out wide for
- * balance as the leg swings, then comes across on the follow-through; the right
- * arm goes back and out, then swings forward with the leg.
- */
-const KICK_HANDS: Record<'l' | 'r', [number, [number, number, number]][]> = {
-  l: [
-    [0, [0.85, 2.3, 0.3]],
-    [0.18, [0.9, 2.35, 0.25]],
-    [0.45, [1.15, 2.5, 0.05]],
-    [0.7, [1.0, 2.4, 0.4]],
-    [1, [1.0, 2.4, 0.4]],
-  ],
-  r: [
-    [0, [-0.6, 1.8, -0.45]],
-    [0.18, [-0.65, 1.8, -0.5]],
-    [0.45, [-0.8, 1.85, -0.55]],
-    [0.7, [-0.4, 2.05, 0.6]],
-    [1, [-0.4, 2.05, 0.6]],
-  ],
-}
-function keyed(frames: [number, [number, number, number]][], t: number, out: Vector3) {
-  let i = 0
-  while (i < frames.length - 2 && t > frames[i + 1][0]) i++
-  const [t0, a] = frames[i]
-  const [t1, b] = frames[i + 1]
-  const k = MathUtils.smoothstep((t - t0) / Math.max(1e-4, t1 - t0), 0, 1)
-  return out.set(a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k)
-}
 /** Finger curl around the ball, per joint (base, middle, tip); the little finger closes a touch more. */
 const CURL = [0.35, 0.6, 0.45]
 
 type Loop = 'walk' | 'jog' | 'sprint'
 const LOOPS: Loop[] = ['walk', 'jog', 'sprint']
+const MOVES = Object.keys(ACTION_DURATION) as Action[]
 const FINGERS = ['index', 'middle', 'ring', 'pinky']
 
 /** Rotate a bone by a world-space rotation, keeping its parent where it is. */
@@ -676,12 +646,13 @@ export default function Athlete() {
         return [n, { action: a, ...measureLoop(mixer, a, scene, rig.l.foot) }]
       }),
     ) as Record<Loop, { action: AnimationAction; offset: number; speed: number; cycle: number }>
-    return { scene, rig, mixer, idle, loops }
+    const moves = Object.fromEntries(MOVES.map((n) => [n, clip(n)])) as Record<Action, AnimationAction>
+    return { scene, rig, mixer, idle, loops, moves }
   }, [gltf, print])
 
   const state = useRef({
-    cur: { ...IDLE } as Pose,
-    target: { ...IDLE } as Pose,
+    /** Turn toward the zone being hovered (radians). */
+    glance: 0,
     prev: player.pos.clone(),
     prevYaw: player.yaw,
     speed: 0,
@@ -696,25 +667,24 @@ export default function Athlete() {
     lookW: 0,
     /** 0 when the ball has just been taken, 1 once it is settled in his hands. */
     grab: 0,
-    feet: [new Vector3(), new Vector3()],
     ballAt: new Vector3(),
     hold: new Quaternion(),
   })
 
   useEffect(() => {
-    const { mixer, idle, loops } = rigged
+    const { mixer, idle, loops, moves } = rigged
     idle.play()
-    // the loops are scrubbed by the stride phase, never by the mixer's clock
+    // the loops are scrubbed by the stride phase and the moves by the action's progress, never by the mixer's clock
     for (const n of LOOPS) loops[n].action.setEffectiveTimeScale(0).setEffectiveWeight(0).play()
+    for (const n of MOVES) moves[n].setEffectiveTimeScale(0).setEffectiveWeight(0).play()
     return () => void mixer.stopAllAction()
   }, [rigged])
 
   useFrame((frame, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30)
     const s = state.current
-    const t = frame.clock.elapsedTime
     const { reducedMotion, hovered, phase } = useStore.getState()
-    const { scene, rig, mixer, idle, loops } = rigged
+    const { rig, mixer, idle, loops, moves } = rigged
     const g = root.current
     if (!g) return
 
@@ -749,40 +719,31 @@ export default function Athlete() {
       moving += w[i + 1]
     })
     if (moving > 0) s.phase = (s.phase + (Math.min(sp, marks[3] * 1.3) * dt) / (cycle / moving)) % 1
-    idle.setEffectiveWeight(w[0])
+
+    /* ---- a move takes over from whatever he was doing, and hands back at the end ---- */
+    const act: Action | null = player.mode === 'action' ? player.action : null
+    const at = player.actionT
+    const moveW = act ? smoothstep(0, 0.1, at) * (1 - smoothstep(0.9, 1, at)) : 0
+    for (const n of MOVES) {
+      const m = moves[n]
+      m.setEffectiveWeight(n === act ? moveW : 0)
+      if (n === act) m.time = at * m.getClip().duration
+    }
+    idle.setEffectiveWeight(w[0] * (1 - moveW))
     idle.setEffectiveTimeScale(reducedMotion ? 0 : 1)
     LOOPS.forEach((n, i) => {
       const l = loops[n]
-      l.action.setEffectiveWeight(w[i + 1])
+      l.action.setEffectiveWeight(w[i + 1] * (1 - moveW))
       l.action.time = ((s.phase + l.offset) % 1) * l.action.getClip().duration
     })
     mixer.update(dt)
-    scene.position.y = 0
     g.updateMatrixWorld(true)
 
-    /* ---- the hand-keyed layer: actions, glances, crouches ---- */
-    const target = s.target
-    const act: Action | null = player.mode === 'action' ? player.action : null
-    if (act) {
-      sample(ACTIONS[act], player.actionT, target)
-      if (act === 'wave' && player.actionT > 0.15 && player.actionT < 0.85) target.rEl += 0.45 * Math.sin(t * 16)
-    } else {
-      Object.assign(target, IDLE)
-      if (hovered && phase === 'world' && player.mode === 'idle') {
-        const diff = MathUtils.clamp(wrapAngle(yawTo(player.pos, SECTION_BY_ID[hovered].hotspot) - player.yaw), -1.1, 1.1)
-        target.twist = diff * 0.45
-        target.head = diff * 0.5
-      }
-    }
-    const k = 1 - Math.exp(-dt * 14)
-    for (const key of KEYS) s.cur[key] += (target[key] - s.cur[key]) * k
-    const p = s.cur
-    const d = (key: keyof Pose) => p[key] - IDLE[key]
-
-    rig.l.foot.getWorldPosition(s.feet[0])
-    rig.r.foot.getWorldPosition(s.feet[1])
-    scene.position.y = p.bob
-    g.updateMatrixWorld(true)
+    /* ---- standing still, he turns toward the zone the visitor is pointing at ---- */
+    let glance = 0
+    if (!act && hovered && phase === 'world' && player.mode === 'idle')
+      glance = MathUtils.clamp(wrapAngle(yawTo(player.pos, SECTION_BY_ID[hovered].hotspot) - player.yaw), -1.1, 1.1)
+    s.glance += (glance - s.glance) * (1 - Math.exp(-dt * 14))
 
     const charQ = g.getWorldQuaternion(new Quaternion())
     const charInv = charQ.clone().invert()
@@ -796,44 +757,10 @@ export default function Athlete() {
       b.quaternion.multiply(_qa.setFromAxisAngle(axis, angle))
       b.updateMatrixWorld(true)
     }
-    for (const b of rig.spine) {
-      turn(b, X, d('lean') / 3)
-      turn(b, Y, d('twist') / 3)
-    }
-    turn(rig.head, Y, d('head'))
-    for (const sd of [rig.l, rig.r]) {
-      const L = sd === rig.l
-      turn(sd.upper, X, -d(L ? 'lShX' : 'rShX'))
-      turn(sd.upper, Z, sd.sign * d(L ? 'lShZ' : 'rShZ'))
-      hinge(sd.lower, sd.elbowAxis, -sd.sign * d(L ? 'lEl' : 'rEl'))
-      turn(sd.thigh, X, -d(L ? 'lHip' : 'rHip'))
-      hinge(sd.calf, sd.kneeAxis, d(L ? 'lKnee' : 'rKnee'))
-    }
+    for (const b of rig.spine) turn(b, Y, (s.glance * 0.45) / 3)
+    turn(rig.head, Y, s.glance * 0.5)
 
-    const at = player.actionT
-    const env = (a: number, b: number) => smoothstep(0, a, at) * (1 - smoothstep(b, 1, at))
-    const kickEnv = act === 'kick' ? env(0.12, 0.85) : 0
-    const passEnv = act === 'pass' ? env(0.15, 0.85) : 0
     const charPoint = (x: number, y: number, z: number, out: Vector3) => out.set(x, y, z).applyQuaternion(charQ).add(g.position)
-
-    // the pass is driven from the hips: they turn a beat before the shoulders
-    if (passEnv > 0) {
-      sample(ACTIONS.pass, Math.min(1, at + 0.12), _pose)
-      turn(rig.pelvis, Y, (_pose.twist - IDLE.twist) * 0.5 * passEnv)
-    }
-
-    // feet stay planted in a crouch, through the pass, and under the standing leg of the kick
-    const plant = MathUtils.clamp(-p.bob * 6, 0, 1)
-    const sides: [Side, Vector3, number][] = [
-      [rig.l, s.feet[0], Math.max(plant, passEnv, kickEnv)],
-      [rig.r, s.feet[1], act === 'kick' ? 0 : Math.max(plant, passEnv)],
-    ]
-    for (const [sd, foot, wFoot] of sides) {
-      if (wFoot < 0.002) continue
-      sd.thigh.getWorldPosition(_s1)
-      const pole = _s2.set(sd.sign * 0.3, 0, 2).applyQuaternion(charQ).add(_s1)
-      twoBone(sd.thigh, sd.calf, sd.foot, foot, pole, wFoot)
-    }
 
     /* ---- the ball: where it sits, and both hands on it ---- */
     const carried = ball.mode === 'carried'
@@ -920,27 +847,6 @@ export default function Athlete() {
       }
     }
 
-    // the kick: arms out wide for balance, then through with the leg
-    if (kickEnv > 0.002) {
-      for (const sd of [rig.l, rig.r]) {
-        keyed(KICK_HANDS[sd === rig.l ? 'l' : 'r'], at, _h[3])
-        charPoint(_h[3].x, _h[3].y, _h[3].z, _h[3])
-        sd.upper.getWorldPosition(_h[4])
-        _h[4].add(_h[5].set(sd.sign * 0.3, -1, -0.8).applyQuaternion(charQ))
-        twoBone(sd.upper, sd.lower, sd.hand, _h[3], _h[4], kickEnv)
-      }
-    }
-    // after the pass leaves his hands they follow through, pointing at the receiver
-    const follow = passing && !carried ? smoothstep(0.55, 0.66, at) * (1 - smoothstep(0.86, 1, at)) : 0
-    if (follow > 0.002) {
-      for (const sd of [rig.l, rig.r]) {
-        charPoint(sd.sign * 0.16, 2.05, 0.95, _h[3])
-        sd.upper.getWorldPosition(_h[4])
-        _h[4].add(_h[5].set(sd.sign * 0.6, -1, -0.6).applyQuaternion(charQ))
-        twoBone(sd.upper, sd.lower, sd.hand, _h[3], _h[4], follow)
-      }
-    }
-
     /* ---- where he looks: the ball, the receiver, the camera when he waves ---- */
     let lookW = 0
     if (act === 'pickup' || act === 'place' || act === 'kick') {
@@ -983,7 +889,7 @@ export default function Athlete() {
     }
 
     // an open hand for the wave (the clips hold loose fists)
-    const open = act === 'wave' ? smoothstep(0, 0.15, player.actionT) * (1 - smoothstep(0.85, 1, player.actionT)) : 0
+    const open = act === 'wave' ? smoothstep(0, 0.15, at) * (1 - smoothstep(0.85, 1, at)) : 0
     if (open > 0) for (const f of rig.r.fingers) hinge(f.b, f.axis, rig.r.sign * 0.7 * open)
     // the clips hold tight fists; with nothing in his hands they relax into a loose curl
     const relax = 1 - Math.max(s.carry, act === 'pickup' ? 1 : 0)

@@ -52,9 +52,9 @@ Mown turf whose stripes swap light and dark as the camera goes round, the way re
 
 #13 is a rigged athlete in the red #13 YIGA kit. He wears it as real kit, not body paint: the shirt, shorts and boots are each their own surface, built from the body when the model loads and smoothed so the muscles don't show through. The shirt is a polo-collared rugby jersey (cream collar, buttoned placket, untucked at the hem), the shorts are cut loose, and the boots hide the toes.
 
-He jogs, sprints, carries the ball in two hands or tucked under the arm away from the turn, passes from the hips with a follow-through at the receiver, and kicks with his arms out for balance. His head follows the ball, the receiver, or you when he waves, and his hands relax when they aren't holding anything. The running and standing come from motion-capture clips. The kick, pass, wave and celebration are hand-keyed on top, and two-bone IK keeps his hands on the ball wherever those put it. In every zone the camera works out where it will settle and sends him to a patch of grass in the shot, clear of the panel.
+He jogs, sprints, carries the ball in two hands or tucked under the arm away from the turn, passes from the hips with a follow-through at the receiver, and kicks with his arms out for balance. His head follows the ball, the receiver, or you when he waves, and his hands relax when they aren't holding anything. The running and standing come from motion-capture clips. The kick, pass, wave, point, celebration and the pickup and set-down are keyed in Blender on his own rig: each move winds up before it goes, travels up the body (hips, then chest, then arms, then hands and head), and keeps the feet planted while the hips move over them. Two-bone IK keeps his hands on the ball wherever the clips put it. In every zone the camera works out where it will settle and sends him to a patch of grass in the shot, clear of the panel.
 
-The model loads after the stadium is up (867 KB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
+The model loads after the stadium is up (about 1 MB, one `.glb`). Until it arrives, and if it ever fails to load, the code-only #13 stands in.
 
 ### Sound
 
@@ -93,6 +93,13 @@ The only downloaded 3D model is #13 ([`src/assets/athlete.glb`](src/assets/athle
 
 Built from two free CC0 packs by [Quaternius](https://quaternius.com): the male base character from [Universal Base Characters](https://quaternius.com/packs/universalbasecharacters.html) and the idle, walk, jog and sprint clips from the [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html). Both share one skeleton, so the clips play on the body directly. The textures were shrunk to 1024 px JPEGs and the file meshopt-compressed, without quantising positions, because the kit shader paints by height on the body in metres. CC0 needs no credit; this note is here so the source is easy to find.
 
+The moves are built by [`scripts/athlete/moves.py`](scripts/athlete/moves.py), which keys them in Blender, bakes them and renders a preview strip per move, then [`merge-moves.mjs`](scripts/athlete/merge-moves.mjs) folds them into the `.glb` without touching the mesh or the motion-capture clips. To change a move, edit its keys in `moves.py` and rebuild (needs Blender 4.4+ on your `PATH` or at `BLENDER=`):
+
+```bash
+npm run athlete:moves                       # rebuild every move into src/assets/athlete.glb
+npm run athlete:moves -- --preview out/     # ...and render a strip of frames per move into out/
+```
+
 ```
 src/
   data/portfolio.ts      single source of truth for all content
@@ -100,7 +107,7 @@ src/
   lib/sceneState.ts      per-frame shared state (lighting, ball controller)
   lib/coach.ts           retrieval-only portfolio assistant
   lib/textures.ts        procedural canvas textures
-  lib/poses.ts           hand-keyed moves for #13 (kick, pass, wave, celebrate, …)
+  lib/poses.ts           poses for the code-only #13 that stands in while the model loads
   lib/sound.ts           synthesised match-night sound (crowd, whistle, thud, cheer)
   state/store.ts         app state (phase, section, day/night, …)
   lib/choreo.ts          #13's plays: fetch the ball, carry, pass, place, kick
